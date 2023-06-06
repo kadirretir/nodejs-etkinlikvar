@@ -1,0 +1,259 @@
+
+
+ .mainHeader {
+    margin: 0 auto;
+    width: 95%;
+    height: 50px;
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+  font-size: 35px;
+  font-family: var(--first-font);
+  color: var(--first-color);
+}
+
+nav button {
+    color: var(--dark-color);
+    background-color: var(--light-grey-color);
+    transition: all 0.2s ease-in-out;
+}
+
+nav button:hover:first-child {
+    background-color: var(--first-color) ;
+    color: var(--light-color);
+}
+
+nav button:last-child {
+    background-color: var(--first-color) ;
+    color: var(--light-color);
+}
+
+.badgeLogo {
+   background: linear-gradient(rgba(253, 52, 18, 1), rgba(253, 52, 18, 0.8));
+   border-radius: 5rem;
+   cursor: pointer;
+   pointer-events: none;
+   width: 40%;
+   line-height: 0.5rem;
+   margin: 0 auto;
+   padding: 0.1rem 0;
+}
+
+.badgeLogo h2 {
+    color: white;
+    font-size: 1.4rem;
+    text-align: center;
+    font-family: var(--first-font);
+}
+
+/* INPUT CODES */
+
+.inputField {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .inputField input {
+    width: 100%;
+    background-color: transparent;
+    font-size: 16px;
+    transition: border-color 0.3s;
+
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 13px 12px;
+ 
+  }
+  
+  .inputField input:focus {
+    outline: none;
+     border-color: var(--second-color); 
+    
+    /* box-shadow: 0 0 0 2px rgba(253, 52, 18, 0.3); */
+  }
+  
+  .inputField label {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    font-family: var(--second-font);
+  }
+
+  .infoInput {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    font-family: var(--second-font);
+  }
+  
+  .inputField input:focus + label,
+  .inputField input:not(:placeholder-shown) + label {
+    top: -18px;
+    font-size: 12px;
+    color: #FD3412;
+  }
+
+  .loginButton {
+    display: inline-block;
+    padding: 13px 20px;
+    background-color: #FD3412;
+    color: #fff;
+    font-size: 16px;
+    height: 50px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .loginButton:hover {
+    background-color: #D52A0D;
+  }
+  
+  .loginButton:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  }
+
+  /* KEEP ME LOGGED IN STYLES */
+
+  .rememberMe {
+    display: inline-flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .checkboxCustom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  .checkboxCustom:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: background-color 0.3s, border-color 0.3s;
+    opacity: 0;
+  }
+  
+  .rememberMe input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+  }
+  
+  .rememberMe:hover .checkboxCustom:before {
+    opacity: 1;
+  }
+  
+  .rememberMe input[type="checkbox"]:checked + .checkboxCustom:before {
+    background-color: var(--second-color);
+    opacity: 1;
+  }
+  
+  .rememberMe input[type="checkbox"]:focus + .checkboxCustom:before {
+    box-shadow: 0 0 0 2px rgba(253, 52, 18, 0.3);
+    outline: none;
+  }
+
+  /* LOGIN MODAL TIMEOUT DELAY */
+
+  .modal .fade {
+    transition-duration: 0.8s !important;
+  }
+
+  /* BACK ARROW  */
+
+  .backButton {
+    display: flex;
+    align-items: center;
+    padding: 12px 12px;
+    background-color: var(--first-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .backArrow {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    transform: rotate(-45deg);
+  }
+  
+  .backButton:hover {
+    background-color: var(--first-color);
+  }
+  
+  .backButton:focus {
+    outline: none;
+  }
+
+  .modalContent {
+    background: linear-gradient(135deg, #eaeaea, #f5f5f5);
+  }
+
+/* GOOGLE BUTTON */
+.socialLoginButton {
+  align-items: center;
+  border: 2px solid grey;
+  border-color: rgba(0,0,0,.1);
+  border-radius: 2%;
+  color: var(--provider-color,var(--color-primary));
+  display: flex;
+  font-size: 1.1rem;
+  font-weight: 500;
+  justify-content: center;
+  margin: 0 auto;
+  min-height: 50px;
+  width: 75%;
+  padding: 0.75rem 1rem;
+  position: relative;
+  transition: all .1s ease-in-out;
+}
+
+.socialLoginButton span {
+  flex-grow: 1;
+}
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50%;
+  cursor: pointer;
+  background: darkblue;
+  opacity: 0.5;
+  height: 100%;
+  z-index: 5555555 !important; /* Gerekirse özelleştirilebilir z-index değeri */
+  /* Diğer özelleştirmeler */
+}
+
+

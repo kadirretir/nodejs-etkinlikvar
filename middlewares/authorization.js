@@ -1,0 +1,40 @@
+
+const getUserInfo = (req, res, next) => {
+    res.locals.user = req.user;
+    next();
+  };
+
+const checkIfAuthed = (req,res,next) => {
+    if(!req.isAuthenticated()) {
+
+    }
+}
+
+const checkIfNotAuthed = (req,res,next) => {
+  if(req.isAuthenticated()) {
+    
+  }
+}
+
+
+const authForNewEvent = (req,res,next) => {
+      let user;
+      if(res.locals.user && res.locals.user.membership) {
+        user = res.locals.user.membership
+
+        if(req.isAuthenticated() && user === "premium") {
+          return next()
+        } else {
+          return res.redirect("/")
+        }
+      } else {
+        return res.redirect("/")
+      }
+    
+}
+
+
+  module.exports = {
+    getUserInfo: getUserInfo,
+    authForNewEvent: authForNewEvent
+  }
