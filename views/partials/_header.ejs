@@ -45,8 +45,8 @@
             <% if(typeof user !== 'undefined') { %>
                 <div class="d-flex align-items-center">
                     <% if(user.membership === 'premium') { %>
-                        <h1 class="fs-6 me-3 mt-2">
-                            <a href="/events/newevent">Etkinlik Oluştur</a>
+                        <h1 class="me-3 mt-2">
+                            <a class="premiumLink" href="/events/newevent">Etkinlik Oluştur <i class="fa-solid fa-crown"></i></a>
                         </h1>
                         <% } else { %>
                             <h1 class="fs-6 me-3 mt-2">

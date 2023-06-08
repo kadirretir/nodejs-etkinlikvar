@@ -1,0 +1,10 @@
+.App {
+   position: relative;
+}
+
+#itemList {
+    position: absolute;
+    top: 4.7rem;
+    left:0;
+    width: 100%;
+}

@@ -180,6 +180,11 @@ nav button:last-child {
 
   /* LOGIN MODAL TIMEOUT DELAY */
 
+
+  .premiumLink {
+    font-size: 1.2rem;
+  }
+
   .modal .fade {
     transition-duration: 0.8s !important;
   }

@@ -5,29 +5,33 @@ const { Schema } = mongoose;
 const eventsSchema  = new Schema({
     title: {
       type: String,
-      required: true,
+      require: true,
     },
     description: {
       type: String,
-      required: true,
+      require: true,
     },
     location: {
       type: String,
-      required: true,
+      require: true,
     },
     date: {
       type: Date,
-      required: true,
+      require: true,
     },
     organizer: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      require: true,
     },
     attendees: {
         type: Schema.Types.ObjectId,
         ref: "User",
       },
+    eventImage: {
+      type: String,
+      require: true
+    }
   
   });
 

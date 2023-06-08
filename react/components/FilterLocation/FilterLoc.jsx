@@ -34,12 +34,12 @@ const FilterLocation = () => {
       return (
         <div className={styles.App}>
           <div className={styles.searchHeader}>
-            <input id={styles.searchBox} ref={inputElement} className="form-control my-2" placeholder="İstanbul, Ankara, İzmir..." onChange={filterBySearch} />
+          <label htmlFor="searchBox" className="form-label fs-5">Konumu<i className="fs-6 text-secondary">(Gerekli)</i></label>
+            <input id="searchBox" name="eventPostLocation"  ref={inputElement} className="form-control my-2 " placeholder="İstanbul, Ankara, İzmir..." onChange={filterBySearch} />
          
           </div>
           <div id={styles.itemList}>
-            <div className="list-group">
-              {    console.log(filteredList)}
+            <div className={`list-group ${styles.listGroup}`}>
             {filteredList.map((item, id) => (
               (filteredList.length > 0) ? (
                 <a href="#" key={id} className="list-group-item list-group-item-action" onClick={(e) => takeClickedCity(item.sehir, e)}>
