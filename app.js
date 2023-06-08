@@ -19,6 +19,7 @@ app.use('/events', express.static('public'))
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('dist'));
 app.use('/events', express.static('dist'))
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(session({
     secret: "secret key",
     resave: false,

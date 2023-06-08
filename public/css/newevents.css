@@ -1,5 +1,5 @@
 #neweventsection {
-    background: linear-gradient(to bottom, #f7f7f7, #e6e6e6);
+    background: var(--main-background);
     height: 1500px;
 }
 

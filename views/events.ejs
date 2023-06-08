@@ -1,4 +1,4 @@
 <%- include('./partials/_header.ejs') -%>
-    <div id="myEvents" data-events="<%=JSON.stringify(events)%>"></div>
+    <div id="myEvents" data-user="<%= JSON.stringify(user) %>" data-events="<%=JSON.stringify(events)%>"></div>
 <%- include('./partials/_footer.ejs') -%>
 

@@ -16,10 +16,11 @@ if (pathname === '/events/newevent' || pathname === '/events/newevent/') {
     } else if (pathname === '/events/' || pathname === '/events') {
         const eventsNode = document.getElementById('myEvents');
         const eventsRoot = createRoot(eventsNode);
-        const parsedData = JSON.parse(eventsNode.getAttribute("data-events"))
+        const eventsData = JSON.parse(eventsNode.getAttribute("data-events"))
+        const userData = JSON.parse(eventsNode.getAttribute("data-user"))
         eventsRoot.render(
           <StrictMode>
-            <Events deneme={parsedData}/>
+            <Events eventsData={eventsData} userData={userData}/>
           </StrictMode>
         );
       }
