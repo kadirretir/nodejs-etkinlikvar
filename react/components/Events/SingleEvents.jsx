@@ -1,12 +1,11 @@
 import React from 'react'
 
-const SingleEvents = ({eventsData, filteredEvents}) => {
+const SingleEvents = ({filteredEvents}) => {
    return (
     <>
      {filteredEvents.map((event, index) => {
         return (
-
-          <div className="card mb-3" key={index} style={{ maxWidth: "540px" }}>
+          <div className="card mb-3" key={index} style={{ maxWidth: "640px" }}>
             <div className="row g-0">
               <div className="col-md-4">
                 <img src={`../${event.eventImage}`} className="img-fluid rounded-start" alt="..." />

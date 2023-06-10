@@ -17,13 +17,12 @@ const Events = ({ eventsData, userData }) => {
     <>
       <section id={styles.eventsId}  >
         <div className="container">
-          <h1 className="fs-2 text-secondary my-4">İstediğiniz Etkinliği Aratabilirsiniz {userData.username.toUpperCase()}</h1>
-          <div className="input-group mb-5">
+          <h1 className="fs-2 text-secondary my-5">İstediğiniz Etkinliği Aratabilirsiniz {userData.username.toUpperCase()}</h1>
+          <div className="input-group w-50 input-group-lg mb-5">
             <input type="text" onChange={(e) => handleEventSearch(e)} className="form-control" aria-label="Sizing example input" placeholder="Etkinlik Ara..." aria-describedby="inputGroup-sizing-default" />
         </div>
         <SingleEvents
         filteredEvents={filteredEvents}
-        eventsData={eventsData}
         />
         </div>
       </section>

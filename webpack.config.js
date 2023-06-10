@@ -1,6 +1,5 @@
 const path = require('path');
 
-
 module.exports = {
   mode: 'development',
   entry: './react/index.jsx',
@@ -19,6 +18,11 @@ module.exports = {
             presets: ['@babel/preset-react'],
           },
         },
+      },
+      {
+        test: /\.m?js$/,
+        enforce: 'pre',
+        use: ['source-map-loader'],
       },
       {
         test: /\.css$/,

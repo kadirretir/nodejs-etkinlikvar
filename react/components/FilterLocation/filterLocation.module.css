@@ -8,3 +8,10 @@
     left:0;
     width: 100%;
 }
+
+#itemList_district {
+    position: absolute;
+    top: 8.5rem;
+    left:0;
+    width: 100%;
+}

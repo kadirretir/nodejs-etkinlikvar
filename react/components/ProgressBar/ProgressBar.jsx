@@ -1,10 +1,25 @@
 import React, { useState } from 'react'
 import styles from './progress.module.css'
 import FilterLocation from '../FilterLocation/FilterLoc.jsx'
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 
 const ProgressBar = () => {
   const [progress, setProgress] = useState(0)
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: "AIzaSyBP-o-ZJuNYF-f6PdriXJ37d-aBlBcj_Ms"
+  })
 
+  const center = {
+    lat: 41.015137,
+    lng: 28.979530
+  };
+  if(!isLoaded) {
+    return (
+      <>
+      <h1>başarısız</h1>
+      </>
+    )
+  }
   const handleButton = () => {
     if(progress < 100) {
       setProgress(progress + 20)
@@ -22,7 +37,7 @@ const ProgressBar = () => {
   <>
      <section className="container-fluid">
       <div className="container">
-        <div className="row gx-1 justify-content-center">
+        <div className="row gx-4 justify-content-center">
         <div className="progress my-5" role="progressbar"  style={{height: "18px"}} aria-label="Example with label" aria-valuenow={progress} aria-valuemin="0" aria-valuemax="100">
                     <div className="progress-bar" style={{width: `${progress}%`, backgroundColor: getColor() }}>{progress}%</div>
                   </div>
@@ -60,14 +75,18 @@ const ProgressBar = () => {
     </div>
 
     <div className="col-md-5">
-        <div className="container d-flex justify-content-center" style={{height: "50%"}}>
-            <div className={`w-75 bg-light d-block p-3 h-100 rounded-5 ${styles.newEventRightContainer}`}>
-             <div className="container">
-             
-               
-             </div>
-            </div>
-        </div>
+    <GoogleMap
+             center={center}
+             zoom={12}
+             mapContainerStyle={{width: '90%', height: '100%'}}
+             options={{
+              zoomControl: false,
+              mapTypeControl: false
+             }}
+             >
+        { /* Child components, such as markers, info windows, etc. */ }
+        <></>
+      </GoogleMap>
     </div>
 
   </div>
