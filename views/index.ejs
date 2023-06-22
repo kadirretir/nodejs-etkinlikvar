@@ -1,31 +1,33 @@
 <%- include('./partials/_header.ejs') -%>
 
 <section class="banner-header">
-  <div class=" d-flex  flex-column flex-xxl-row  w-100">
-    <div class="imageHalf flex-grow-1 ">
+  <div class="row gx-0">
+    <div class="imageHalf col-lg-6">
       <div class="middle">
         <h1><span>Yeni</span> İnsanlarla Tanış</h1>
         <i>Her ilgine göre bir etkinliğin olduğu etkinlikvar.com'da istediğin etkinliğe katılabilir, istediğin şekilde etkinlik oluşturabilirsin!</i>
       </div>
     </div>
-    <div class="otherHalf flex-grow-1">
-      <form action="">
+    <div class="otherHalf col-lg-6">
+      <form action="/events" method="post">
         <div class="formLabelContainer">
           <label for="searchforevent" class="formChilds">Sende Etkinliğini Bul</label>
         </div>
         <div class="searchBoxContainer d-flex flex-column flex-xxl-row">
           <div class="searchBoxEvent mb-4">
-            <input type="search" id="searchforevent" class="formChilds" placeholder="Doğa Yürüyüşü, Çizim Atölyesi..." />
+            <input type="search" name="searchforevent" id="searchforevent" class="formChilds" placeholder="Doğa Yürüyüşü, Çizim Atölyesi..." />
           </div> 
           <div class="searchBoxLocation">
-            <input type="search" placeholder="İstanbul, İzmir, Ankara" class="formChilds" /> 
+            <input type="search" name="searchforeventlocation" id="searchforeventlocation" placeholder="İstanbul, İzmir, Ankara" class="formChilds" /> 
           </div>
         </div>
         <div>
           <button type="submit">Ara</button>
+          
         </div>
         <span class="latestInfo">*Türkiye içerisindeki 81 il'de arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
       </form>
+    </div>
     </div>
     </section>
   </>

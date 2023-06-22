@@ -1,29 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from './events.module.css'
 import SingleEvents from "./SingleEvents";
 
-const Events = ({ eventsData, userData }) => {
+
+const Events = ({ eventsData, userData, searchresults }) => {
   const [filteredEvents, setFilteredEvents] = useState(eventsData)
+  const searchInput = useRef()
 
   const handleEventSearch = (e) => {
     e.preventDefault()
     const inputContent = e.target.value.toLowerCase()
     const getFiltered = eventsData.filter(event => event.title.toLowerCase().includes(inputContent))
     setFilteredEvents(getFiltered)
-    console.log(filteredEvents)
   }
+
+  useEffect(() => {
+    if(typeof searchresults.searchforevent !== 'undefined') {
+      searchInput.current.value = searchresults.searchforevent;
+      const getFiltered = eventsData.filter(event => event.title.toLowerCase().includes(searchInput.current.value.toLowerCase()))
+      setFilteredEvents(getFiltered)
+    } 
+  
+}, []);
 
   return (
     <>
       <section id={styles.eventsId}  >
         <div className="container">
-          <h1 className="fs-2 text-secondary my-5">İstediğiniz Etkinliği Aratabilirsiniz {userData.username.toUpperCase()}</h1>
-          <div className="input-group w-50 input-group-lg mb-5">
-            <input type="text" onChange={(e) => handleEventSearch(e)} className="form-control" aria-label="Sizing example input" placeholder="Etkinlik Ara..." aria-describedby="inputGroup-sizing-default" />
+          <div className="row">
+            <div className="col-lg-3">
+            <div className="container">
+
         </div>
-        <SingleEvents
-        filteredEvents={filteredEvents}
-        />
+            </div>
+            <div className="col-lg-9">
+                <h1 className="fs-3 mt-5 mb-4" style={{fontFamily: 'var(--second-font)'}}>Neler yapmak istersin?</h1>
+              <div className="input-group w-100 input-group-lg mb-5">
+                <input type="search" ref={searchInput} onChange={(e) => handleEventSearch(e)} className="form-control" aria-label="Sizing example input" placeholder="Etkinlik Ara..." aria-describedby="inputGroup-sizing-default" />
+              </div>
+            <SingleEvents
+            filteredEvents={filteredEvents}
+            />
+            </div>
+          </div>
         </div>
       </section>
     </>

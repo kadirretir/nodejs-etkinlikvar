@@ -1,0 +1,62 @@
+<%- include('./partials/_header.ejs') -%>
+   <section id="singularEvent">
+      <div class="container py-4">
+         <div class="row py-5">
+            <div class="col">
+               <h1 class="fs-1"><%=findEvent.title%></h1> <br/>
+               <hr />
+               <h1 class="fs-4">Etkinlik Kurucusu <br/> <%= findOrganizer.username.toUpperCase()%></h1>
+            </div>
+         </div>
+
+         <div class="row gx-5 my-5">
+            <div class="col-lg-8">
+               <div class="text-center mb-4">
+                  <img src="../<%=findEvent.eventImage%>" width="100%" class="rounded" alt="event image">
+                </div>
+                <% function capitalizeFirstLetter(str) { %>
+                <%  return str.charAt(0).toUpperCase() + str.slice(1); %>
+               <% } %>
+                <b class="fw-bold fs-4 d-block mb-3">Detaylar</b> 
+                <p class="fs-5  text-dark"><%= capitalizeFirstLetter(findEvent.description) %></p>
+            </div>
+
+            <div class="col-lg-4 py-1">
+               <div class="d-inline-flex">
+                  <h3 class="fs-3">Katılanlar(<%=findEvent.attendees.length%>)</h3>
+              </div>
+              <% if(checkUserAttend) { %>
+                  <h1 class="fs-5">Bu etkinliğe gidiyorsunuz!</h1>
+                 <form action="/events/<%= findEvent._id %>/remove" method="post">
+                  <button type="submit" class="btn btn-success w-100">İptal</button>
+                 </form>
+               <% } else { %>
+                  <form action="/events/<%= findEvent._id %>/join" method="post" class="d-flex flex-column justify-content-around">
+                     <% function formatDate(dateStr) { %>
+                        <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' }; %>
+                        <% const formattedDate = new Date(dateStr).toLocaleDateString('tr-TR', options); %>
+                        <% return formattedDate; %>
+                    <% } %>
+                     <p class="text-secondary-emphasis"><%=formatDate(findEvent.date)%></p>
+                     <button type="submit" class="btn btn-success my-4 px-3 py-2 float-right">Katıl</button>
+                    </form>
+               <% } %>
+              <% if (messages.success) { %>
+               <div class="alert alert-success">
+                 <%= messages.success %>
+               </div>
+             <% } %>
+             
+             <!-- Hata mesajı -->
+             <% if (messages.error) { %>
+               <div class="alert alert-danger">
+                 <%= messages.error %>
+               </div>
+             <% } %>
+            </div>
+         </div>
+        
+      </div>
+   </section>
+
+<%- include('./partials/_footer.ejs') -%>

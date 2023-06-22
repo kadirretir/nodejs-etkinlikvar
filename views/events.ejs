@@ -1,4 +1,7 @@
 <%- include('./partials/_header.ejs') -%>
-    <div id="myEvents" data-user="<%= JSON.stringify(user) %>" data-events="<%=JSON.stringify(events)%>"></div>
+    <div id="myEvents"
+    search-results="<%=(typeof searchresults !== 'undefined') ? JSON.stringify(searchresults) : '{}' %>"
+     data-user="<%=(typeof user !== 'undefined') ? JSON.stringify(user) : '{}' %>"
+     data-events="<%=JSON.stringify(events)%>"></div>
 <%- include('./partials/_footer.ejs') -%>
 

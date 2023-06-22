@@ -11,7 +11,6 @@ const methodOverride = require('method-override')
 const path = require('path');
 const getLocation = require("./middlewares/geoLocation")
 
-
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
 app.use(express.static('public'))
@@ -57,8 +56,12 @@ app.use("/auth", authRoutes)
 app.use("/events", eventRoutes)
 app.get("/", (req,res) => {
      res.render("index.ejs")
-  
 })
-
+app.get("/pricing", (req,res) => {
+  res.render("pricing.ejs")
+})
+app.get("/login", authMiddleware.checkIfNotAuthed, (req,res) => {
+  res.render("login.ejs")
+})
 
 app.listen(3000)

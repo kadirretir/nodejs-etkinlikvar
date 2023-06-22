@@ -1,8 +1,5 @@
 #neweventsection {
     background: var(--main-background);
-    height: 1500px;
+    min-height: 95vh;
 }
 
-.progressContainer {
-    margin-top: 1rem;
-}

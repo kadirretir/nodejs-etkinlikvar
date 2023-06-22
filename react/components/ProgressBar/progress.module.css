@@ -1,0 +1,9 @@
+.googleMapsContainer {
+   height: 700px;
+}
+
+@media screen and (max-width: 1200px) {
+    .googleMapsContainer {
+        height: 450px;
+     } 
+}

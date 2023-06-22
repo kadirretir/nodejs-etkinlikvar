@@ -1,0 +1,123 @@
+import React, {useState, useEffect} from 'react'
+import styles from './Login.module.css'
+
+const Login = ({errorMessage}) => {
+    const [errorState, setErrorState] = useState(null)
+    const [showRegisterForm, setShowRegisterForm] = useState(false);
+
+    const handleRegisterLinkClick = (e) => {
+        e.preventDefault();
+        setShowRegisterForm(true);
+        if(errorState !== null && errorState.length > 0) {
+            setErrorState(null)
+        } 
+      };
+
+      const handleReverseLinkClick = (e) => {
+        e.preventDefault();
+        setShowRegisterForm(false);
+      }
+
+      useEffect(() => {
+        setErrorState(errorMessage)
+      }, [])
+      
+
+  return (
+    <>
+    <div className="container-fluid">
+        <div className="row d-flex"  style={{height: "100vh"}}>
+        <div className="col-lg-6 order-lg-2 d-flex flex-column align-items-center justify-content-center bg-secondary-subtle">
+            {showRegisterForm ? (
+              <RegisterForm 
+              errorState={errorState}
+              handleReverseLinkClick={handleReverseLinkClick}
+              /> // Kayıt formu görüntüleniyor
+            ) : (
+              <div className={`w-75 py-5 ${styles.loginBackground}`}>
+                <h1 className="modal-title fs-1  text-center mt-3 fw-bold">
+                  Giriş Yap
+                </h1>
+                <form  action='/auth/login' method='post' className="w-75 mx-auto my-0 mt-5 rounded-3 py-5">
+                {errorState !== null && errorState.length > 0 && (
+                <h1 className="alert alert-danger">{errorState}</h1>
+                )}
+                  <div className="inputField">
+                    <input type="text" id="email" name="email" placeholder="E-Posta" />
+                  </div>
+                  <div className="inputField">
+                    <input type="password" id="password" name="password" placeholder="Parola" />
+                  </div>
+                  <button type="submit" className="loginButton">Giriş Yap</button>
+                  <p className='fs-4 text-center mt-3'>Hesabın yok mu? <a href="/" onClick={handleRegisterLinkClick}>Kayıt Ol</a></p>
+                </form>
+              </div>
+            )}
+            </div>
+
+            <div className="col-lg-6 order-lg-1 d-flex flex-column justify-content-evenly align-items-center">
+                <div className="logo d-flex flex-column align-items-start" style={{margin: "0 15rem 7rem 0"}} >
+                    <a href="/" style={{fontSize:"4rem"}}>etkinlikvar</a> <br />
+                    <p className="fs-5 fst-italic text-secondary">Şimdi ücretsiz kayıt ol,<br/> etkinliklere katılmaya başla!</p>
+                </div>
+                <div style={{marginTop: "-10rem"}}>
+                    <h1 className='fs-1 text-dark fw-bold' style={{fontFamily: 'var(--second-font)'}}>Yaşadığınız il'de neler var?</h1>
+                    <p className='fs-4 text-secondary mt-3'>Şimdi görün ve katılın</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </>
+  )
+}
+
+
+const RegisterForm = ({handleReverseLinkClick}) => {
+
+return (
+    <>
+        <h1 className="modal-title fs-3 text-center mt-1 fw-bold">
+                            Üye Ol
+                        </h1>
+                        <form method="POST" action="/auth/register" className="w-75 mx-auto my-0 mt-4">
+                            <div className="inputField">
+                                <label htmlFor="signupusername">Adınız</label>
+                                <input type="text" id="signupusername"
+                                    name="signupusername" placeholder="Adınız" />
+                            </div>
+                            <div className="inputField">
+                                <label htmlFor="signupemail">E-Postanız</label>
+                                <input type="email" id="signupemail"  name="signupemail" placeholder="E-Mail" /> 
+                            </div>
+                            <div className="inputField">
+                                <label htmlFor="signuppassword">Parola</label>
+                                <input type="password" name="signuppassword"
+                                    id="signuppassword" placeholder="Parola" />
+                
+                           
+                            </div>
+                            <div className="inputField">
+                                <label htmlFor="location">Konum</label>
+                                <input type="text" name="location" 
+                                id="location" placeholder="Şehir, ilçe, mahalle " />
+                                <b className="text-muted infoInput">Konumunuzu yakınınızdaki etkinlikleri
+                                    size göstermek için kullanacağız.</b>
+                            </div>
+                            <label htmlFor="ageVerification" className="rememberMe">
+                                <input type="checkbox" defaultChecked
+                                    id="ageVerification" name="ageVerification" />
+                                <span className="checkboxCustom"></span>
+                                18 Yaşından Büyüğüm
+                            </label><br />
+                            <button type="submit" className="loginButton">Kaydol</button>
+                            <p className='fs-4 text-center mt-3'>Zaten Üye misin? <a href="/" onClick={handleReverseLinkClick}>Giriş Yap</a></p>
+                            <p className="p-3 fs-6">Kaydolarak <a href="#">Hizmet Şartları</a>, <a href="#">Çerez
+                                    Politikası</a> ve <a href="#">Gizlilik Politikası</a> şartlarını kabul etmiş
+                                olursunuz.</p>
+                        </form>
+    </>
+)
+}
+
+export default Login

@@ -1,9 +1,9 @@
 <%- include('./partials/_header.ejs') -%>
 
     <section id="neweventsection">
-        <div class="container-xxl">
-            <div id="progress-root"></div>
-        </div>
+        <div id="progress-root"
+        event-categories="<%=(typeof eventCategories !== 'undefined') ? JSON.stringify(eventCategories) : '{}' %>"
+        ></div>
     </section>
  
 
