@@ -22,8 +22,18 @@
             </div>
 
             <div class="col-lg-4 py-1">
-               <div class="d-inline-flex">
+               <div class="d-inline-flex flex-column w-100">
                   <h3 class="fs-3">Katılanlar(<%=findEvent.attendees.length%>)</h3>
+                  <div class="gray-background w-100 my-3">
+                 <% if(findEvent.attendees.length > 0) { %>
+                 <% findAttendeeUsers.map((attendee) => { %>
+                    <div class="d-flex flex-column justify-content-center align-items-center">
+                     <img src="<%=attendee.profileImage%>" width="75%" alt="attendee image">
+                     <h1 class="fs-4 text-center"><%=attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1);%></h1>
+                    </div>
+                 <% }) %>
+                  <% } %>
+               </div>
               </div>
               <% if(checkUserAttend) { %>
                   <h1 class="fs-5">Bu etkinliğe gidiyorsunuz!</h1>

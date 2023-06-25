@@ -26,7 +26,7 @@ const userSchema = new Schema({
     },
     profileImage: {
         type: String,
-        contentType: String
+        require: true
       }
 })
 

@@ -41,34 +41,13 @@ module.exports.register_post= async (req,res) => {
         await connectToDb()
         const findUser = await User.findOne({email: req.body.signupemail})
         if(!findUser) {
-
-          const  errors = []
-
-          if (!req.body.signupusername) {
-            errors.push("Adınızı giriniz");
-          }
-    
-          if (!req.body.signupemail) {
-            errors.push("E-Posta adresinizi giriniz");
-          }
-    
-          if (!req.body.signuppassword) {
-            errors.push("Parolanızı giriniz");
-          }
-          if (errors.length > 0) {
-            // Hata mesajlarını flaş mesaj olarak ayarlayın
-            errors.forEach((error) => req.flash("error", error));
-    
-            // Kayıt sayfasına yönlendirme yapın
-            return res.redirect("/");
-          }
-    
             const hashedPass = await bcrypt.hash(req.body.signuppassword, 10)
             await User.create({
                 username: req.body.signupusername,
                 email: req.body.signupemail,
                 location: req.body.location,
                 password: hashedPass,
+                profileImage: '../uploads/defaultUser.png'
             })
             res.redirect("/login")
         } else {
@@ -77,7 +56,10 @@ module.exports.register_post= async (req,res) => {
           // Kayıt sayfasına yönlendirme yapın
           return res.redirect("/login");
         }
-    } catch (error) {
+    } 
+    
+    
+    catch (error) {
         throw new Error(error)
     }
   
@@ -87,7 +69,7 @@ module.exports.login_post = passport.authenticate('local', {
     successRedirect: '/events',
     failureRedirect: '/login',
     failureFlash: true,
-    badRequestMessage: "Hatalı Giriş"
+    badRequestMessage: "Lütfen alanları uygun biçimde doldurunuz"
   })
 
   

@@ -25,12 +25,19 @@ nav button {
 nav button:hover:first-child {
     background-color: var(--first-color) ;
     color: var(--light-color);
+    transition: all ease-in-out 0.2s;
 }
 
 nav button:last-child {
     background-color: var(--first-color) ;
     color: var(--light-color);
 }
+
+nav button:last-child:hover {
+  background-color: var(--first-color) ;
+  color: var(--light-color);
+}
+
 
 .badgeLogo {
    background: linear-gradient(rgba(253, 52, 18, 1), rgba(253, 52, 18, 0.8));
@@ -40,7 +47,7 @@ nav button:last-child {
    width: 40%;
    line-height: 0.5rem;
    margin: 0 auto;
-   padding: 0.1rem 0;
+   padding: 1rem 0;
 }
 
 .badgeLogo h2 {
@@ -109,13 +116,14 @@ nav button:last-child {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.5s;
     width: 100%;
     margin-top: 20px;
   }
   
   .loginButton:hover {
     background-color: #D52A0D;
+    transition: background-color 0.5s;
   }
   
   .loginButton:focus {
@@ -194,7 +202,7 @@ nav button:last-child {
   .backButton {
     display: flex;
     align-items: center;
-    padding: 12px 12px;
+    padding: 10px 12px;
     background-color: var(--first-color);
     color: #fff;
     border: none;

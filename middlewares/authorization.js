@@ -6,7 +6,9 @@ const getUserInfo = (req, res, next) => {
 
 const checkIfAuthed = (req,res,next) => {
     if(!req.isAuthenticated()) {
-
+      res.redirect("/")
+    } else {
+      next()
     }
 }
 
@@ -39,5 +41,6 @@ const authForNewEvent = (req,res,next) => {
   module.exports = {
     getUserInfo: getUserInfo,
     authForNewEvent: authForNewEvent,
-    checkIfNotAuthed: checkIfNotAuthed
+    checkIfNotAuthed: checkIfNotAuthed,
+    checkIfAuthed: checkIfAuthed
   }

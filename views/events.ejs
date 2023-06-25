@@ -2,6 +2,7 @@
     <div id="myEvents"
     search-results="<%=(typeof searchresults !== 'undefined') ? JSON.stringify(searchresults) : '{}' %>"
      data-user="<%=(typeof user !== 'undefined') ? JSON.stringify(user) : '{}' %>"
+     category-data="<%=(typeof categories !== 'undefined') ? JSON.stringify(categories) : '{}'%>"
      data-events="<%=JSON.stringify(events)%>"></div>
 <%- include('./partials/_footer.ejs') -%>
 

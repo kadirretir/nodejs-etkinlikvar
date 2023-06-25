@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import styles from './Login.module.css'
 
 const Login = ({errorMessage}) => {
     const [errorState, setErrorState] = useState(null)
     const [showRegisterForm, setShowRegisterForm] = useState(false);
+
 
     const handleRegisterLinkClick = (e) => {
         e.preventDefault();
@@ -16,11 +17,17 @@ const Login = ({errorMessage}) => {
       const handleReverseLinkClick = (e) => {
         e.preventDefault();
         setShowRegisterForm(false);
+        if(errorState !== null && errorState.length > 0) {
+          setErrorState(null)
+      } 
       }
 
       useEffect(() => {
         setErrorState(errorMessage)
-      }, [])
+        if (errorMessage[0] === "Bu e-posta zaten kullanılıyor") {
+          setShowRegisterForm(true);
+        }
+      }, [errorMessage])
       
 
   return (
@@ -73,29 +80,129 @@ const Login = ({errorMessage}) => {
 }
 
 
-const RegisterForm = ({handleReverseLinkClick}) => {
+const RegisterForm = ({handleReverseLinkClick, errorState}) => {
+  const [errorMessages, setErrorMessages] = useState(
+   { usernameError: "",
+    emailError: "",
+    passwordError: "",
+    ageError: "",
+  }
+  )
+  const [isFormValid, setFormValid] = useState(false);
+  const [isAgeVerified, setAgeVerified] = useState(true);
+  const emailInput = useRef();
+  const usernameInput = useRef();
+  const passwordInput = useRef();
+
+  const handleInputChange = () => {
+    const username = usernameInput.current.value;
+    const email = emailInput.current.value;
+    const password = passwordInput.current.value;
+
+    // Regex kontrollerini burada gerçekleştirin
+  
+    // Örneğin, username alanı için minimum 3 karakter kontrolü:
+    const isUsernameValid = username.length >= 4;
+    
+    if(!isUsernameValid) {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        usernameError: "Kullanıcı adı 4 karakterden büyük olmalıdır",
+      }));
+    }  else {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        usernameError: "",
+      }));
+    }
+    // Örneğin, email alanı için geçerli email kontrolü:
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!isEmailValid) {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        emailError: "E-Mail formatı uyuşmuyor",
+      }));
+    } else {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        emailError: "",
+      }));
+    }
+
+  
+    // Password alanı için minimum 6 karakter kontrolü:
+    const isPasswordValid = password.length >= 6;
+
+  
+    if (!isPasswordValid) {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        passwordError: "Şifreniz 6 karakter veya daha uzun olmalıdır",
+      }));
+    } else {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        passwordError: "",
+      }));
+    }
+
+    if (!isAgeVerified) {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        ageError: "18 yaşından büyük olmalısınız",
+      }));
+    }  else {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        ageError: "",
+      }));
+    }
+  
+    // Formun geçerli olup olmadığını kontrol edin
+    const isFormValid = isUsernameValid && isEmailValid && isPasswordValid;
+  
+    // isFormValid state'ini güncelleyin
+    setFormValid(isFormValid);
+  };
+
+  const handleAgeVerificationChange = (event) => {
+    const isChecked = event.target.checked;
+    setAgeVerified(isChecked);
+  };
+
+  const handleSubmit = (event) => {
+    if (!isFormValid || !isAgeVerified) {
+        event.preventDefault();
+        handleInputChange()
+    } 
+  };
 
 return (
-    <>
+    <div className={`w-75 py-5 ${styles.loginBackground}`}>
         <h1 className="modal-title fs-3 text-center mt-1 fw-bold">
                             Üye Ol
                         </h1>
-                        <form method="POST" action="/auth/register" className="w-75 mx-auto my-0 mt-4">
+                        <form onSubmit={handleSubmit} method="POST" action="/auth/register" className="w-75 mx-auto my-0 mt-4">
+                        {errorState !== null && errorState.length > 0 && (
+                        <h1 className="alert alert-danger">{errorState}</h1>
+                        )}
                             <div className="inputField">
                                 <label htmlFor="signupusername">Adınız</label>
-                                <input type="text" id="signupusername"
+                                <input type="text" ref={usernameInput}  onChange={handleInputChange}  id="signupusername"
                                     name="signupusername" placeholder="Adınız" />
+                                     {errorMessages.usernameError !== "" ? <b className='text-danger'>{errorMessages.usernameError}</b> : null} 
                             </div>
                             <div className="inputField">
                                 <label htmlFor="signupemail">E-Postanız</label>
-                                <input type="email" id="signupemail"  name="signupemail" placeholder="E-Mail" /> 
+                                <input type="email" ref={emailInput}  onChange={handleInputChange}   id="signupemail"  name="signupemail" placeholder="E-Mail" />
+                                {errorMessages.emailError !== "" ? <b className='text-danger'>{errorMessages.emailError}</b> : null} 
                             </div>
                             <div className="inputField">
                                 <label htmlFor="signuppassword">Parola</label>
-                                <input type="password" name="signuppassword"
+                                <input type="password" ref={passwordInput}  onChange={handleInputChange}  name="signuppassword"
                                     id="signuppassword" placeholder="Parola" />
-                
-                           
+                                    {errorMessages.passwordError !== "" ? <b className='text-danger'>{errorMessages.passwordError}</b> : null}
                             </div>
                             <div className="inputField">
                                 <label htmlFor="location">Konum</label>
@@ -105,18 +212,20 @@ return (
                                     size göstermek için kullanacağız.</b>
                             </div>
                             <label htmlFor="ageVerification" className="rememberMe">
-                                <input type="checkbox" defaultChecked
-                                    id="ageVerification" name="ageVerification" />
+                                <input type="checkbox" defaultChecked={isAgeVerified}
+                                    id="ageVerification" name="ageVerification"
+                                    onChange={handleAgeVerificationChange}/>
                                 <span className="checkboxCustom"></span>
                                 18 Yaşından Büyüğüm
                             </label><br />
+                            {errorMessages.ageError !== "" ? <b className='text-danger'>{errorMessages.ageError}</b> : null}
                             <button type="submit" className="loginButton">Kaydol</button>
                             <p className='fs-4 text-center mt-3'>Zaten Üye misin? <a href="/" onClick={handleReverseLinkClick}>Giriş Yap</a></p>
                             <p className="p-3 fs-6">Kaydolarak <a href="#">Hizmet Şartları</a>, <a href="#">Çerez
                                     Politikası</a> ve <a href="#">Gizlilik Politikası</a> şartlarını kabul etmiş
                                 olursunuz.</p>
                         </form>
-    </>
+    </div>
 )
 }
 

@@ -4,3 +4,14 @@
     background: linear-gradient(to bottom, #ffffff, #f3f3f3);
     padding: 2rem 0;
 }
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* İki sütun olacak */
+  grid-auto-rows: minmax(0, 1fr); /* Kutuların yüksekliği eşit olacak */
+  grid-gap: 10px; /* Sütunlar arasındaki boşluk */
+  }
+  
+  .gridItem {
+    width: 100%; /* Sütun genişliği */
+  }
