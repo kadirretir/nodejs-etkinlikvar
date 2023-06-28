@@ -1,8 +1,41 @@
 const connectToDb = require("../models/db")
 const Event = require("../models/eventSchema")
 const User = require("../models/userSchema")
+const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
 const fs = require("fs")
+const WebSocket = require("ws");
+
+// WebSocket sunucusunu oluşturun
+const wss = new WebSocket.Server({ port: 8080 });
+
+// WebSocket bağlantılarını depolamak için bir dizi tanımlayın
+const connections = [];
+
+// WebSocket bağlantılarını yönetmek için yardımcı işlevler
+function broadcastMessage(message) {
+  connections.forEach((connection) => {
+    connection.send(message);
+  });
+}
+
+function handleWebSocketConnection(socket) {
+  connections.push(socket);
+
+  socket.on("message", (message) => {
+    console.log("Received message:", message);
+  });
+
+  socket.on("close", () => {
+    const index = connections.indexOf(socket);
+    if (index !== -1) {
+      connections.splice(index, 1);
+    }
+  });
+}
+
+wss.on("connection", handleWebSocketConnection);
+
 
 module.exports.home_get = async (req,res) => {
     try {
@@ -62,7 +95,21 @@ module.exports.add_attendees_post = async (req, res) => {
     try {
       const eventId = req.params.id;
       const userId = req.user ? req.user.id : null; // Kullanıcının kimliğini alın (oturum açmış olduğunu varsayıyoruz)
-  
+      const message = "Kurduğunuz etkinliğe yeni biri katıldı!";
+
+      
+      broadcastMessage(JSON.stringify({ eventId, message }));
+     // ETKİNLİK SAHİBİNİ BUL
+     const eventOwner = await Event.findById(eventId).populate("organizer");
+     try {
+      // Etkinlik sahibine bildirim oluştur
+     await Notification.create({
+        userId: eventOwner.organizer._id,
+        message: message
+      });
+    } catch (error) {
+      throw new Error(error)
+    }
       // Etkinliği bulun
       const event = await Event.findById(eventId);
   

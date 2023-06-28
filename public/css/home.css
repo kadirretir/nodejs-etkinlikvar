@@ -155,8 +155,51 @@ font-family: var(--second-font);
   }
 
 
+  /** HOME EVENTS STYLES **/
+  #homeEvents {
+    min-height: 60vh;
+    padding: 5rem 0;
+  }
 
-  /* RESPONSIVE HOME KODLAR */
 
+   /** HOME offers STYLES **/
+  #etkinlikOffers {
+    min-height: 60vh;
+    padding: 5rem 0;
+  }
 
+  /** INTRODUCTION IMAGES **/
+
+  .imageContainer {
+    position: relative;
+  text-align: center;
+  color: white;
+  }
+
+  .imageContainer img {
+    filter: brightness(80%);
+   
+  }
+
+  .imageText {
+    display: block;
+    padding : 1rem;
+    width: 85%;
+    height: 20%;
+    color: black;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 1rem;
+    font-family: var(--second-font);
+    font-weight:bold;
+    letter-spacing: 0.8px;
+    border-radius: 5px;
+    background: rgb(255, 255, 255); /* Fallback color */
+    background: rgba(255, 255, 255, 0.7); /* Black background with 0.5 opacity */
+  }
+
+  .imageText a{
+    color: #0F52BA;
+  }
 

@@ -11,7 +11,7 @@
     <div class="otherHalf col-lg-6">
       <form action="/events" method="post">
         <div class="formLabelContainer">
-          <label for="searchforevent" class="formChilds">Sende Etkinliğini Bul</label>
+          <label for="searchforevent" class="formChilds">Sen de Etkinliğini Bul</label>
         </div>
         <div class="searchBoxContainer d-flex flex-column flex-xxl-row">
           <div class="searchBoxEvent mb-4">
@@ -25,23 +25,81 @@
           <button type="submit">Ara</button>
           
         </div>
-        <span class="latestInfo">*Türkiye içerisindeki 81 il'de arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
+        <span class="latestInfo">*Türkiye içerisindeki 81 ilde arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
       </form>
     </div>
     </div>
     </section>
 
+    <section id="etkinlikOffers">
+        <div class="container">
+          <h1 class="display-6 text-center mb-5">Siz de Deneyimleyin</h1>
+          <hr />
+          <div class="row mt-5">
+            <div class="col-lg-4">
+              <div class="imageContainer">
+                <img src="./meet-new-people.jpg" width="100%" alt="photo-nature" />
+                <h1 class="fs-4 text-center imageText fw-bold"> <a href="#">Yeni İnsanlarla Tanış</a></h1>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="imageContainer">
+                <img src="./photo-nature.jpg" width="100%" alt="photo-nature" />
+                <h1 class="fs-4 text-center imageText fw-bold"><a href="#">Doğa Yürüyüşüne Katıl</a></h1>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="imageContainer">
+                <img src="./yeni-deneyimler.jpg" width="104%" alt="photo-nature" />
+                <h1 class="fs-4 text-center imageText fw-bold"><a href="#">Yeni Deneyimler Edin</a></h1>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10rem; margin-bottom: 5rem;">
+            <h1 class="fs-3 fw-bold text-left mb-3 mt-5">Trend Kategoriler</h1>
+            <% eventCategories.forEach((category, index) => { %>
+              <div class="col-lg-2">
+                <div class="btn-group">
+                  <a href="#" style="width: 13rem; padding: 1rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+    </section>
+
 
     <section id="homeEvents">
       <div class="container">
+        <h1 class="display-6 text-center mb-5">Hangi etkinlikler var?</h1>
+        <hr />
         <div class="row">
-          <div class="col">
-             
+          <div class="d-flex align-items-center justify-content-between mb-3 mt-5">
+            <h1 class="fs-2 text-start fw-bold">Yakın Gelecekteki Etkinlikler</h1>
+            <a href="/events" class="fs-5">Etkinlikleri Görün</a>
           </div>
-
-          <div class="col">
-
-          </div>
+          <% events.forEach((event) => { %>
+            <div class="col-lg-3 my-2 d-flex align-items-center justify-content-center">
+              <a href="events/<%=event._id%>">
+                <div class="card" style="width: 20rem; height: 22rem;">
+                  <img src="<%= event.eventImage %>" class="card-img-top" alt="...">
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                      <% const options = { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "numeric" }; %>
+                      <%= new Date(event.date).toLocaleDateString("tr-TR", options) %><br/>
+                      <small class="fs-4 my-2 d-inline-block"><%= event.title %></small>
+                      <h4 class="text-secondary-emphasis my-2">Kurucu <%=event.organizer.username%></h4>
+                      <div class="mt-auto">
+                        <h5 class="text-secondary"><%=event.attendees.length%> Katılımcı</h5>
+                      </div>
+                    </h5>
+                  </div>
+                </div>
+              </a>
+            </div>
+          <% }) %>
         </div>
       </div>
     </section>

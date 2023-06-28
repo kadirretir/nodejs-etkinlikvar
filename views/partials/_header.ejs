@@ -47,6 +47,44 @@
             <% if(typeof user !== 'undefined') { %>
                 <div class="d-flex align-items-center">
                     <% if(user.membership === 'premium') { %>
+                        <div class="dropdown dropdown-center mt-2 me-3">
+                            <button type="button" class="btn border-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                              <% if (typeof notifications !== 'undefined' && notifications.length > 0) { %>
+                                <i class="fa-solid fa-bell fa-xl"></i> 
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                  <%= notifications.length %>
+                                  <span class="visually-hidden">Okunmamış Mesajlar</span>
+                                </span> 
+                              <% } else { %>
+                                <i class="fa-regular fa-bell fa-xl"></i>
+                              <% } %>
+                            </button>
+                            <div class="dropdown-menu p-0" style="width: 300px;">
+                              <div class="list-group border-0">
+                                <% if (typeof notifications !== 'undefined' && notifications.length > 0) { %>
+                                  <% notifications.forEach((notif) => { %>
+                                    <a class="list-group-item list-group-item-action p-3" href="#"><%= notif %></a>
+                                  <% }) %>
+                                <% } else if (notifications && notifications.length === 0 && isNotificationSeen) { %>
+                                  <p class="p-3">Henüz bir bildiriminiz yok</p>
+                                <% } %>
+                              </div>
+                            </div>
+                          </div>
+                          
+                           <!-- <script>
+                            const socket = new WebSocket('ws://localhost:8080');
+                          
+                            socket.addEventListener('message', function(event) {
+                              const data = JSON.parse(event.data);
+                              const eventId = data.eventId;
+                              const message = data.message;
+                              sessionStorage.setItem('bildirim', message);
+                          
+                              // Bildirimi göstermek için sessionStorage'deki bilgiyi güncelle
+                              document.getElementById('notification').innerText = message;
+                            });
+                          </script>  -->
                         <h1 class="me-3 mt-2">
                             <a class="premiumLink" href="/events/newevent">Etkinlik Oluştur <i class="fa-solid fa-crown"></i></a>
                         </h1>

@@ -13,6 +13,7 @@ const path = require('path');
 const getLocation = require("./middlewares/geoLocation")
 const connectToDb = require("./models/db")
 const Event = require("./models/eventSchema")
+const User = require("./models/userSchema")
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
@@ -38,6 +39,7 @@ app.use(session({
 app.use(passport.authenticate('session'));
 app.use(methodOverride('_method'))
 app.use(authMiddleware.getUserInfo)
+app.use(authMiddleware.getUserNotification)
 app.use(flash());
 
 
@@ -64,8 +66,27 @@ app.use("/user", authMiddleware.checkIfAuthed, userRoutes)
 app.get("/", async (req,res) => {
     try {
       await connectToDb()
-      const events = await Event.find({});
-      res.render("index.ejs", {events: events})
+      const events = await Event.find({}).populate("organizer");
+
+      const categoryCounts = {}; // Kategori sayımlarını tutmak için bir obje
+
+// Kategorilerin sayımlarını yap
+    events.forEach((event) => {
+      const category = event.eventCategory;
+      if (categoryCounts[category]) {
+        categoryCounts[category]++;
+      } else {
+        categoryCounts[category] = 1;
+      }
+    });
+
+// Sayımlara göre kategorileri sırala
+const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
+// En fazla 6 kategori al
+const popularCategories = sortedCategories.slice(0, 6);
+
+console.log(popularCategories); // En fazla 6 kategori
+      res.render("index.ejs", {events: events, eventCategories: popularCategories})
     } catch (error) {
       throw new Error(error)
     }
