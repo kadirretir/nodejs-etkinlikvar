@@ -18,10 +18,9 @@ const getUserInfo = (req, res, next) => {
           : null;
         const sirala = req.user
           ? findNotification.map((notif) => {
-              return notif.message;
+              return [notif.message, notif.isNotificationSeen, notif._id];
             })
           : null;
-          console.log(sirala)
         res.locals.notifications = sirala;
         next();
       } catch (error) {

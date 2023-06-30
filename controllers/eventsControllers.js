@@ -105,6 +105,7 @@ module.exports.add_attendees_post = async (req, res) => {
       // Etkinlik sahibine bildirim oluştur
      await Notification.create({
         userId: eventOwner.organizer._id,
+        isNotificationSeen: false,
         message: message
       });
     } catch (error) {
@@ -194,6 +195,33 @@ module.exports.getEventByTitle = async (req,res) => {
   }
  
 }
+
+module.exports.notifications_get = async (req,res) => {
+  try {
+    await connectToDb()
+    const getNotif = await Notification.find({})
+    res.send(getNotif)
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
+module.exports.getNotificationById = async (req,res) => {
+   try {
+    const id = req.params.id;
+    await connectToDb();
+    const updatedNotif = await Notification.findOneAndUpdate(
+      { _id: id },
+      { $set: { isNotificationSeen: true } },
+      { new: true }
+    );
+    res.send(updatedNotif)
+   } catch (error) {
+    res.status(500).send({ error: "Internal Server Error" });
+   }
+ 
+}
   
   
 
@@ -225,6 +253,7 @@ module.exports.newevent_post = async (req,res) => {
               }
               console.log('Dosya kaydedildi!');
           });
+          console.log(req.body)
         await Event.create({
             title: req.body.eventPostTitle,
             description: req.body.eventPostDescription,

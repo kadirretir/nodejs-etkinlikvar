@@ -2,6 +2,13 @@
    height: 700px;
 }
 
+ .reactQuill {
+   height: 10rem;
+   margin-bottom: 3rem;
+ }
+    
+
+
 @media screen and (max-width: 1200px) {
     .googleMapsContainer {
         height: 450px;

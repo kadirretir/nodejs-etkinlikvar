@@ -10,7 +10,6 @@ const session = require("express-session")
 const authMiddleware = require("./middlewares/authorization")
 const methodOverride = require('method-override')
 const path = require('path');
-const getLocation = require("./middlewares/geoLocation")
 const connectToDb = require("./models/db")
 const Event = require("./models/eventSchema")
 const User = require("./models/userSchema")
@@ -41,21 +40,6 @@ app.use(methodOverride('_method'))
 app.use(authMiddleware.getUserInfo)
 app.use(authMiddleware.getUserNotification)
 app.use(flash());
-
-
-
-
-
-app.use(async (req, res, next) => {
-  try {
-    const location = await getLocation();
-    req.location = location;
-    next();
-  } catch (error) {
-    console.error('Error retrieving location:', error);
-    next(error);
-  }
-});
 
 
 

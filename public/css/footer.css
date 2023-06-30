@@ -1,0 +1,15 @@
+.footer {
+    background-color: #f8f9fa;
+    min-height: 40vh;
+    padding-top: 4rem;
+
+  }
+
+  .footer .container {
+    min-height: 30vh;
+  }
+  
+
+  .footerElements {
+    color: #a9a9a9;
+  }

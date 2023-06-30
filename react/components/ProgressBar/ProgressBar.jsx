@@ -14,12 +14,14 @@ import {
 } from "@reach/combobox";
 import "@reach/combobox/styles.css";
 
+
 const ProgressBar = ({eventCategories}) => {
   const [eventCategoryState, setEventCategoryState] = useState(eventCategories);
   const [selected, setSelected] = useState({
     lat: 41.015137,
     lng: 28.97953,
   });
+  const [descriptionValue, setDescriptionValue] = useState('')
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyBP-o-ZJuNYF-f6PdriXJ37d-aBlBcj_Ms",
     libraries: ["places"],
@@ -98,13 +100,16 @@ const ProgressBar = ({eventCategories}) => {
                 <label htmlFor="floatingTextarea2" className="form-label fs-5">
                   Etkinliğinizde neler yapılacak?
                 </label>
-                <textarea
+                {/* <textarea
                   className="form-control my-2"
                   name="eventPostDescription"
                   placeholder="Sabah yürüyüşünden sonra doğa gezisine gideceğiz..."
                   id="floatingTextarea2"
                   style={{ height: "100px" }}
-                ></textarea>
+                ></textarea> */}
+                  <div className={styles.reactQuill}>
+                  
+                </div>
               </div>
               <div className="mb-3">
                 <label htmlFor="formFile" className="form-label fs-5">
