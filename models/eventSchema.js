@@ -11,9 +11,17 @@ const eventsSchema  = new Schema({
       type: String,
       require: true,
     },
-    location: {
+    cityName: {
       type: String,
       require: true,
+    },
+    districtName: {
+      type: String,
+      require: true
+    },
+    fullAddress: {
+      type: String,
+      require: true
     },
     date: {
       type: Date,

@@ -1,10 +1,41 @@
 .googleMapsContainer {
-   height: 700px;
+   height: 800px;
 }
 
- .reactQuill {
-   height: 10rem;
-   margin-bottom: 3rem;
+.searchContainer {
+   position: relative;
+}
+
+.typing {
+   border-radius: 0.375rem;
+}
+
+.resultNotFound {
+   padding: 25px;
+   text-align: center;
+   font-size: 20px;
+   color: rgba(0,0,0,.5);
+}
+ 
+ .searchResults {
+   position: absolute;
+   left:0;
+   width: 100%;
+   border-radius: 0 0 5px 5px;
+   background: #fff;
+   height: auto;
+   max-height: 25rem;
+   overflow-x: hidden;
+ }
+
+ .searchResultsItems {
+   display: block;
+   padding: 10px 15px;
+   cursor: pointer;
+ }
+
+ .searchResultsItems:hover{
+   background: green;
  }
     
 

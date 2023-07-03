@@ -40,7 +40,9 @@ wss.on("connection", handleWebSocketConnection);
 module.exports.home_get = async (req,res) => {
     try {
         await connectToDb()
-        const events = await Event.find({})
+        const today = new Date(); // Bugünün tarihini al
+        const endDate = new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000); // Bugünden itibaren 10 gün sonrasının tarihini hesapla
+        const events = await Event.find({ date: { $gte: today, $lte: endDate } }); // Bugünün tarihinden itibaren gelecek 10 gün içerisindeki etkinlikleri çek
         const eventCategories = Event.schema.path('eventCategory').enumValues;
         res.locals.categories = eventCategories
         res.locals.events = events
@@ -101,16 +103,6 @@ module.exports.add_attendees_post = async (req, res) => {
       broadcastMessage(JSON.stringify({ eventId, message }));
      // ETKİNLİK SAHİBİNİ BUL
      const eventOwner = await Event.findById(eventId).populate("organizer");
-     try {
-      // Etkinlik sahibine bildirim oluştur
-     await Notification.create({
-        userId: eventOwner.organizer._id,
-        isNotificationSeen: false,
-        message: message
-      });
-    } catch (error) {
-      throw new Error(error)
-    }
       // Etkinliği bulun
       const event = await Event.findById(eventId);
   
@@ -121,6 +113,17 @@ module.exports.add_attendees_post = async (req, res) => {
           // "free" üyelik düzeyine sahip kullanıcı için katılımcı sınırlaması kontrolü
           req.flash('error', 'Katılımcı sınırına ulaşıldı.');
           return res.redirect(`/events/${eventId}`);
+        }
+          // EĞER USER NULL DEĞİLSE || YANİ VARSA BİLDİRİM OLUŞTUR
+        try {
+          // Etkinlik sahibine bildirim oluştur
+         await Notification.create({
+            userId: eventOwner.organizer._id,
+            isNotificationSeen: false,
+            message: message
+          });
+        } catch (error) {
+          throw new Error(error)
         }
       } else {
           return res.redirect(`/login`);
@@ -257,7 +260,9 @@ module.exports.newevent_post = async (req,res) => {
         await Event.create({
             title: req.body.eventPostTitle,
             description: req.body.eventPostDescription,
-            location: req.body.eventPostLocation,
+            cityName: req.body.eventPostLocation,
+            districtName: req.body.getDistrictName,
+            fullAddress: req.body.fulladress,
             date: req.body.eventPostDate,
             eventImage: req.file.path,
             organizer: res.locals.user.id,

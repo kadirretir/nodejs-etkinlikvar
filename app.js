@@ -69,7 +69,7 @@ const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCoun
 // En fazla 6 kategori al
 const popularCategories = sortedCategories.slice(0, 6);
 
-console.log(popularCategories); // En fazla 6 kategori
+// En fazla 6 kategori
       res.render("index.ejs", {events: events, eventCategories: popularCategories})
     } catch (error) {
       throw new Error(error)

@@ -1,5 +1,6 @@
 #neweventsection {
     background: var(--main-background);
     min-height: 95vh;
+    padding-bottom: 15rem;
 }
 

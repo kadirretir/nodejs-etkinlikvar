@@ -25,7 +25,7 @@ passport.use(strategy)
 
 passport.serializeUser(function(user, done) {
     process.nextTick(function() {
-    done(null, { id: user.id, username: user.username, email: user.email, membership: user.membershipLevel });
+    done(null, { id: user.id, username: user.username, email: user.email, membership: user.membershipLevel, location: user.location });
     });
   });
   
