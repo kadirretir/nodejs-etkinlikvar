@@ -34,9 +34,17 @@
     return { startOfWeekend, endOfWeekend };
   };
 
+  const getNextWeekRange = () => {
+    const currentDate = new Date();
+    const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() + (7 - currentDate.getDay() + 1)));
+    const endOfWeek = new Date(currentDate.setDate(currentDate.getDate() + (7 - currentDate.getDay() + 7)));
+    return { startOfWeek, endOfWeek };
+  };
+
 module.exports = {
     getDate: getDate,
     getTomorrowDate: getTomorrowDate,
     getWeekRange: getWeekRange,
-    getWeekendRange: getWeekendRange
+    getWeekendRange: getWeekendRange,
+    getNextWeekRange: getNextWeekRange
 }

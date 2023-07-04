@@ -1,22 +1,23 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from './events.module.css'
 import SingleEvents from "./SingleEvents";
 import getDates from './getDates'
 
 const Events = ({ eventsData, userData, searchresults, categoryData }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
-  const [newFilteredEvents, setNewFilteredEvents] = useState([])
   const [loading, setLoading] = useState(false);
   const [loadingFilter, setLoadingFilter] = useState(false)
   const [selectedDate, setSelectedDate] = useState("Bugün")
   const [selectedCategory, setSelectedCategory] = useState("Kategori")
+  const [selectedProvince, setSelectedProvince] = useState("")
   const [searchAPI, setSearchAPI] = useState([])
 
   const [search, setSearch] = useState("")
   const [searchResults, setSearchResults] = useState([])
 
+  const searchRef = useRef()
 // get dates
-const {getDate, getTomorrowDate, getWeekRange, getWeekendRange} = getDates
+const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
 
 // const getUserLocation = userData.location ? userData.location.replace(/^\w/, (c) => c.toUpperCase()) : "";
 
@@ -96,12 +97,43 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange} = getDates
             const eventDate = new Date(event.date);
             return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
           });
+        } else if (selectedDate === "Önümüzdeki Hafta") {
+          const {startOfWeek, endOfWeek} = getNextWeekRange();
+          filteredData = data.filter((event) => {
+            const eventDate = new Date(event.date);
+            return eventDate >= startOfWeek && eventDate <= endOfWeek;
+          });
         }
   
-        if (selectedCategory !== "Kategori") {
+        if (selectedCategory !== "Kategori" && selectedProvince !== "") {
+          // Hem kategoriye hem de province'e göre filtreleme yapılacak
+          const getNewFilteredArray = filteredData.filter((event) => {
+            // Kategoriye göre filtreleme
+            const categoryMatches = event.eventCategory === selectedCategory;
+            // Province'e göre filtreleme
+            const provinceMatches = event.cityName && event.cityName.toLowerCase().includes(selectedProvince.toLowerCase());
+        
+            return categoryMatches && provinceMatches;
+          });
+        
+          setFilteredEvents(getNewFilteredArray);
+        } else if (selectedCategory !== "Kategori") {
+          // Sadece kategoriye göre filtreleme yapılacak
           const filterByCategory = filteredData.filter((event) => event.eventCategory === selectedCategory);
           setFilteredEvents(filterByCategory);
+        } else if (selectedProvince !== "") {
+          // Sadece province'e göre filtreleme yapılacak
+          const getNewFilteredArray = filteredData.filter((event) => {
+            const cityNameMatches = event.cityName && event.cityName.toLowerCase().includes(selectedProvince.toLowerCase());
+            const locationMatches = event.location && event.location.toLowerCase().includes(selectedProvince.toLowerCase());
+            const districtNameMatches = event.districtName && event.districtName.toLowerCase().includes(selectedProvince.toLowerCase());
+        
+            return cityNameMatches || locationMatches || districtNameMatches;
+          });
+        
+          setFilteredEvents(getNewFilteredArray);
         } else {
+          // Hiçbir filtreleme yapılmayacak
           setFilteredEvents(filteredData);
         }
       } catch (error) {
@@ -113,9 +145,9 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange} = getDates
     };
   
     fetchData();
-  }, [selectedDate, selectedCategory]);
+  }, [selectedDate, selectedCategory, selectedProvince]);
   
-  
+  // FILTER BY CATEGORY
   useEffect(() => {
     const fetchData = async () => {
       setLoadingFilter(true); // Filtreleme işlemi başladığında loadingFilter'ı true olarak ayarla
@@ -144,7 +176,6 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange} = getDates
           return updatedFilteredEvents;
         });
   
-        console.log("çalıştı");
       } catch (error) {
         // Hata durumunda gerekli işlemleri yapabilirsiniz
         console.error(error);
@@ -157,12 +188,6 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange} = getDates
       fetchData();
     }
   }, [selectedCategory]);
-  
-  
-  
-  
-
-
 
   // FIRSTLY, GET TODAYS EVENTS
   useEffect(() => {
@@ -174,8 +199,16 @@ setFilteredEvents(filterByToday);
   const handleReset = () => {
     setSelectedCategory("Kategori")
     setSelectedDate("Bugün")
+    searchRef.current.value = ""
+    setSelectedProvince("")
   }
   
+  const handleProvinceClick = (e) => {
+    searchRef.current.value = e.target.innerHTML;
+    setSearchResults("");
+    setSelectedProvince(searchRef.current.value)
+  }
+
   return (
     <>
       <section id={styles.eventsId}  >
@@ -190,12 +223,12 @@ setFilteredEvents(filterByToday);
 
               <div className="d-flex justify-content-start gap-2 mb-5">
                 <div className={styles.searchContainer}>
-                  <input type="text" className="form-control" value={search}  onChange={(e) => setSearch(e.target.value)} placeholder="İstanbul, Ankara, İzmir..." />
+                  <input type="text" className="form-control" ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="İstanbul, Ankara, İzmir..." />
                   {isTyping && (
                       <div className={styles.searchResults}> 
-                        {searchResults && loading === false && searchResults.map((provinces, index) => {
+                        {searchResults && isTyping && loading === false && searchResults.map((provinces, index) => {
                           return (
-                            <div className={styles.searchResultsItems} key={index}>
+                            <div onClick={handleProvinceClick} className={styles.searchResultsItems} key={index}>
                               {provinces}
                             </div>
                           )
@@ -208,7 +241,7 @@ setFilteredEvents(filterByToday);
                         </div>
                          
                         )}
-                        {searchResults.length === 0 && loading === false && (
+                        {searchResults.length === 0 && typeof searchResults !== "string" && loading === false && (
                           <div className={styles.resultNotFound}>
                             "{search}" ile bağlantılı bir ilçe bulamadık
                           </div>
@@ -225,6 +258,7 @@ setFilteredEvents(filterByToday);
                       <li onClick={handleClickDate}><a className="dropdown-item" href="#">Yarın</a></li>
                       <li onClick={handleClickDate}><a className="dropdown-item" href="#">Bu Hafta</a></li>
                       <li onClick={handleClickDate}><a className="dropdown-item" href="#">Bu Haftasonu</a></li>
+                      <li onClick={handleClickDate}><a className="dropdown-item" href="#">Önümüzdeki Hafta</a></li>
                     </ul>
                 </div>
 
@@ -292,7 +326,6 @@ setFilteredEvents(filterByToday);
                /> } */}
                  <SingleEvents
                  loadingFilter={loadingFilter}
-                 newFilteredEvents={newFilteredEvents}
                filteredEvents={filteredEvents} />
          
             </div>

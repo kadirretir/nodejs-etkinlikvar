@@ -1,16 +1,11 @@
 import React from 'react';
 
-const SingleEvents = ({ filteredEvents, newFilteredEvents, loadingFilter }) => {
+const SingleEvents = ({ filteredEvents, loadingFilter }) => {
   // Filtreye uygun herhangi bir öğe bulunmazsa "Sonuç bulunamadı" bildirimi gösterme
   if (filteredEvents.length === 0) {
     return <h1 className='fs-4'>Arama kriterinize göre bir etkinlik bulamadık</h1>;
   }
-  const filterByIf = newFilteredEvents.length > 0 ? newFilteredEvents : filteredEvents
 
-  if (filterByIf.length === 0) {
-    return <h1 className='fs-4'>Arama kriterinize göre bir etkinlik bulamadık</h1>;
-  }
-  
   return (
   
     <>
@@ -43,7 +38,7 @@ const SingleEvents = ({ filteredEvents, newFilteredEvents, loadingFilter }) => {
                   <div className="card-body">
                     <h5 className="card-title fs-3">{event.title}</h5>
                     <p className="card-text fs-4 fw-light">
-                      {event.location}
+                      {event.districtName} <br /> {event.cityName} <br /> {event.location}
                     </p>
                     <p className="card-text">
                       <b className="text-body-secondary">{formattedDate}</b>
