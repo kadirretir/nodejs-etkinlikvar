@@ -6,6 +6,8 @@ const sharp = require('sharp');
 const fs = require("fs")
 const WebSocket = require("ws");
 
+
+
 // WebSocket sunucusunu oluşturun
 const wss = new WebSocket.Server({ port: 8080 });
 
@@ -228,7 +230,8 @@ module.exports.getNotificationById = async (req,res) => {
   
   
 
-module.exports.newevent_post = async (req,res) => {
+
+module.exports.newevent_post = async (req,res, err) => {
     try {
         await connectToDb()
          
@@ -239,7 +242,8 @@ module.exports.newevent_post = async (req,res) => {
         // Yeni boyutlandırılmış görüntüyü dosyaya yaz
         fs.writeFile('./uploads_little/' + req.file.filename, resizedImageBuffer, (err) => {
             if (err) {
-                throw new Error(err);
+              console.log("cs " + err);
+              return
             }
             console.log('Dosya kaydedildi!');
         });
@@ -252,12 +256,13 @@ module.exports.newevent_post = async (req,res) => {
           // Yeni boyutlandırılmış görüntüyü dosyaya yaz
           fs.writeFile('./uploads/' + req.file.filename, largeImage, (err) => {
               if (err) {
-                  throw new Error(err);
+                console.log("cs " + err);
+                return
               }
               console.log('Dosya kaydedildi!');
           });
-          console.log(req.body)
-        await Event.create({
+
+          await Event.create({
             title: req.body.eventPostTitle,
             description: req.body.eventPostDescription,
             cityName: req.body.eventPostLocation,
@@ -270,6 +275,6 @@ module.exports.newevent_post = async (req,res) => {
         })
         res.redirect("/events")
     } catch (error) {
-        throw new Error(error)
+      res.redirect("/events/newevent")
     }
 }

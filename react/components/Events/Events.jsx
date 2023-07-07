@@ -9,17 +9,22 @@ const Events = ({ eventsData, userData, searchresults, categoryData }) => {
   const [loadingFilter, setLoadingFilter] = useState(false)
   const [selectedDate, setSelectedDate] = useState("Bugün")
   const [selectedCategory, setSelectedCategory] = useState("Kategori")
-  const [selectedProvince, setSelectedProvince] = useState("")
+
+  const getIndexSearchData = typeof searchresults === "object" && typeof searchresults.searchforeventlocation === "string" ?  searchresults.searchforeventlocation : ""
+  const [selectedProvince, setSelectedProvince] = useState(getIndexSearchData)
+
   const [searchAPI, setSearchAPI] = useState([])
 
   const [search, setSearch] = useState("")
   const [searchResults, setSearchResults] = useState([])
 
   const searchRef = useRef()
+
 // get dates
 const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
 
-// const getUserLocation = userData.location ? userData.location.replace(/^\w/, (c) => c.toUpperCase()) : "";
+
+
 
   const handleClickDate = (e) => {
     setSelectedDate(e.target.innerHTML)
@@ -37,13 +42,19 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
         const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,districts");
         const data = await response.json();
         const getProvincesToArray = data.data.map((names) => names.name);
-        const getDistrictsNames = data.data.map((data) => data.districts.map((names) => names.name));
-        const districtsArray = getDistrictsNames.flat();
-         
+        const districts = data.data.map((data) =>
+              data.districts.map((names) => ({
+                name: names.name,
+                city: data.name
+              }))
+            );
+       
+        const districtsArray = districts.flat();
         getProvincesToArray.push(districtsArray);
+       
         const flattenedProvincesDistricts = [...getProvincesToArray.flat()];
-  
-        setSearchAPI(flattenedProvincesDistricts);
+           
+       setSearchAPI(flattenedProvincesDistricts);
       } catch (error) {
         throw new Error(error);
       }
@@ -58,7 +69,12 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
   
   useEffect(() => {
     if (isTyping) {
-      const filterResults = searchAPI.filter((names) => names.toLowerCase().includes(search.toLowerCase()));
+      const districtsWithCity = searchAPI.slice(81, 1053).map((district) => `${district.name}, ${district.city}`);
+      const provinceNames = searchAPI.filter((names) => {return names}).slice(0,81)
+
+      const combinedArray = provinceNames.concat(districtsWithCity);
+      const filterResults = combinedArray.filter((names) => names.toLocaleUpperCase('TR').includes(search.toLocaleUpperCase('TR')));
+  
       setSearchResults(filterResults);
     } else {
       setSearchResults([])
@@ -111,9 +127,10 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
             // Kategoriye göre filtreleme
             const categoryMatches = event.eventCategory === selectedCategory;
             // Province'e göre filtreleme
-            const provinceMatches = event.cityName && event.cityName.toLowerCase().includes(selectedProvince.toLowerCase());
+            const provinceMatches = event.cityName && event.cityName.toLocaleUpperCase('TR').includes(selectedProvince.toLocaleUpperCase('TR'));
+            const districtMatches = event.districtName && event.districtName.split(",")[0].trim().toLocaleUpperCase('TR').includes(selectedProvince.split(",")[0].trim().toLocaleUpperCase('TR'));
         
-            return categoryMatches && provinceMatches;
+            return categoryMatches && provinceMatches && districtMatches;
           });
         
           setFilteredEvents(getNewFilteredArray);
@@ -124,11 +141,10 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
         } else if (selectedProvince !== "") {
           // Sadece province'e göre filtreleme yapılacak
           const getNewFilteredArray = filteredData.filter((event) => {
-            const cityNameMatches = event.cityName && event.cityName.toLowerCase().includes(selectedProvince.toLowerCase());
-            const locationMatches = event.location && event.location.toLowerCase().includes(selectedProvince.toLowerCase());
-            const districtNameMatches = event.districtName && event.districtName.toLowerCase().includes(selectedProvince.toLowerCase());
+            const cityNameMatches = event.cityName && event.cityName.toLocaleUpperCase('TR').includes(selectedProvince.toLocaleUpperCase('TR'));
+            const districtNameMatches = event.districtName && event.districtName.split(",")[0].trim().toLocaleUpperCase('TR').includes(selectedProvince.split(",")[0].trim().toLocaleUpperCase('TR'));
         
-            return cityNameMatches || locationMatches || districtNameMatches;
+            return cityNameMatches || districtNameMatches
           });
         
           setFilteredEvents(getNewFilteredArray);
@@ -194,7 +210,13 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
     const formattedDate = getDate();
 const filterByToday = eventsData.filter((event) => event.date.includes(formattedDate));
 setFilteredEvents(filterByToday);
+
+// SET SEARCH INPUT IF USER SEARCHED FROM MAIN PAGE 
+if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
+  searchRef.current.value = getIndexSearchData
+}
   }, [])
+
 
   const handleReset = () => {
     setSelectedCategory("Kategori")
@@ -208,6 +230,8 @@ setFilteredEvents(filterByToday);
     setSearchResults("");
     setSelectedProvince(searchRef.current.value)
   }
+
+
 
   return (
     <>
@@ -223,16 +247,24 @@ setFilteredEvents(filterByToday);
 
               <div className="d-flex justify-content-start gap-2 mb-5">
                 <div className={styles.searchContainer}>
-                  <input type="text" className="form-control" ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="İstanbul, Ankara, İzmir..." />
+                  <input type="search" className="form-control" ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." />
                   {isTyping && (
                       <div className={styles.searchResults}> 
-                        {searchResults && isTyping && loading === false && searchResults.map((provinces, index) => {
-                          return (
-                            <div onClick={handleProvinceClick} className={styles.searchResultsItems} key={index}>
-                              {provinces}
-                            </div>
-                          )
-                        })}
+                    
+                    <div className="fs-5 text-center py-3">
+                        {searchResults.length > 0 && isTyping && loading === false ? (
+                          <>
+                            <div>Lütfen Seçiniz...</div>
+                            <hr />
+                            {searchResults.map((provinces, index) => (
+                              <div onClick={handleProvinceClick} className={styles.searchResultsItems} key={index}>
+                                {provinces}
+                              </div>
+                            ))}
+                          </>
+                        ) : null}
+                     </div>
+                     
                         {searchResults && loading && (
                           <div className={styles.resultNotFound}>
                             <div className="spinner-border" role="status">
@@ -243,7 +275,7 @@ setFilteredEvents(filterByToday);
                         )}
                         {searchResults.length === 0 && typeof searchResults !== "string" && loading === false && (
                           <div className={styles.resultNotFound}>
-                            "{search}" ile bağlantılı bir ilçe bulamadık
+                            "{search}" ile bağlantılı bir bölge bulamadık
                           </div>
                         )}
                       </div>

@@ -13,7 +13,8 @@
                   <div class="col-lg-5">
                      <div class="d-flex flex-column align-items-center">
                         <img src="../<%=findOrganizer.profileImage%>" width="45%" alt="profileimage" />
-                        <h1 class="fs-4"><%= findOrganizer.username.toUpperCase()%></h1>
+                        <h1 class="fs-4"><%= (user && user.username === findOrganizer.username) ? 'Siz' : findOrganizer.username.toUpperCase() %>
+                        </h1>
                        </div>
                   </div>
       
@@ -39,33 +40,40 @@
             <div class="col-lg-4 py-1">
                <div class="d-inline-flex flex-column w-100">
                   <h3 class="fs-3">Katılanlar(<%=findEvent.attendees.length%>)</h3>
-                  <div class="gray-background w-100 my-3">
+                 
                  <% if(findEvent.attendees.length > 0) { %>
+                  <div class="gray-background w-100 my-3">
                  <% findAttendeeUsers.map((attendee) => { %>
                     <div class="d-flex flex-column justify-content-center align-items-center">
                      <img src="<%=attendee.profileImage%>" width="75%" alt="attendee image">
-                     <h1 class="fs-4 text-center"><%=attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1);%></h1>
+                     <h1 class="fs-4 text-center"><%=(user && user.username === attendee.username) ? 'Siz' : attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1)%></h1>
                     </div>
                  <% }) %>
-                  <% } %>
-               </div>
+                   </div>
+                  <% } else { %>
+                     <div class="fs-4 py-5 d-inline-flex text-secondary">
+                        <h1>İlk katılımcısı sen olmak ister misin?</h1>
+                       </div>
+                <%  } %>
+              
               </div>
               <% if(checkUserAttend) { %>
-                  <h1 class="fs-5">Bu etkinliğe gidiyorsunuz!</h1>
+                  <h1 class="fs-5 py-3">Bu etkinliğe gidiyorsunuz!</h1>
                  <form action="/events/<%= findEvent._id %>/remove" method="post">
                   <button type="submit" class="btn btn-success w-100">İptal</button>
                  </form>
                <% } else { %>
                   <form action="/events/<%= findEvent._id %>/join" method="post" class="d-flex flex-column justify-content-around">
-                     <% function formatDate(dateStr) { %>
-                        <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' }; %>
-                        <% const formattedDate = new Date(dateStr).toLocaleDateString('tr-TR', options); %>
-                        <% return formattedDate; %>
-                    <% } %>
-                     <p class="text-secondary-emphasis"><%=formatDate(findEvent.date)%></p>
                      <button type="submit" class="btn btn-success my-4 px-3 py-2 float-right">Katıl</button>
                     </form>
                <% } %>
+
+               <% function formatDate(dateStr) { %>
+                  <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' }; %>
+                  <% const formattedDate = new Date(dateStr).toLocaleDateString('tr-TR', options); %>
+                  <% return formattedDate; %>
+              <% } %>
+               <p class="text-secondary-emphasis fs-5 py-4 fw-bold"><%=formatDate(findEvent.date)%></p>
               <% if (messages.success) { %>
                <div class="alert alert-success">
                  <%= messages.success %>

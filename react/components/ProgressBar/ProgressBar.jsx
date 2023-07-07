@@ -66,6 +66,17 @@ const ProgressBar = ({eventCategories}) => {
     );
   }
 
+  // CHECK FILE SIZE
+  const checkFileSize = (event) => {
+    const file = event.target.files[0];
+    const maxSize = 2 * 1024 * 1024; // Maksimum 2MB (2 * 1024 * 1024 bayt)
+  
+    if (file && file.size > maxSize) {
+      alert("Dosya boyutu 2MB'dan büyük olamaz.");
+      // Dosyayı yüklemeyi engellemek için input değerini sıfırla
+      event.target.value = "";
+    } 
+  };
 
 
   return (
@@ -175,6 +186,8 @@ const ProgressBar = ({eventCategories}) => {
                   Resim Yükleyin<i className="fs-6 text-secondary">(Gerekli) (Maksimum 2Mb)</i>
                 </label>
                 <input
+                onChange={checkFileSize}
+                accept="image/png, image/jpeg, image/jpg"
                   className="form-control"
                   name="eventPhoto"
                   type="file"
@@ -277,7 +290,7 @@ const PlacesAutocomplete = ({ setSelected, setSelectedAddressDistricts }) => {
       />
       <ComboboxPopover>
         <ComboboxList className="fs-5">
-          {status === "OK" && foundProvince.map((province, index) => {
+          {status === "OK" && foundProvince && foundProvince.map((province, index) => {
             return (
               <ComboboxOption key={index} value={province} />
             )

@@ -15,7 +15,21 @@ const storage = multer.diskStorage({
     storage: storage,
     limits: {
         fileSize: 1024 * 1024 * 2
+    },
+    fileFilter: (req,file,cb) => {
+      if(
+        file.mimetype == "image/png" ||
+        file.mimetype == "image/jpg" ||
+        file.mimetype == "image/jpeg"
+      ) {
+        cb(null, true);
+      } else {
+        cb(null, false);
+        return cb(new Error("Sadece PNG, JPG ve JPEG dosya formatları destekleniyor"));
+      }
     }
 })
+
+
 
 module.exports = upload

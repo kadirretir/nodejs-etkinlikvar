@@ -4,6 +4,9 @@ const eventsController = require("../controllers/eventsControllers")
 const authMiddleware = require("../middlewares/authorization")
 const upload = require("../middlewares/imageUpload")
 
+
+
+
 router.get("/newevent", authMiddleware.authForNewEvent, eventsController.newevent_get);
 router.post("/newevent", upload.single('eventPhoto'), eventsController.newevent_post);
 router.get("/notifications", eventsController.notifications_get);

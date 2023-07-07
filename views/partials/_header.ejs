@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/newevents.css" />
     <link rel="stylesheet" href="css/pricing.css" />
     <link rel="stylesheet" href="css/event.css" />
+    <link rel="stylesheet" href="css/userprofile.css" />
 </head>
 
 <body>
@@ -63,7 +64,7 @@
                             Hoşgeldiniz <%= user.username %>
                         </button>
                         <ul class="dropdown-menu">
-                            <i class="fa-solid fa-user fa-2xl w-100"></i>
+                            <img class="img-thumbnail d-block mx-auto" src="../<%=user.profileImage%>" width="25%" alt="user image">
                             <h5 class="text-center fs-6 my-4"><a href="#">Hoşgeldiniz <%= user.email %></a></h5>
                             <li><a class="dropdown-item" href="#">Etkinliklerim</a></li>
                             <li><a class="dropdown-item" href="/user/profile">Profil</a></li>
