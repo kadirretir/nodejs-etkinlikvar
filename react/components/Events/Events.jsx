@@ -225,10 +225,10 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
     setSelectedProvince("")
   }
   
-  const handleProvinceClick = (e) => {
+  const handleProvinceClick = async (e) => {
     searchRef.current.value = e.target.innerHTML;
     setSearchResults("");
-    setSelectedProvince(searchRef.current.value)
+    await setSelectedProvince(searchRef.current.value)
   }
 
 
