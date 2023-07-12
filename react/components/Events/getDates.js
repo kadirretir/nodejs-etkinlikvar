@@ -24,6 +24,14 @@ const getWeekRange = () => {
   const currentDate = new Date();
   const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1));
   const endOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 7));
+  
+  const today = new Date(); // Şu anki tarih
+  
+  // Eğer hafta başlangıcı şu anki tarihten önce ise, hafta başlangıcını şu anki tarihe eşitle
+  if (startOfWeek < today) {
+    startOfWeek.setDate(today.getDate());
+  }
+  
   return { startOfWeek, endOfWeek };
 };
 
@@ -50,8 +58,8 @@ const getWeekendRange = () => {
 
 const getNextWeekRange = () => {
   const currentDate = new Date();
-  const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() + (7 - currentDate.getDay() + 1)));
-  const endOfWeek = new Date(currentDate.setDate(currentDate.getDate() + (7 - currentDate.getDay() + 7)));
+  const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + (7 - currentDate.getDay() + 1));
+  const endOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + (7 - currentDate.getDay() + 7));
   return { startOfWeek, endOfWeek };
 };
 

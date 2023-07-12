@@ -1,13 +1,8 @@
-import React, {useState, useEffect, useRef, forwardRef } from "react"
+import React from "react"
 import styles from './filterLocation.module.css'
 
 
 const FilterLocation = () => {
-  const autocompleteOptions = {
-    types: ["(regions)"],
-    componentRestrictions: { country: "tr" }, // Sadece Türkiye'ye özgü yerleri almak için
-  };
-  
       return (
         <div className={styles.App}>
           <div className={styles.searchHeader}>

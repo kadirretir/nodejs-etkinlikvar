@@ -50,31 +50,41 @@ app.use("/user", authMiddleware.checkIfAuthed, userRoutes)
 app.get("/", async (req,res) => {
     try {
       await connectToDb()
-      const events = await Event.find({}).populate("organizer");
+      // ŞU ANDAN İTİBAREN 10 GÜN İÇERİSİNDEKİ ETKİNLİKLERİ AL
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0); // Saat ve dakika bilgisini sıfırla
 
-      const categoryCounts = {}; // Kategori sayımlarını tutmak için bir obje
+      const nextTenDays = new Date();
+      nextTenDays.setDate(nextTenDays.getDate() + 10);
+      nextTenDays.setHours(23, 59, 59, 999); // Son saat ve dakikayı ayarla
 
-// Kategorilerin sayımlarını yap
-    events.forEach((event) => {
-      const category = event.eventCategory;
-      if (categoryCounts[category]) {
-        categoryCounts[category]++;
-      } else {
-        categoryCounts[category] = 1;
-      }
-    });
+      const events = await Event.find({ date: { $gte: currentDate, $lte: nextTenDays } }).limit(8).populate("organizer");
+   
+    // Kategorilerin sayımlarını yap
+    const allEvents = await Event.find({});
+     // Kategori sayımlarını tutmak için bir obje
+    const categoryCounts = {};
 
-// Sayımlara göre kategorileri sırala
-const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
-// En fazla 6 kategori al
-const popularCategories = sortedCategories.slice(0, 6);
+    allEvents.forEach((event) => {
+          const category = event.eventCategory;
+          if (categoryCounts[category]) {
+            categoryCounts[category]++;
+          } else {
+            categoryCounts[category] = 1;
+          }
+        });
+      // Sayımlara göre kategorileri sırala
+      const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
+      // En fazla 6 kategori al
+      const popularCategories = sortedCategories.slice(0, 6);
 
-// En fazla 6 kategori
       res.render("index.ejs", {events: events, eventCategories: popularCategories})
     } catch (error) {
       throw new Error(error)
     }
 })
+
+
 app.get("/pricing", (req,res) => {
   res.render("pricing.ejs")
 })

@@ -8,7 +8,11 @@ const Events = ({ eventsData, userData, searchresults, categoryData }) => {
   const [loading, setLoading] = useState(false);
   const [loadingFilter, setLoadingFilter] = useState(false)
   const [selectedDate, setSelectedDate] = useState("Bugün")
-  const [selectedCategory, setSelectedCategory] = useState("Kategori")
+  // GET SEARCHED STRING FROM URL
+  const queryString = window.location.search;
+  const queryParams = queryString.substring(1);
+  const decodedParams = decodeURIComponent(queryParams);
+  const [selectedCategory, setSelectedCategory] = useState(window.location.search ? decodedParams : "Kategori")
 
   const getIndexSearchData = typeof searchresults === "object" && typeof searchresults.searchforeventlocation === "string" ?  searchresults.searchforeventlocation : ""
   const [selectedProvince, setSelectedProvince] = useState(getIndexSearchData)
@@ -103,11 +107,16 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
           filteredData = data.filter((event) => event.date.includes(formattedDate));
         } else if (selectedDate === "Bu Hafta") {
           const { startOfWeek, endOfWeek } = getWeekRange();
+          const today = new Date(); // Şu anki tarih
           filteredData = data.filter((event) => {
             const eventDate = new Date(event.date);
+            // Eğer etkinlik tarihi şu anki tarihten önce ise filtrelemeyi geç
+            if (eventDate < today) {
+              return false;
+            }
             return eventDate >= startOfWeek && eventDate <= endOfWeek;
           });
-        } else if (selectedDate === "Bu Haftasonu") {
+        }else if (selectedDate === "Bu Haftasonu") {
           const { startOfWeekend, endOfWeekend } = getWeekendRange();
           filteredData = data.filter((event) => {
             const eventDate = new Date(event.date);
@@ -127,10 +136,10 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
             // Kategoriye göre filtreleme
             const categoryMatches = event.eventCategory === selectedCategory;
             // Province'e göre filtreleme
-            const provinceMatches = event.cityName && event.cityName.toLocaleUpperCase('TR').includes(selectedProvince.toLocaleUpperCase('TR'));
-            const districtMatches = event.districtName && event.districtName.split(",")[0].trim().toLocaleUpperCase('TR').includes(selectedProvince.split(",")[0].trim().toLocaleUpperCase('TR'));
+             const provinceMatches = event.cityName.toLocaleUpperCase('TR').includes(selectedProvince.toLocaleUpperCase('TR'));
+             const districtMatches = event.districtName.toLocaleUpperCase('TR').includes(selectedProvince.split(",")[0].trim().toLocaleUpperCase('TR'));
         
-            return categoryMatches && provinceMatches && districtMatches;
+            return categoryMatches && (provinceMatches || districtMatches)
           });
         
           setFilteredEvents(getNewFilteredArray);
@@ -191,7 +200,7 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
   
           return updatedFilteredEvents;
         });
-  
+        
       } catch (error) {
         // Hata durumunda gerekli işlemleri yapabilirsiniz
         console.error(error);
@@ -225,10 +234,10 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
     setSelectedProvince("")
   }
   
-  const handleProvinceClick = async (e) => {
+  const handleProvinceClick =  (e) => {
     searchRef.current.value = e.target.innerHTML;
     setSearchResults("");
-    await setSelectedProvince(searchRef.current.value)
+     setSelectedProvince(searchRef.current.value)
   }
 
 

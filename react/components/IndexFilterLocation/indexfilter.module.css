@@ -1,0 +1,64 @@
+.scrollableMenu {
+    height: auto;
+    max-height: 25rem;
+    overflow-x: hidden;
+}
+
+.searchContainer {
+  position: relative;
+}
+
+.typing {
+  border-bottom-left-radius: 0 !important;
+}
+
+.resultNotFound {
+  padding: 25px;
+  text-align: center;
+  font-size: 20px;
+  color: rgba(0,0,0,.5);
+}
+
+.searchResults {
+  position: absolute;
+  left:0;
+  width: 100%;
+  border-radius: 0 0 10px 10px;
+  background: #fff;
+  height: auto;
+  max-height: 20rem;
+  overflow-x: hidden;
+  z-index: 999;
+}
+
+.searchResultsItems {
+  display: block;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.searchResultsItems:hover{
+  background: green;
+}
+
+.InputContainer {
+  position: relative;
+
+}
+
+.InputContainer .deneme {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: darkblue;
+}
+
+.iconDefault {
+  color: var(--first-color);
+}
+
+   

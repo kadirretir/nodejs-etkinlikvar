@@ -9,16 +9,12 @@
       </div>
     </div>
     <div class="otherHalf col-lg-6">
-      <form action="/events" method="post">
+      <form action="/events" method="post" autocomplete="off">
         <div class="formLabelContainer">
-          <label for="searchforevent" class="formChilds">Sen de Etkinliğini Bul</label>
+          <label for="searchforeventlocation" class="formChilds">Sen de Etkinliğini Bul</label>
         </div>
         <div class="searchBoxContainer d-flex flex-column flex-xxl-row">
-          <div class="searchBoxEvent mb-4">
-            <input type="search" name="searchforevent" id="searchforevent" class="formChilds" placeholder="Doğa Yürüyüşü, Çizim Atölyesi..." />
-          </div> 
-          <div class="searchBoxLocation">
-            <input type="search" name="searchforeventlocation" id="searchforeventlocation" placeholder="İstanbul, İzmir, Ankara" class="formChilds" /> 
+          <div id="searchBoxLocation">
           </div>
         </div>
         <div>
@@ -62,7 +58,7 @@
             <% eventCategories.forEach((category, index) => { %>
               <div class="col-lg-2">
                 <div class="btn-group">
-                  <a href="#" style="width: 13rem; padding: 1rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
+                  <a href="/events?<%=category%>" style="width: 13rem; padding: 1rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
                 </div>
               </div>
             <% }) %>

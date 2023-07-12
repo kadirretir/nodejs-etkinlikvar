@@ -1,18 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect} from "react";
 import styles from "./progress.module.css";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxPopover,
-  ComboboxList,
-  ComboboxOption,
-} from "@reach/combobox";
 import "@reach/combobox/styles.css";
+import EventForm from "./EventForm";
 
 const libraries = ["places"]
 
@@ -22,36 +12,223 @@ const ProgressBar = ({eventCategories}) => {
     lat: 41.015137,
     lng: 28.97953,
   });
-  const [selectedAddressDistricts, setSelectedAddressDistricts] = useState()
-  const [districtsSearch, setDistrictsSearch] = useState('')
-  const [districtsResult, setDistrictsResult] = useState([])
-  const districtRef = useRef();
+  const [titleInput, setTitleInput] = useState("")
+  const [districtInput, setDistrictInput] = useState("")
+  const [fullAddressInput, setFullAddressInput] = useState("")
+  const [descriptionInput, setDescriptionInput] = useState("")
+  const [imageInput, setImageInput] = useState("")
+
+  const [checkIfSelected, setCheckIfSelected] = useState();
+  const [inputErrors, setInputErrors] = useState({
+    titleError: "",
+    dateError: "",
+    cityError: "",
+    districtError: "",
+    fullAdressError: "",
+    descriptionError: "",
+    imageError: ""
+  })
+
+  const handleInputChange = (e) => {
+    if(e.target.name === "eventPostTitle") {
+      setTitleInput(e.target.value)
+    } else if (e.target.name === "eventPostDescription") {
+      setDescriptionInput(e.target.value)
+    } else if (e.target.name === "fulladress") {
+      setFullAddressInput(e.target.value)
+    }
+  }
+
+  // TITLE ERROR HANDLER
+  useEffect(() => {
+    const titleRegex = /^[A-Za-z0-9ğüşıöçĞÜŞİÖÇ\s]{1,50}$/;
+    const isTitleValid = titleInput.length < 50 && titleRegex.test(titleInput.trim());
+    if(titleInput.trim() !== "" && !isTitleValid) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          titleError: "*Lütfen başlığı sadece harf, rakam ve boşluk içerecek, 50 karakterden kısa olacak şekilde yazınız",
+        }))
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        titleError: ""
+      }))
+    }
+  }, [titleInput])
+
+    // FULL ADDRESS ERROR HANDLER
+  useEffect(() => {
+    const addressRegex = /^[A-Za-z0-9ğüşıöçĞÜŞİÖÇ\s.,\/-]{1,110}$/;
+
+    const isAddressValid = addressRegex.test(fullAddressInput.trim());
+
+    if(fullAddressInput.trim() !== "" && !isAddressValid) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          fullAdressError: "*Tam adres geçerli bir formata uymalıdır ve 110 karakterden fazla olamaz",
+        }))
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        fullAdressError: ""
+      }))
+    }
+  }, [fullAddressInput])
+
+   // DESCRİPTİON ERROR HANDLER
+  useEffect(() => {
+    const isDescriptionValid = descriptionInput.length < 1000
+    if(!isDescriptionValid) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          descriptionError: "*Lütfen açıklamayı 1000 karakterden kısa olacak şekilde yazınız"
+        }))
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        descriptionError: ""
+      }))
+    }
+  }, [descriptionInput])
+
+  /// DISTIRCT ERROR HANDLER 
+  useEffect(() => {
+    const isDistrictValid = districtInput.length <= 0
+    if(checkIfSelected !== undefined) {
+      if(isDistrictValid) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          districtError: "Lütfen bir ilçe seçiniz"
+        }))
+      } else {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          districtError: ""
+        }))
+      }
+    }
+  }, [checkIfSelected, districtInput])
+
+  // IMAGE ERROR HANDLER 
+ 
+  useEffect(() => {
+    if(imageInput.length > 1) {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        imageError: ""
+      }))
+     } else if (imageInput === "") {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        imageError: ""
+      }))
+     } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        imageError: "*Lütfen bir resim seçiniz"
+      }))
+     }
+  }, [imageInput])
+  
+  const checkIfImageSubmitted = () => {
+    if(imageInput === "") {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        imageError: "Lütfen bir resim seçiniz"
+      }))
+     } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        imageError: ""
+      }))
+     }
+  }
+
+  // FORM VALIDATION
+  const formHandlerOnSubmit = (e) => {
+    checkIfImageSubmitted()
+
+    let hasErrors = false;
+
+    // Title hata kontrolü
+    if (titleInput.trim() === "") {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        titleError: "*Lütfen başlık giriniz",
+      }));
+      hasErrors = true; // Hata olduğunda hasErrors değerini güncelle
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        titleError: "",
+      }));
+    }
+  
+    // District hata kontrolü
+    if (districtInput.trim() === "") {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        districtError: "*Lütfen ilçe seçiniz",
+      }));
+      hasErrors = true; // Hata olduğunda hasErrors değerini güncelle
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        districtError: "",
+      }));
+    }
+  
+    // Full Address hata kontrolü
+    if (fullAddressInput.trim() === "") {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        fullAdressError: "*Lütfen tam adresi giriniz",
+      }));
+      hasErrors = true; // Hata olduğunda hasErrors değerini güncelle
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        fullAdressError: "",
+      }));
+    }
+  
+    // Description hata kontrolü
+    if (descriptionInput.trim() === "") {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        descriptionError: "*Lütfen açıklama giriniz",
+      }));
+      hasErrors = true; // Hata olduğunda hasErrors değerini güncelle
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        descriptionError: "",
+      }));
+    }
+  
+    // Image hata kontrolü
+    if (imageInput.trim() === "") {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        imageError: "*Lütfen resim seçiniz",
+      }));
+      hasErrors = true; // Hata olduğunda hasErrors değerini güncelle
+    } else {
+      setInputErrors((prevErrors) => ({
+        ...prevErrors,
+        imageError: "",
+      }));
+    }
+  
+    if (hasErrors) {
+      e.preventDefault();
+    } 
+  }
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyBP-o-ZJuNYF-f6PdriXJ37d-aBlBcj_Ms",
     libraries: libraries
   });
-
-  const isTyping = districtsSearch.replace(/\s+/, '').length > 0;
-
-    useEffect(() => {
-      if(isTyping && selectedAddressDistricts) {
-        const getDataToArray = selectedAddressDistricts.map(district => {
-          return district.name
-        })
-        const getSearchedDistricts = getDataToArray.filter(district => district.toLowerCase().includes(districtsSearch.toLocaleLowerCase()))
-        setDistrictsResult(getSearchedDistricts)
-        console.log(districtsSearch)
-      } else {
-        setDistrictsResult([])
-      }
-    }, [districtsSearch])
-
-    const handleGetDistrict = (e) => {
-      districtRef.current.value = e.target.innerHTML
-      setDistrictsResult("")
-    }
-
 
   if (!isLoaded) {
     return (
@@ -66,19 +243,6 @@ const ProgressBar = ({eventCategories}) => {
     );
   }
 
-  // CHECK FILE SIZE
-  const checkFileSize = (event) => {
-    const file = event.target.files[0];
-    const maxSize = 2 * 1024 * 1024; // Maksimum 2MB (2 * 1024 * 1024 bayt)
-  
-    if (file && file.size > maxSize) {
-      alert("Dosya boyutu 2MB'dan büyük olamaz.");
-      // Dosyayı yüklemeyi engellemek için input değerini sıfırla
-      event.target.value = "";
-    } 
-  };
-
-
   return (
     <>
       <div className="container">
@@ -88,116 +252,22 @@ const ProgressBar = ({eventCategories}) => {
               Etkinlik Oluştur
               <hr className="border border-1 opacity-75"></hr>
             </h1>
-            <form
-              action="/events/newevent"
-              method="post"
-              encType="multipart/form-data">
-              <div className="my-3">
-                <label htmlFor="exampleInputEmail1" className="form-label fs-5">
-                  Başlık<i className="fs-6 text-secondary">(Gerekli)</i>
-                </label>
-                <input
-                  type="text"
-                  name="eventPostTitle"
-                  className="form-control my-2"
-                  placeholder="Başlık girin..."
-                  id="exampleInputEmail1"
-                  aria-describedby="emailHelp"
-                />
-              </div>
-              <div className="my-3">
-                <label htmlFor="startDate" className="form-label fs-5">
-                  Etkinliğin Tarihi
-                  <i className="fs-6 text-secondary">(Gerekli)</i>
-                </label>
-                <input
-                  id="startDate"
-                  name="eventPostDate"
-                  className="form-control my-2"
-                  type="datetime-local"
-                />
-              </div>
-              <div className="my-3 d-flex gap-2">
-                <div className="w-50">
-                <p className="form-label fs-5">
-                  İl<i className="fs-6 text-secondary">(Gerekli)</i>
-                </p>
-                <PlacesAutocomplete setSelectedAddressDistricts={setSelectedAddressDistricts} setSelected={setSelected} />
-                </div>
 
-                <div className={`w-50 ${styles.searchContainer}`}>
-                <p className="form-label fs-5">
-                  İlçe<i className="fs-6 text-secondary">(Gerekli)</i>
-                </p>
-                  <input className={`form-control ${isTyping ? styles.typing : null}`}  ref={districtRef} onChange={(e) => setDistrictsSearch(e.target.value)} name="getDistrictName" type="text" placeholder="İlçe" />
-                  {districtsResult && isTyping && (
-                    <div className={styles.searchResults}> 
-                      {districtsResult.map((district, index) => {
-                        return (
-                          <div onClick={handleGetDistrict} className={styles.searchResultsItems} key={index}>
-                            {district}
-                          </div>
-                        )
-                      })}
-                      {districtsResult.length === 0 && selectedAddressDistricts && (
-                        <div className={styles.resultNotFound}>
-                          "{districtsSearch}" ile bağlantılı bir ilçe bulamadık
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="my-3">
-              <p className="form-label fs-5">
-                  <label htmlFor="fulladress">
-                  Tam Adres</label><i className="fs-6 text-secondary">(Gerekli)</i>
-                </p>
-               <input className="form-control" id="fulladress" name="fulladress" placeholder="Mahalle, Cadde, Sokak, Mevki, Apartman Numarası / Daire numarası " type="text" />
-              </div>
-              <div className="my-3">
-              <p className="form-label fs-5">
-                  Kategori<i className="fs-6 text-secondary">(Gerekli)</i>
-                </p>
-              <select className="form-select" name="getEventCategory" aria-label="select">
-                <option className="fs-5" defaultValue disabled>Etkinliğiniz ne ile alakalı?</option>
-                  {eventCategoryState.map((category,index) => {
-                    return (
-                        <option className="fs-5" key={index} defaultValue={index}>{category}</option>
-                    )
-                  })}
-              </select>
-              </div>
-              <div className="my-4">
-                <label htmlFor="floatingTextarea2" className="form-label fs-5">
-                  Etkinliğinizde neler yapılacak?
-                </label>
-                 <textarea
-                  className="form-control my-2"
-                  name="eventPostDescription"
-                  placeholder="Sabah yürüyüşünden sonra doğa gezisine gideceğiz..."
-                  id="floatingTextarea2"
-                  style={{ height: "100px" }}
-                ></textarea> 
-              </div>
-              <div className="mb-3">
-                <label htmlFor="formFile" className="form-label fs-5">
-                  Resim Yükleyin<i className="fs-6 text-secondary">(Gerekli) (Maksimum 2Mb)</i>
-                </label>
-                <input
-                onChange={checkFileSize}
-                accept="image/png, image/jpeg, image/jpg"
-                  className="form-control"
-                  name="eventPhoto"
-                  type="file"
-                  id="formFile"
-                />
-              </div>
-              <button type="submit" className="btn text-white w-100" style={{background: "var(--first-color)"}}>
-                Oluştur
-              </button>
-            </form>
+            <EventForm 
+            titleInput={titleInput}
+            districtInput={districtInput}
+            setDistrictInput={setDistrictInput}
+            fullAddressInput={fullAddressInput}
+            descriptionInput={descriptionInput}
+            imageInput={imageInput}
+            setImageInput={setImageInput}
+            inputErrors={inputErrors}
+            handleInputChange={handleInputChange}
+            formHandlerOnSubmit={formHandlerOnSubmit}
+            eventCategoryState={eventCategoryState}
+            setCheckIfSelected={setCheckIfSelected}
+            setSelected={setSelected} />
+           
           </div>
           <div className={`col-xl-5 my-5 ${styles.googleMapsContainer}`}>
             <GoogleMap
@@ -218,87 +288,6 @@ const ProgressBar = ({eventCategories}) => {
   );
 };
 
-const PlacesAutocomplete = ({ setSelected, setSelectedAddressDistricts }) => {
-  const [foundProvince, setFoundProvince] = useState()
-  const {
-    ready,
-    value,
-    setValue,
-    suggestions: { status, data },
-    clearSuggestions,
-  } = usePlacesAutocomplete({
-    requestOptions: {
-      types: ["(cities)"],
-      componentRestrictions: { country: ["tr"] },
-    },
-    cache: 24 * 60 * 60,
-  });
 
-  const handleSelect = async (address) => {
-    setValue(address, false);
-    clearSuggestions();
-    const results = await getGeocode({ address });
-    const { lat, lng } = await getLatLng(results[0]);
-    setSelected({ lat, lng });
-    // GET PROVINCES NAMES
-    const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,id")
-    const provincesData = await response.json()
-   const provincesDataObject = provincesData.data
-   const getProvinceNames = provincesDataObject.map((province) => {
-    return province.name
-   })
-   // CHECK IF DATA FROM GOOGLE AUTOCOMPLETE MATCHES SOME OF TURKIYE API TURKEY PROVINCE NAMES
-   const addressMatch = getProvinceNames.some(province => address.includes(province));
-   if(addressMatch) {
-    const matchingProvinceName = getProvinceNames.find((province) => address.includes(province));
-
-    // FIND MATCHING PROVINCE ID
-    const matchingProvinceObject = provincesDataObject.find((province) => province.name === matchingProvinceName);
-    const matchingProvinceId = matchingProvinceObject.id;
-    const getProvinceDistricts = await fetch(`https://turkiyeapi.cyclic.app/api/v1/provinces/${matchingProvinceId}?fields=districts`)
-    const responseDistricts = await getProvinceDistricts.json()
-    setSelectedAddressDistricts(responseDistricts.data.districts)
-   } 
-  };
-
-  const handleOnChange = async (e) => {
-    setValue(e.target.value)
-    const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name")
-    const provincesData = await response.json()
-   const provincesDataObject = provincesData.data
-   const getProvinceNames = provincesDataObject.map((province) => {
-    return province.name
-   })
-   const getAutoSuggestData = data.map(({ structured_formatting: { main_text } }) => main_text);
-
-  const findProvince = getAutoSuggestData.filter((suggest) => {
-    return getProvinceNames.some((province) => suggest.includes(province));
-  });
-
-   setFoundProvince(findProvince)
-  }
-
-  return (
-    <Combobox onSelect={handleSelect}>
-      <ComboboxInput
-        value={value}
-        onChange={handleOnChange}
-        disabled={!ready}
-        name="eventPostLocation"
-        className="combobox-input form-control"
-        placeholder="İstanbul, Ankara, İzmir..."
-      />
-      <ComboboxPopover>
-        <ComboboxList className="fs-5">
-          {status === "OK" && foundProvince && foundProvince.map((province, index) => {
-            return (
-              <ComboboxOption key={index} value={province} />
-            )
-          })}
-        </ComboboxList>
-      </ComboboxPopover>
-    </Combobox>
-  );
-};
 
 export default ProgressBar;

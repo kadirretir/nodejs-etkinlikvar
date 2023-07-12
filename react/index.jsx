@@ -5,6 +5,7 @@ import Events from './components/Events/Events.jsx';
 import Login from './components/Login/Login.jsx';
 import UserProfile from './components/User/UserProfile.jsx';
 import Notification from './components/Notification/Notification.jsx';
+import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
 
 var pathname = window.location.pathname;
 
@@ -69,7 +70,15 @@ function checkValue (val) {
         </StrictMode>
       );
       break;
-  
+      case "/":
+        const searchNode = document.getElementById('searchBoxLocation');
+      const searchRoot = createRoot(searchNode);
+      searchRoot.render(
+        <StrictMode>
+          <IndexFilter 
+          />
+        </StrictMode>
+      );
     default:
       
       break;

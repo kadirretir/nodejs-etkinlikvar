@@ -55,7 +55,7 @@ const SingleEvents = ({ filteredEvents, loadingFilter }) => {
       })}
       {loadingFilter && (
    <div className="d-flex flex-column gap-4">
-        {new Array(3).fill().map((_,index) => 
+        {new Array(4).fill().map((_,index) => 
         <ContentLoader 
           key={index}
           speed={2}
