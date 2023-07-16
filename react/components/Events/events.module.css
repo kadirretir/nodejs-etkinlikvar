@@ -24,6 +24,29 @@
 
 .searchContainer {
   position: relative;
+  width: 25%;
+}
+
+.searchContainer .searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 0.7rem;
+  transform: translateY(-50%);
+  color: #ccc;
+  cursor: pointer;
+}
+
+.searchContainer .searchIcon i {
+  font-size: 16px;
+}
+
+.searchContainer input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding-left: 2rem;
 }
 
 .typing {
@@ -37,25 +60,37 @@
   color: rgba(0,0,0,.5);
 }
 
+
 .searchResults {
   position: absolute;
-  left:0;
+  top: 100%;
+  left: 0;
   width: 100%;
-  border-radius: 0 0 5px 5px;
-  background: #fff;
-  height: auto;
   max-height: 20rem;
   overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 999;
 }
 
-.searchResultsItems {
+/* .searchResultsItems {
   display: block;
   padding: 10px 15px;
   cursor: pointer;
+} */
+
+.searchResultsItems {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.searchResultsItems:hover{
-  background: green;
+.searchResultsItems:hover {
+  background-color: #f5f5f5;
+  color: #333; /* Metin rengi */
+  border-left: 3px solid var(--second-color); /* Vurgu çizgisi rengi */
 }
+
    

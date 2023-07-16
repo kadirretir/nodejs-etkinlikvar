@@ -2,10 +2,11 @@ import React from 'react';
 import ContentLoader from "react-content-loader"
 
 const SingleEvents = ({ filteredEvents, loadingFilter }) => {
-  // Filtreye uygun herhangi bir öğe bulunmazsa "Sonuç bulunamadı" bildirimi gösterme
-  if (filteredEvents.length === 0) {
-    return <h1 className='fs-4'>Arama kriterinize göre bir etkinlik bulamadık</h1>;
-  }
+
+
+  if (!loadingFilter && filteredEvents.length === 0) {
+    return <h1 className='fs-4'>Arama kriterinize göre bir etkinlik bulamadık</h1>
+    } 
 
   return (
   
@@ -32,7 +33,7 @@ const SingleEvents = ({ filteredEvents, loadingFilter }) => {
                   <img
                     src={`../${smallImagePath}`}
                     className="img-fluid rounded-start"
-                    alt="..."
+                    alt="eventImage"
                   />
                 </div>
                 <div className="col-md-8">

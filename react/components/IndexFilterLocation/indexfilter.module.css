@@ -21,44 +21,64 @@
 
 .searchResults {
   position: absolute;
-  left:0;
+  top: 100%;
+  left: 0;
   width: 100%;
-  border-radius: 0 0 10px 10px;
-  background: #fff;
-  height: auto;
   max-height: 20rem;
   overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 999;
 }
 
 .searchResultsItems {
-  display: block;
-  padding: 10px 15px;
+  padding: 16px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.searchResultsItems:hover{
-  background: green;
+.searchResultsItems:hover {
+  background-color: #f5f5f5;
+  color: #333; /* Metin rengi */
+  border-left: 3px solid var(--first-color); /* Vurgu çizgisi rengi */
 }
+
 
 .InputContainer {
   position: relative;
-
 }
 
-.InputContainer .deneme {
+.InputContainer .iconContainer {
   height: 100%;
   position: absolute;
   top: 0;
-  right: 0.7rem;
+  left: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: darkblue;
 }
 
+.InputContainer input {
+  padding-left: 1rem !important; 
+}
+
+
+.InputContainer input:focus + .iconContainer .iconDefault {
+  font-size: 1rem;
+  transition: all 0.2s ease-in;
+}
+
+.InputContainer input:not(:focus) + .iconContainer .iconDefault {
+  font-size: 2rem;
+  transition: all 0.2s ease-in;
+}
+
+
 .iconDefault {
-  color: var(--first-color);
+  font-size: 2rem;
+  color: var(--second-color);
 }
 
    

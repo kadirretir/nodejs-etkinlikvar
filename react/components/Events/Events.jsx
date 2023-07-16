@@ -5,6 +5,7 @@ import getDates from './getDates'
 
 const Events = ({ eventsData, userData, searchresults, categoryData }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
+
   const [loading, setLoading] = useState(false);
   const [loadingFilter, setLoadingFilter] = useState(false)
   const [selectedDate, setSelectedDate] = useState("Bugün")
@@ -23,6 +24,7 @@ const Events = ({ eventsData, userData, searchresults, categoryData }) => {
   const [searchResults, setSearchResults] = useState([])
 
   const searchRef = useRef()
+  const searchResultsRef = useRef()
 
 // get dates
 const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
@@ -92,41 +94,64 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
   useEffect(() => {
     const fetchData = async () => {
       setLoadingFilter(true); // Filtreleme işlemi başladığında loadingFilter'ı true olarak ayarla
-  
       try {
         const fetchMyData = await fetch("/events/requestedevents");
         const data = await fetchMyData.json();
       
         let filteredData = [];
-  
         if (selectedDate === "Bugün") {
           const formattedDate = getDate();
-          filteredData = data.filter((event) => event.date.includes(formattedDate));
+          const dateObjFormat = new Date(formattedDate);
+          const currentHour = formattedDate.substring(11, 16);
+          filteredData = data.filter((event) => {
+            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+            const eventSaat = String(turkiyeZamanDilimi.getHours()).padStart(2, '0');
+            const eventDakika = String(turkiyeZamanDilimi.getMinutes()).padStart(2, '0');
+        
+            const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
+            const isLaterTime = `${eventSaat}:${eventDakika}` > currentHour;
+        
+            return isSameDay && isLaterTime;
+          });
         } else if (selectedDate === "Yarın") {
           const formattedDate = getTomorrowDate();
-          filteredData = data.filter((event) => event.date.includes(formattedDate));
+          const dateObjFormat = new Date(formattedDate);
+          filteredData = data.filter((event) => {
+            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+            const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
+            return isSameDay 
+          });
         } else if (selectedDate === "Bu Hafta") {
           const { startOfWeek, endOfWeek } = getWeekRange();
-          const today = new Date(); // Şu anki tarih
+        
           filteredData = data.filter((event) => {
-            const eventDate = new Date(event.date);
-            // Eğer etkinlik tarihi şu anki tarihten önce ise filtrelemeyi geç
-            if (eventDate < today) {
-              return false;
-            }
-            return eventDate >= startOfWeek && eventDate <= endOfWeek;
+            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+        
+            const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
+            const isLaterTime = turkiyeZamanDilimi > new Date();
+        
+            return isWithinWeek && isLaterTime;
           });
         }else if (selectedDate === "Bu Haftasonu") {
           const { startOfWeekend, endOfWeekend } = getWeekendRange();
+
           filteredData = data.filter((event) => {
-            const eventDate = new Date(event.date);
-            return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
+            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+
+            const isWithinWeek = turkiyeZamanDilimi >= startOfWeekend && turkiyeZamanDilimi <= endOfWeekend;
+            const isLaterTime = turkiyeZamanDilimi > new Date();
+
+             return isWithinWeek && isLaterTime;
           });
         } else if (selectedDate === "Önümüzdeki Hafta") {
           const {startOfWeek, endOfWeek} = getNextWeekRange();
           filteredData = data.filter((event) => {
-            const eventDate = new Date(event.date);
-            return eventDate >= startOfWeek && eventDate <= endOfWeek;
+            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+
+            const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
+            const isLaterTime = turkiyeZamanDilimi > new Date();
+
+            return isWithinWeek && isLaterTime;
           });
         }
   
@@ -163,7 +188,7 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
         }
       } catch (error) {
         // Hata durumunda gerekli işlemleri yapabilirsiniz
-        console.error(error);
+        throw new Error(error)
       } finally {
         setLoadingFilter(false); // Filtreleme işlemi tamamlandığında loadingFilter'ı false olarak ayarla
       }
@@ -214,19 +239,28 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
     }
   }, [selectedCategory]);
 
-  // FIRSTLY, GET TODAYS EVENTS
-  useEffect(() => {
-    const formattedDate = getDate();
-const filterByToday = eventsData.filter((event) => event.date.includes(formattedDate));
-setFilteredEvents(filterByToday);
 
+  useEffect(() => {
 // SET SEARCH INPUT IF USER SEARCHED FROM MAIN PAGE 
 if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
   searchRef.current.value = getIndexSearchData
 }
   }, [])
 
-
+  useEffect(() => {
+    document.addEventListener("mousedown", handleOutsideClick);
+  
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    }
+  }, [])
+  
+  const handleOutsideClick = (event) => {
+    if (searchRef.current && searchResultsRef.current && !(searchRef.current.contains(event.target) || searchResultsRef.current.contains(event.target))) {
+      setSearchResults("");
+    }
+  };
+  
   const handleReset = () => {
     setSelectedCategory("Kategori")
     setSelectedDate("Bugün")
@@ -241,7 +275,6 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
   }
 
 
-
   return (
     <>
       <section id={styles.eventsId}  >
@@ -250,15 +283,18 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
             <div className="col-lg-10 offset-lg-1">
                 <div className="d-flex justify-content-between align-items-center">
                 <h1 className="fs-2 text-primary-emphasis">Etkinliklere Göz Atın</h1>
-                <h1 className="fs-5 text-primary-emphasis"><a href="/pricing">Sen de Etkinlik Oluştur(10 Gün Deneme)  <i className="fa-solid fa-crown" style={{color: "var(--first-color)"}} /></a></h1>
+                {Object.keys(userData).length === 0 || userData.membershipLevel === "free" ? (
+                  <h1 className="fs-5 text-primary-emphasis"><a href="/pricing">Sen de Etkinlik Oluştur(10 Gün Deneme)  <i className="fa-solid fa-crown" style={{color: "var(--first-color)"}} /></a></h1>
+                ) : <h1 className="fs-5 fw-bold" style={{color: "var(--second-color)"}}>Premium Üye ({userData.username})</h1>}
                 </div>
               <hr className="mb-3" />
 
               <div className="d-flex justify-content-start gap-2 mb-5">
                 <div className={styles.searchContainer}>
                   <input type="search" className="form-control" ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." />
-                  {isTyping && (
-                      <div className={styles.searchResults}> 
+                    <span className={styles.searchIcon}><i className="fas fa-search"></i></span>
+                  {isTyping && typeof searchResults !== "string" && (
+                      <div className={styles.searchResults} ref={searchResultsRef}> 
                     
                     <div className="fs-5 text-center py-3">
                         {searchResults.length > 0 && isTyping && loading === false ? (
@@ -277,7 +313,7 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
                         {searchResults && loading && (
                           <div className={styles.resultNotFound}>
                             <div className="spinner-border" role="status">
-                            <span className="visually-hidden">Loading...</span>
+                            <span className="visually-hidden">Yükleniyor...</span>
                         </div>
                         </div>
                          
@@ -291,7 +327,7 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
                     )}
                   </div>
                 <div className="dropdown-center">
-                    <button className="btn btn-outline-secondary py-2 px-5 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button className="btn btn-outline-secondary px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedDate}
                     </button>
                     <ul className="dropdown-menu">
@@ -304,7 +340,7 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
                 </div>
 
                 <div className="dropdown-center">
-                    <button className="btn btn-outline-secondary py-2 px-5 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button className="btn btn-outline-secondary px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedCategory}
                     </button>
                     <ul className={`dropdown-menu ${styles.scrollableMenu}`}>

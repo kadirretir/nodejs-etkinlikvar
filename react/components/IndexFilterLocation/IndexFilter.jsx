@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react'
 import styles from './indexfilter.module.css'
-import debounce from 'lodash/debounce';
 
 
 const IndexFilter = () => {
@@ -84,6 +83,11 @@ const IndexFilter = () => {
         searchRef.current.value = areaName
         setSearchResults("");
 
+        const form = searchRef.current.closest('form');
+        if (form) {
+          form.submit()
+        }
+
       }
 
 
@@ -103,8 +107,8 @@ const IndexFilter = () => {
                 placeholder="İl veya İlçe Arayın..."
               />
 
-            <div className={`rounded-pill ${styles.deneme}`}>
-            <i className={`fa fa-search fa-2x ${styles.iconDefault}`}></i>
+            <div className={styles.iconContainer}>
+            <i className={`fa fa-search ${styles.iconDefault}`}></i>
             </div>
               </div>
 
@@ -117,7 +121,7 @@ const IndexFilter = () => {
                           <>
                             {searchResults.map((provinces, index) => (
                                 <div className={`d-flex flex-row align-items-center ${styles.searchResultsItems}`} onClick={handleProvinceClick} key={index}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--second-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--first-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
                                     <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                                   </svg>
                               <div id='areaName'>
@@ -132,12 +136,12 @@ const IndexFilter = () => {
                         {searchResults && loading && (
                           <div className={styles.resultNotFound}>
                             <div className="spinner-border" role="status">
-                            <span className="visually-hidden">Loading...</span>
+                            <span className="visually-hidden">Yükleniyor...</span>
                         </div>
                         </div>
                          
                         )}
-                        {searchResults.length === 0 && typeof searchResults !== "string" && loading === false && (
+                        {searchResults.length <= 0 && typeof searchResults !== "string" && loading === false && (
                           <div className={styles.resultNotFound}>
                             "{search}" ile bağlantılı bir bölge bulamadık
                           </div>

@@ -13,6 +13,9 @@ const path = require('path');
 const connectToDb = require("./models/db")
 const Event = require("./models/eventSchema")
 const User = require("./models/userSchema")
+const Complaint = require("./models/complaintsSchema")
+const cloneDocument = require("./models/cloneDocuments")
+
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
@@ -41,24 +44,34 @@ app.use(authMiddleware.getUserInfo)
 app.use(authMiddleware.getUserNotification)
 app.use(flash());
 
-
+// cloneDocument(10);
 
 
 app.use("/auth", authRoutes)
 app.use("/events", eventRoutes)
 app.use("/user", authMiddleware.checkIfAuthed, userRoutes)
+
 app.get("/", async (req,res) => {
     try {
       await connectToDb()
       // ŞU ANDAN İTİBAREN 10 GÜN İÇERİSİNDEKİ ETKİNLİKLERİ AL
       const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0); // Saat ve dakika bilgisini sıfırla
+      currentDate.setSeconds(0, 0); 
 
       const nextTenDays = new Date();
       nextTenDays.setDate(nextTenDays.getDate() + 10);
       nextTenDays.setHours(23, 59, 59, 999); // Son saat ve dakikayı ayarla
 
-      const events = await Event.find({ date: { $gte: currentDate, $lte: nextTenDays } }).limit(8).populate("organizer");
+      const events = await Event.find({ 
+        date: {
+          $gte: currentDate,
+          $lte: nextTenDays,
+        },
+        $or: [
+          { date: { $gt: currentDate } },
+          { date: currentDate, hour: { $gte: currentDate.getHours() } },
+        ],
+      }).limit(8).populate("organizer");
    
     // Kategorilerin sayımlarını yap
     const allEvents = await Event.find({});
@@ -84,12 +97,42 @@ app.get("/", async (req,res) => {
     }
 })
 
-
+// PRICING
 app.get("/pricing", (req,res) => {
   res.render("pricing.ejs")
 })
+
+// LOGIN
 app.get("/login", authMiddleware.checkIfNotAuthed, (req,res) => {
   res.render("login.ejs")
+})
+
+// COMPLAINTS
+app.get("/complaints", (req,res) => {
+  res.render("complaints.ejs", { flash: req.flash() })
+})
+app.post("/complaint", async (req,res) => {
+  try {
+    const { complainterName, complaintDescription, complaintCategory } = req.body;
+    
+    if (!complainterName || !complaintDescription || !complaintCategory) {
+       req.flash('error', 'Lütfen gerekli alanları doldurunuz...');
+       return res.redirect("/complaints")
+    }
+
+    await connectToDb()
+    await Complaint.create({
+      name: complainterName,
+      description: complaintDescription,
+      type: complaintCategory
+    })
+
+    req.flash('success', 'Geri bildiriminizi başarıyla aldık. Özenle inceleyeceğiz.');
+    return res.redirect("/complaints")
+  } catch (error) {
+    req.flash('error', 'Bir hata oluştu.');
+    throw new Error(error)
+  }
 })
 
 app.listen(3000)

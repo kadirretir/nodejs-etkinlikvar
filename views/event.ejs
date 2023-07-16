@@ -12,8 +12,8 @@
                   </div>
                   <div class="col-lg-5">
                      <div class="d-flex flex-column align-items-center">
-                        <img src="../<%=findOrganizer.profileImage%>" width="45%" alt="profileimage" />
-                        <h1 class="fs-4"><%= (user && user.username === findOrganizer.username) ? 'Siz' : findOrganizer.username.toUpperCase() %>
+                        <img src="../<%=findOrganizer.profileImage%>" class="rounded-circle" width="60%" alt="profileimage" />
+                        <h1 class="fs-5"><%= (user && user.username === findOrganizer.username) ? 'Siz' : findOrganizer.username.toUpperCase() %>
                         </h1>
                        </div>
                   </div>
@@ -45,8 +45,8 @@
                   <div class="gray-background w-100 my-3">
                  <% findAttendeeUsers.map((attendee) => { %>
                     <div class="d-flex flex-column justify-content-center align-items-center">
-                     <img src="<%=attendee.profileImage%>" width="75%" alt="attendee image">
-                     <h1 class="fs-4 text-center"><%=(user && user.username === attendee.username) ? 'Siz' : attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1)%></h1>
+                     <img src="<%=attendee.profileImage%>" class="rounded-circle" width="70%" alt="attendee image">
+                     <h1 class="fs-5 text-center"><%=(user && user.username === attendee.username) ? 'Siz' : attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1)%></h1>
                     </div>
                  <% }) %>
                    </div>

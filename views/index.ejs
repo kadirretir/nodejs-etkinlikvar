@@ -21,7 +21,7 @@
           <button type="submit">Ara</button>
           
         </div>
-        <span class="latestInfo">*Türkiye içerisindeki 81 ilde arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
+        <span class="latestInfo">*Türkiye içerisindeki 81 il ve ilçede arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
       </form>
     </div>
     </div>
@@ -51,17 +51,6 @@
                 <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="#">Grupça Hobini Paylaş</a>
               </div>
             </div>
-          </div>
-
-          <div class="row" style="margin-top: 7rem; margin-bottom: 5rem;">
-            <h1 class="fs-3 fw-bold text-left mb-3 mt-5">Trend Kategoriler</h1>
-            <% eventCategories.forEach((category, index) => { %>
-              <div class="col-lg-2">
-                <div class="btn-group">
-                  <a href="/events?<%=category%>" style="width: 13rem; padding: 1rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
-                </div>
-              </div>
-            <% }) %>
           </div>
         </div>
     </section>
@@ -94,6 +83,17 @@
                   </div>
                 </div>
               </a>
+            </div>
+          <% }) %>
+        </div>
+
+        <div class="row" style="margin-top: 7rem; margin-bottom: 5rem;">
+          <h1 class="fs-3 fw-bold text-left mb-3 mt-5">Trend Kategoriler</h1>
+          <% eventCategories.forEach((category, index) => { %>
+            <div class="col-lg-2">
+              <div class="btn-group">
+                <a href="/events?<%=category%>" style="width: 13rem; padding: 1rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
+              </div>
             </div>
           <% }) %>
         </div>

@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/pricing.css" />
     <link rel="stylesheet" href="css/event.css" />
     <link rel="stylesheet" href="css/userprofile.css" />
+    <link rel="stylesheet" href="css/complaints.css" />
 </head>
 
 <body>
@@ -29,7 +30,7 @@
 
             <% if(typeof user !== 'undefined') { %>
                 <div class="d-flex align-items-center">
-                    <% if(user.membership === 'premium') { %>
+                    <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
                             <div id="notificationNode"
                             notification-data="<%=(typeof notifications !== 'undefined') ? JSON.stringify(notifications) : '{}'%>"
                             ></div>
@@ -64,12 +65,12 @@
                             Hoşgeldiniz <%= user.username %>
                         </button>
                         <ul class="dropdown-menu">
-                            <img class="img-thumbnail d-block mx-auto" src="../<%=user.profileImage%>" width="25%" alt="user image">
+                            <img class="rounded-circle d-block mx-auto" src="../<%=user.profileImage%>" width="25%" alt="user image">
                             <h5 class="text-center fs-6 my-4"><a href="#">Hoşgeldiniz <%= user.email %></a></h5>
-                            <li><a class="dropdown-item" href="#">Etkinliklerim</a></li>
+                            <li><a class="dropdown-item" href="/user/profile?etkinliklerim">Etkinliklerim</a></li>
                             <li><a class="dropdown-item" href="/user/profile">Profil</a></li>
-                            <li><a class="dropdown-item" href="#">Ayarlar</a></li>
-                            <li><a class="dropdown-item" href="#">Yardım</a></li>
+                            <li><a class="dropdown-item" href="/user/profile?ayarlar">Ayarlar</a></li>
+                            <li><a class="dropdown-item" href="/help">Yardım</a></li>
                             <form action="/auth/logout?_method=DELETE" method="post">
                                 <li><button class="dropdown-item" href="#">Çıkış Yap</bu></li>
                             </form>

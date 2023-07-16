@@ -245,7 +245,6 @@ module.exports.newevent_post = async (req,res, err) => {
               console.log("cs " + err);
               return
             }
-            console.log('Dosya kaydedildi!');
         });
 
 
@@ -259,9 +258,8 @@ module.exports.newevent_post = async (req,res, err) => {
                 console.log("cs " + err);
                 return
               }
-              console.log('Dosya kaydedildi!');
-          });
 
+          });
           await Event.create({
             title: req.body.eventPostTitle,
             description: req.body.eventPostDescription,

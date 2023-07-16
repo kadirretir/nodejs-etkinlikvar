@@ -1,10 +1,15 @@
  // get current DATE
  const getDate = () => {
   const currentDate = new Date();
-  const day = currentDate.getDate();
-  const month = currentDate.getMonth() + 1; // Ay indeksi 0'dan başlar, bu yüzden 1 ekliyoruz.
+
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Ay indeksi 0'dan başlar, bu yüzden 1 ekliyoruz.
   const year = currentDate.getFullYear();
-  const formattedDate = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+
+  const hour = String(currentDate.getHours()).padStart(2, '0');
+  const minute = String(currentDate.getMinutes()).padStart(2, '0');
+
+  const formattedDate = `${year}.${month}.${day} ${hour}:${minute}`;
   return formattedDate;
 }
 
@@ -22,18 +27,25 @@ const getTomorrowDate = () => {
 
 const getWeekRange = () => {
   const currentDate = new Date();
-  const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1));
-  const endOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 7));
-  
-  const today = new Date(); // Şu anki tarih
-  
-  // Eğer hafta başlangıcı şu anki tarihten önce ise, hafta başlangıcını şu anki tarihe eşitle
-  if (startOfWeek < today) {
-    startOfWeek.setDate(today.getDate());
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const day = currentDate.getDate();
+  const startOfWeek = new Date(year, month, day - (currentDate.getDay() + 6) % 7);
+  const endOfWeek = new Date(year, month, day + (6 - currentDate.getDay() + 7) % 7 + 1);
+
+  // Hafta sonu güncellemesi
+  if (endOfWeek.getDay() === 0) {
+    // Eğer endOfWeek Pazar günü ise
+    endOfWeek.setDate(endOfWeek.getDate() + 1); // endOfWeek'u Pazartesi gününe taşı
+  } else if (endOfWeek.getDay() === 6) {
+    // Eğer endOfWeek Cumartesi günü ise
+    endOfWeek.setDate(endOfWeek.getDate() + 2); // endOfWeek'ü Pazartesi gününe taşı
   }
-  
+
   return { startOfWeek, endOfWeek };
 };
+
+
 
 const getWeekendRange = () => {
   const currentDate = new Date();
@@ -53,8 +65,13 @@ const getWeekendRange = () => {
     endOfWeekend.setDate(currentDate.getDate() + (7 - currentDay)); // Bir sonraki Pazar
   }
 
+  // Saat, dakika ve saniye bilgilerini sıfırla
+  startOfWeekend.setHours(0, 0, 0, 0);
+  endOfWeekend.setHours(23, 59, 59, 999);
+
   return { startOfWeekend, endOfWeekend };
 };
+
 
 const getNextWeekRange = () => {
   const currentDate = new Date();

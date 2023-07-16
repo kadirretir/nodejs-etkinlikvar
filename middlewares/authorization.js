@@ -1,10 +1,18 @@
 const connectToDb = require("../models/db")
 const Event = require("../models/eventSchema")
 const Notification = require("../models/notificationSchema")
+const User = require("../models/userSchema")
 
-const getUserInfo = (req, res, next) => {
-    res.locals.user = req.user;
+const getUserInfo = async (req, res, next) => {
+  try {
+    await connectToDb();
+    const currentUser = await User.findById(req.user.id)
+    res.locals.user = currentUser || undefined;
     next();
+  } catch (error) {
+    res.locals.user = undefined;
+    next(); // Hata yerine işleme devam etmek için `next()` kullanılıyor.
+  }
   };
 
 
@@ -51,8 +59,8 @@ const checkIfNotAuthed = (req,res,next) => {
 
 const authForNewEvent = (req,res,next) => {
       let user;
-      if(res.locals.user && res.locals.user.membership) {
-        user = res.locals.user.membership
+      if(res.locals.user && res.locals.user.membershipLevel) {
+        user = res.locals.user.membershipLevel
 
         if(req.isAuthenticated() && user === "premium") {
           return next()
