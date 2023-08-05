@@ -76,7 +76,7 @@ const UserProfile = ({userData, eventsData}) => {
             </div>
   
             <div className="col-lg-9 bg-light-subtle">
-                {activeTab === 'etkinliklerim' && <EventsComp eventGroups={eventGroups} />}
+                {activeTab === 'etkinliklerim' && <EventsComp userData={userData} eventGroups={eventGroups} />}
             {activeTab === 'profilim' && <Profile userData={userData} /> }
             {activeTab === 'mesajlarim' && <div className="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">...</div>}
             {activeTab === 'ayarlar' && <div className="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">...</div>}
@@ -174,7 +174,7 @@ const [imageFile, setImageFile] = useState("");
 }
 
 
-const EventsComp = ({ eventGroups }) => {
+const EventsComp = ({ eventGroups, userData }) => {
   const [visibleEvents, setVisibleEvents] = useState(7);
   const [loading, setLoading] = useState(false);
   const allEvents = Object.entries(eventGroups).reduce((acc, [date, events]) => [...acc, ...events], []);
@@ -197,7 +197,21 @@ const EventsComp = ({ eventGroups }) => {
     };
   }, []);
 
-  if(allEvents.length === 0) {
+
+  if(userData.membershipLevel === "free" && allEvents.length === 0) {
+    return (
+      <>
+       <div className='text-center'>
+            <h1 className='fs-2 text-center mb-4'>Siz de etkinlik oluşturmak ister miydiniz?</h1>
+            <a href="/pricing">
+              <button className='btn btn-primary border-0 p-2' style={{background: "var(--first-color)"}}>Etkinliğimi Oluştur</button>
+            </a> 
+        </div>
+           <h2 className='fs-4 mt-5'>Henüz bir etkinlik oluşturmadınız...</h2>
+      </>
+      )
+
+  } else if (userData.membershipLevel === "premium" && allEvents.length === 0) {
     return <h1 className='fs-4 mt-4'>Henüz bir etkinlik oluşturmadınız...</h1>
   }
 

@@ -1,5 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import styles from './Login.module.css'
+import ReCAPTCHA from "react-google-recaptcha";
+import axios from 'axios';
 
 const Login = ({errorMessage}) => {
     const [errorState, setErrorState] = useState(null)
@@ -28,6 +30,25 @@ const Login = ({errorMessage}) => {
           setShowRegisterForm(true);
         }
       }, [errorMessage])
+
+      async function recapthaOnChange(value) {
+        try {
+          // secret=6LeotD4nAAAAAIRM5E7ivgFcregwvJ0akQRXr-NB
+          // https://www.google.com/recaptcha/api/siteverify
+
+          await axios.post("/send-recaptha", { value: value })
+
+      
+          // const data = await response.json();
+
+          
+          // Doğrulama başarılıysa, data.success değeri true olacaktır.
+        
+        } catch (error) {
+          console.error("ReCAPTCHA doğrulama hatası:", error);
+          // Hata durumunda gerekli işlemleri yapabilirsiniz.
+        }
+      }
       
 
   return (
@@ -57,6 +78,15 @@ const Login = ({errorMessage}) => {
                   </div>
                   <button type="submit" className="loginButton">Giriş Yap</button>
                   <p className='fs-4 text-center mt-3'>Hesabın yok mu? <a href="/" onClick={handleRegisterLinkClick}>Kayıt Ol</a></p>
+               
+
+                  <div className="d-flex justify-content-center mt-3"> 
+                  <ReCAPTCHA
+                     className='mt-3 d-block mx-auto'
+                      sitekey="6LeotD4nAAAAAKbVbnsFin9OprFTW_fV4vJpO2w_"
+                        onChange={recapthaOnChange}
+                         />
+                    </div>
                 </form>
               </div>
             )}

@@ -20,8 +20,20 @@ const EventForm = ({
     const [selectedAddressDistricts, setSelectedAddressDistricts] = useState()
     const [districtsSearch, setDistrictsSearch] = useState('')
     const [districtsResult, setDistrictsResult] = useState([])
-    const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0, 16));
 
+
+    const current = new Date();
+    const turkiyeZamanDilimi = new Date(current.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+
+    const year = turkiyeZamanDilimi.getFullYear();
+    const month = String(turkiyeZamanDilimi.getMonth() + 1).padStart(2, '0');
+    const day = String(turkiyeZamanDilimi.getDate()).padStart(2, '0');
+    const hours = String(turkiyeZamanDilimi.getHours()).padStart(2, '0');
+    const minutes = String(turkiyeZamanDilimi.getMinutes()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+
+    const [currentDate, setCurrentDate] = useState(formattedDate);
         // HANDLE EVENT DATE
       const handleDateChange = (e) => {
         const selectedDate = new Date(e.target.value);
@@ -29,7 +41,7 @@ const EventForm = ({
     
         if (selectedDate < now) {
           // Seçilen tarih şu anki tarihten önce ise, şimdiki zamanı kullan
-          setCurrentDate(now.toISOString().slice(0, 16));
+          setCurrentDate(formattedDate);
         } else {
           setCurrentDate(e.target.value);
         }

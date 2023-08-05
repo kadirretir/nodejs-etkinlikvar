@@ -3,57 +3,69 @@
 
 <footer class="footer bg-dark">
   <div class="container position-relative">
+    <div class="row justify-content-center ms-0 me-0 rowAfterContainer" style="height: 100%;">
+
     <div class="row">
-      <div class="col-lg-6 d-flex align-items-center">
+      <div class="col-12 mx-auto d-flex flex-column flex-md-row align-items-center justify-content-between">
         <h4 class="text-light fw-semibold fs-3 text-center">Etkinliğini Oluştur, Katılımcıları Çek!</h4>
-      <button class="btn ms-3 text-white py-2 px-3" style="background: var(--first-color)" type="button">Etkinlik Oluştur</button>
+        <button class="btn ms-3 joinButton text-white py-2 px-3" style="background: var(--first-color)" type="button">Etkinlik Oluştur</button>
       </div>
-      <hr class="border border-primary-subtle mt-3" />
+      <hr class="border-1 border-primary-subtle mt-3" />
     </div>
-      <div class="row">
-        <div class="col-lg-4 mt-3">
-          <h5 class="fs-5 text-center mb-3"  style="color:  var(--light-color)">Hesabım</h5>
-          <ul class="d-flex flex-column align-items-center justify-content-center">
-            <li class="mb-1"><a href="#" class="footerElements">Giriş Yap</a></li>
-            <li><a href="#" class="footerElements">Kayıt Ol</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-4 mt-3">
-          <h5 class="fs-5 text-center mb-3"  style="color:  var(--light-color)">etkinlikvar</h5>
-          <ul class="d-flex flex-column align-items-center justify-content-center">
-            <li><a href="/complaints" class="footerElements">Şikayet ve Öneri</a></li>
-            <li class="mb-1"><a href="#" class="footerElements">Etkinlikler</a></li>
-            <li><a href="#" class="footerElements">İletişim</a></li>
-            <li><a href="#" class="footerElements">Yardım</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-4 mt-3">
-          <h5 class="fs-5 text-center mb-3"  style="color:  var(--light-color)">Bizi Takip Et</h5>
-          <ul class="d-flex flex-column align-items-center justify-content-center">
-            <li class="mb-1"><a href="#" class="footerElements"><i class="fa-brands fa-instagram fa-xl"></i></a></li>
-          </ul>
-        </div>
+    <div class="row justify-content-center">
+      <div class="col-md-5 col-lg-4 mt-3">
+        <h5 class="fs-5 text-center mb-3" style="color: var(--light-color)">Hesabım</h5>
+        <ul class="d-flex flex-column align-items-center justify-content-center">
+          <li class="mb-1"><a href="#" class="footerElements">Giriş Yap</a></li>
+          <li><a href="#" class="footerElements">Kayıt Ol</a></li>
+        </ul>
       </div>
-      <div class="row w-75 position-absolute top-100 start-50 translate-middle text-center">
-        <div class="col-lg-3">
-          <h1 class="text-light fw-bold">© Etkinlikvar.com 2023</h1>
-        </div>
-          <div class="col-lg-3">
-            <h1><a href="#" class="footerElements">Gizlilik Politikası</a></h1>
-          </div>
-          <div class="col-lg-3">
-            <h1><a href="#" class="footerElements">Hizmet Şartları</a></h1>
-          </div>
-          <div class="col-lg-3">
-            <h1><a href="#" class="footerElements" >Çerez Politikası</a></h1>
-          </div>
+
+      <div class="col-md-5 col-lg-4 mt-3">
+        <h5 class="fs-5 text-center mb-3" style="color: var(--light-color)">etkinlikvar</h5>
+        <ul class="d-flex flex-column align-items-center justify-content-center">
+          <li><a href="/complaints" class="footerElements">Şikayet ve Öneri</a></li>
+          <li class="mb-1"><a href="#" class="footerElements">Etkinlikler</a></li>
+          <li><a href="#" class="footerElements">İletişim</a></li>
+          <li><a href="#" class="footerElements">Yardım</a></li>
+        </ul>
       </div>
+
+      <div class="col-md-5 col-lg-4 mt-3">
+        <h5 class="fs-5 text-center mb-3" style="color: var(--light-color)">Bizi Takip Et</h5>
+        <ul class="d-flex flex-column align-items-center justify-content-center">
+          <li class="mb-1"><a href="#" class="footerElements"><i class="fa-brands fa-instagram fa-xl"></i></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row mt-3 justify-content-center align-items-end">
+      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+        <h1 class="text-light fw-bold">© Etkinlikvar.com 2023</h1>
+      </div>
+      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+        <h1><a href="#" class="footerElements">Gizlilik Politikası</a></h1>
+      </div>
+      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+        <h1><a href="#" class="footerElements">Hizmet Şartları</a></h1>
+      </div>
+      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+        <h1><a href="#" class="footerElements">Çerez Politikası</a></h1>
+      </div>
+    </div>
+  </div>
   </div>
 </footer>
 
-
+<script>
+  const button = document.querySelector('.userButtonDesktop');
+  button.addEventListener('click', () => {
+      if (button.classList.contains('show')) {
+          button.classList.add('custom-style');
+      } else {
+         button.classList.remove('custom-style');
+      }
+  });
+</script> 
 <script src="https://kit.fontawesome.com/fbc606679a.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>

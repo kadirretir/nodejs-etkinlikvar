@@ -48,7 +48,8 @@ module.exports.home_get = async (req,res) => {
         const eventCategories = Event.schema.path('eventCategory').enumValues;
         res.locals.categories = eventCategories
         res.locals.events = events
-        res.render("events.ejs")
+        const createdMessage = req.flash('success');
+        res.render("events.ejs", {createdMessage})
         await new Promise ((resolve, reject) => {
           const data = req.app.locals.searchresults = {}
           resolve(data)
@@ -271,6 +272,7 @@ module.exports.newevent_post = async (req,res, err) => {
             organizer: res.locals.user.id,
             eventCategory: req.body.getEventCategory
         })
+        req.flash('success', 'Etkinliğiniz başarıyla oluşturuldu');
         res.redirect("/events")
     } catch (error) {
       res.redirect("/events/newevent")

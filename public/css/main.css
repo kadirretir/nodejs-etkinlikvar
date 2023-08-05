@@ -52,6 +52,7 @@ table {
 
 body {
 	background: linear-gradient(to bottom, #ffffff, #f1f1f1);
+	overflow-x:hidden;
 }
 
 a {
@@ -97,5 +98,14 @@ a {
   .dropdown-item:active {
 	background: var(--light-grey-color);
 	color: black;
+  }
+
+
+  .rounded-right-top {
+	border-top-right-radius: 1rem !important;
+  }
+
+  .rounded-right-bottom {
+	border-bottom-right-radius: 1rem !important;
   }
 

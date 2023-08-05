@@ -31,10 +31,12 @@ function checkValue (val) {
       const eventData = JSON.parse(eventsNode.getAttribute('data-events'));
       const usersData = JSON.parse(eventsNode.getAttribute('data-user'));
       const searchresults = JSON.parse(eventsNode.getAttribute('search-results'));
-      const categoryData = JSON.parse(eventsNode.getAttribute("category-data"))
+      const categoryData = JSON.parse(eventsNode.getAttribute("category-data"));
+      const createdEventMessage = JSON.parse(eventsNode.getAttribute("created-event-message"))
       eventsRoot.render(
         <StrictMode>
           <Events 
+          createdEventMessage={createdEventMessage}
           eventsData={eventData} 
           searchresults={searchresults} 
           categoryData={categoryData}

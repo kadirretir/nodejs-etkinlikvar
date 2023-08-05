@@ -3,7 +3,7 @@ import styles from './events.module.css'
 import SingleEvents from "./SingleEvents";
 import getDates from './getDates'
 
-const Events = ({ eventsData, userData, searchresults, categoryData }) => {
+const Events = ({ eventsData, userData, searchresults, categoryData, createdEventMessage }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
 
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,8 @@ const Events = ({ eventsData, userData, searchresults, categoryData }) => {
 
   const [search, setSearch] = useState("")
   const [searchResults, setSearchResults] = useState([])
+
+  const [createdEventSuccess, setCreatedEventSuccess] = useState("")
 
   const searchRef = useRef()
   const searchResultsRef = useRef()
@@ -274,24 +276,49 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
      setSelectedProvince(searchRef.current.value)
   }
 
+  // const showMessageFor5Seconds = (message) => {
+  //   setCreatedEventSuccess(message);
+  //   setTimeout(() => {
+  //     setCreatedEventSuccess('');
+  //   }, 5000);
+  // };
+
+  
+  // useEffect(() => {
+  //   if (Object.keys(createdEventMessage).length !== 0) {
+  //     showMessageFor5Seconds(createdEventMessage);
+  //   }
+  // }, [createdEventMessage]);
+
+ const handleAnimationEnd  = (e) => {
+  e.target.style.display = 'none';
+ }
 
   return (
     <>
       <section id={styles.eventsId}  >
       <div className="container">
-          <div className="row">
-            <div className="col-lg-10 offset-lg-1">
-                <div className="d-flex justify-content-between align-items-center">
-                <h1 className="fs-2 text-primary-emphasis">Etkinliklere Göz Atın</h1>
+          <div className="row rounded-right-top rounded-right-bottom">
+            <div className="col-lg-10 offset-lg-1 pb-5">
+      
+            {createdEventMessage.length !== 0 ? (
+            <h1 
+            onAnimationEnd={handleAnimationEnd} 
+            className={`fs-5 alert alert-success ${styles.alertMessage}`}>
+               {createdEventMessage}
+            </h1>
+            ) : null}
+          
+            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center">
+                <h1 className={`fs-2 text-primary-emphasis ${styles.eventsTitle}`}>Etkinliklere Göz Atın</h1>
                 {Object.keys(userData).length === 0 || userData.membershipLevel === "free" ? (
-                  <h1 className="fs-5 text-primary-emphasis"><a href="/pricing">Sen de Etkinlik Oluştur(10 Gün Deneme)  <i className="fa-solid fa-crown" style={{color: "var(--first-color)"}} /></a></h1>
+                  <h1 className="fs-5 text-primary-emphasis text-center"><a href="/pricing">Sen de Etkinlik Oluştur(10 Gün Deneme)  <i className="fa-solid fa-crown" style={{color: "var(--first-color)"}} /></a></h1>
                 ) : <h1 className="fs-5 fw-bold" style={{color: "var(--second-color)"}}>Premium Üye ({userData.username})</h1>}
                 </div>
               <hr className="mb-3" />
-
-              <div className="d-flex justify-content-start gap-2 mb-5">
+              <div className="d-flex flex-column flex-md-row justify-content-start gap-2 mb-5">
                 <div className={styles.searchContainer}>
-                  <input type="search" className="form-control" ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." />
+                  <input type="search" className={`form-control ${styles.searchElements}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." />
                     <span className={styles.searchIcon}><i className="fas fa-search"></i></span>
                   {isTyping && typeof searchResults !== "string" && (
                       <div className={styles.searchResults} ref={searchResultsRef}> 
@@ -326,8 +353,8 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
                       </div>
                     )}
                   </div>
-                <div className="dropdown-center">
-                    <button className="btn btn-outline-secondary px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div className={`dropdown-center ${styles.searchElements}`}>
+                    <button className="btn btn-outline-secondary px-5 w-100 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedDate}
                     </button>
                     <ul className="dropdown-menu">
@@ -339,8 +366,8 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
                     </ul>
                 </div>
 
-                <div className="dropdown-center">
-                    <button className="btn btn-outline-secondary px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div className={`dropdown-center ${styles.searchElements}`}>
+                    <button className="btn btn-outline-secondary w-100 px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedCategory}
                     </button>
                     <ul className={`dropdown-menu ${styles.scrollableMenu}`}>
@@ -354,53 +381,7 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
 
                 <button onClick={handleReset} className="btn btn-light">Sıfırla</button>
               </div>
-              {/* {loading ? (
-                <>
-                     <h2 className="placeholder col-12 placeholder-xs"></h2>
-                     <hr className="border border-2 border-secondary" />
-                  <div className="card mb-3 rounded-0 border-0" style={{ maxWidth: "640px" }}>
-                  <a href="#">
-                    <div className="row g-0">
-                      <div className="col-md-4">
-                        <img src="/img-placeholder.png" className="img-fluid rounded-start card-img-top" alt="..." />
-                      </div>
-                      <div className="col-md-8">
-                        <div className="card-body">
-                          <h5 className="card-title placeholder-glow col-6"></h5>
-                          <p className="card-text placeholder col-6"></p>
-                          <p className="card-text placeholder-glow col-6">
-                            <b className="text-body-secondary placeholder col-6"></b>
-                          </p>
-                          <small></small>
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-
-                <div className="card mb-3 rounded-0 border-0" style={{ maxWidth: "640px" }}>
-                  <a href="#">
-                    <div className="row g-0">
-                      <div className="col-md-4">
-                        <img src="/img-placeholder.png" className="img-fluid rounded-start card-img-top" alt="..." />
-                      </div>
-                      <div className="col-md-8">
-                        <div className="card-body">
-                          <h5 className="card-title placeholder-glow col-6"></h5>
-                          <p className="card-text placeholder col-6"></p>
-                          <p className="card-text placeholder-glow col-6">
-                            <b className="text-body-secondary placeholder col-6"></b>
-                          </p>
-                          <small></small>
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-                </>
-               ) :    <SingleEvents
-               filteredEvents={filteredEvents}
-               /> } */}
+             
                  <SingleEvents
                  loadingFilter={loadingFilter}
                filteredEvents={filteredEvents} />

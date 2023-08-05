@@ -29,44 +29,49 @@
             </div>
 
             <% if(typeof user !== 'undefined') { %>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center justify-content-end">
                     <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
                             <div id="notificationNode"
                             notification-data="<%=(typeof notifications !== 'undefined') ? JSON.stringify(notifications) : '{}'%>"
                             ></div>
                        
-
-                           <!-- <script>
-                            const socket = new WebSocket('ws://localhost:8080');
-                          
-                            socket.addEventListener('message', function(event) {
-                              const data = JSON.parse(event.data);
-                              const eventId = data.eventId;
-                              const message = data.message;
-                              sessionStorage.setItem('bildirim', message);
-                          
-                              // Bildirimi göstermek için sessionStorage'deki bilgiyi güncelle
-                              document.getElementById('notification').innerText = message;
-                            });
-                          </script>  -->
-                        <h1 class="me-3 mt-2">
+                        <h1 class="me-3 mt-2 createEventLink">
                             <a class="premiumLink" href="/events/newevent">Etkinlik Oluştur <i class="fa-solid fa-crown"></i></a>
                         </h1>
                         <% } else { %>
-                            <h1 class="fs-6 me-3 mt-2">
+                            <h1 class="fs-6 me-3 mt-2 createEventLinkFreeUser">
                                 <a href="/events/newevent">Şimdi Etkinlik Oluştur(%30 İndirim)</a>
                             </h1>
                             <% } %>
                 
-    
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" id="dropdown-menu-align-end" type="button" data-bs-toggle="dropdown"
+                            
+                    <div class="dropdown d-flex justify-content-end">
+                        <!-- BUTTON FOR LARGER THAN 1200PX -->
+                        <button class="btn btn-secondary dropdown-toggle userButtonMobile" id="dropdown-menu-align-end" type="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             Hoşgeldiniz <%= user.username %>
                         </button>
+
+                            <!-- BUTTON FOR LOWER THAN 1200PX -->
+                                <button class="dropdown-toggle userButtonDesktop" type="button" data-bs-toggle="dropdown">
+                                    <img class="rounded-circle userImage img-fluid" src="../<%=user.profileImage%>" width="100%" alt="user image">
+                                </button>
+                                 
+                          
+
                         <ul class="dropdown-menu">
                             <img class="rounded-circle d-block mx-auto" src="../<%=user.profileImage%>" width="25%" alt="user image">
                             <h5 class="text-center fs-6 my-4"><a href="#">Hoşgeldiniz <%= user.email %></a></h5>
+                            <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
+                                <li class="smallerCreateEventLink"><a class="dropdown-item" href="/events/newevent">
+                                    Etkinlik Oluştur
+                                    <i class="fa-solid fa-crown"></i>
+                                 </a></li>
+                                <% } else { %>
+                                    <li class="smallerCreateEventLink"><a class="dropdown-item" href="/pricing">
+                                        Etkinlik Oluştur (%30 İndirim)
+                                     </a></li>
+                                    <% } %>
                             <li><a class="dropdown-item" href="/user/profile?etkinliklerim">Etkinliklerim</a></li>
                             <li><a class="dropdown-item" href="/user/profile">Profil</a></li>
                             <li><a class="dropdown-item" href="/user/profile?ayarlar">Ayarlar</a></li>
@@ -76,9 +81,38 @@
                             </form>
                         </ul>
                     </div>
+                    
                 </div>
+
                 <% } else { %>
-                    <nav>
+                    <button class="btn" id="hamburgerBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                      </button>
+                      
+
+                    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title fs-3 text-center flex-grow-1" id="offcanvasRightLabel">Üyelik İşlemleri</h5>
+                        <button type="button" class="btn-close flex-grow-0" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body text-center">
+                        <nav>
+                            <a href="/login" class="link-styles">
+                            <button type="button"  class="btn border-1 p-2 px-2">
+                               Giriş Yap
+                              </button>
+                            </a>
+                            <a href="/login" class="link-styles">
+                            <button type="button"  class="btn ms-2 border-1 p-2 px-2">
+                              Üye Ol
+                              </button>
+                            </a>
+                        </nav>
+                    </div>
+                    </div>
+                    <nav id="navbarUnregistered">
                         <button type="button"  class="btn border-0" data-bs-toggle="modal" data-bs-target="#loginmodal">
                             Giriş Yap
                           </button>
@@ -86,38 +120,23 @@
                             Üye Ol
                           </button>
                     </nav>
+
+                    <!-- <script>
+                        let innerWidthValue;
+                        const getInnerWidth = () => {
+                        innerWidthValue = window.innerWidth;
+                        if (innerWidthValue >= 1200) {
+                            document.querySelector("nav").style.display = "block";
+                            document.getElementById("hamburgerBtn").style.display = "none";
+                        } else {
+                            document.querySelector("nav").style.display = "none";
+                            document.getElementById("hamburgerBtn").style.display = "block";
+                        }
+                        }
+                        window.addEventListener("resize", getInnerWidth);
+                        window.addEventListener("load", getInnerWidth)
+                    </script> -->
                 <% } %>
-
-          
-
-            <!-- SOCIAL SIGN UP MODAL -->
-            <div class="modal fade" id="socialsignup" tabindex="-1" aria-labelledby="socialsignupLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="badgeLogo">
-                                <h2>etkinlikvar</h2>
-                            </div>
-                            <h1 class="modal-title fs-1 text-center mt-3 fw-bold" id="signupModalToggleLabel">
-                                Kayıt Ol
-                            </h1>
-                            <p class="text-center h5">Zaten Üye misiniz? <a href="#">Giriş Yap</a> </p>
-                            <button type="submit" class="socialLoginButton mt-5 mb-3"><img loading="lazy" height="24"
-                                    width="24" src="https://authjs.dev/img/providers/facebook.svg" /><span>Facebook ile
-                                    Giriş Yap</span></button>
-                            <button type="submit" class="socialLoginButton"><img loading="lazy" height="24" width="24"
-                                    src="https://authjs.dev/img/providers/google.svg" /><span>Google ile Giriş
-                                    Yap</span></button>
-                            <button class="socialLoginButton mt-3">E-Posta ile Kayıt Ol</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
 
             <!-- LOGIN MODAL -->
             <div class="modal fade" id="loginmodal" tabindex="-1" aria-labelledby="loginmodalLabel"

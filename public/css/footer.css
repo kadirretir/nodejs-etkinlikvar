@@ -1,15 +1,31 @@
 .footer {
-    background-color: #f8f9fa;
-    min-height: 40vh;
-    padding-top: 4rem;
+  background-color: #f8f9fa;
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column; 
+}
 
-  }
+.footer .container {
+  flex: 1;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+}
 
-  .footer .container {
-    min-height: 30vh;
-  }
-  
+.footer .container .rowAfterContainer {
+  flex: 1;
+}
 
-  .footerElements {
-    color: #a9a9a9;
+
+
+
+.footerElements {
+  color: #a9a9a9;
+}
+
+@media screen and (max-width: 768px) {
+  .joinButton {
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
   }
+}

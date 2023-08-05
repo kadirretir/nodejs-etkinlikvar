@@ -248,7 +248,7 @@ const ProgressBar = ({eventCategories}) => {
       <div className="container">
         <div className="row gx-4 justify-content-center">
           <div className="col-xl-7 my-5">
-            <h1 className="fs-1 mb-5">
+            <h1 className="fs-1 mb-5 text-center text-lg-start">
               Etkinlik Oluştur
               <hr className="border border-1 opacity-75"></hr>
             </h1>

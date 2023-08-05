@@ -15,6 +15,7 @@ const Event = require("./models/eventSchema")
 const User = require("./models/userSchema")
 const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
+const { default: axios } = require("axios")
 
 
 app.set("view engine", "ejs")
@@ -44,7 +45,7 @@ app.use(authMiddleware.getUserInfo)
 app.use(authMiddleware.getUserNotification)
 app.use(flash());
 
-// cloneDocument(10);
+//cloneDocument(7);
 
 
 app.use("/auth", authRoutes)
@@ -134,5 +135,29 @@ app.post("/complaint", async (req,res) => {
     throw new Error(error)
   }
 })
+
+
+app.post("/send-recaptha", async (req,res, next) => {
+console.log(req.body.value)
+if(!req.body) {
+return res.status(400).json({error: "Rechaptcha value is missing"})
+}
+
+try {
+  const googleUrl = `https://www.google.com/recaptcha/api/siteverify?secret=6LeotD4nAAAAAIRM5E7ivgFcregwvJ0akQRXr-NB&response=${req.body}`
+  const response = await axios.post(googleUrl)
+  const {success} = response.data;
+  if(success) {
+    console.log(success)
+    return res.send("başarılı")
+
+  } else {
+    console.log("not success")
+  }
+} catch (error) {
+  
+}
+})
+
 
 app.listen(3000)
