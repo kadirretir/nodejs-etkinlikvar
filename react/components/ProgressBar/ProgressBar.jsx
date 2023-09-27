@@ -1,24 +1,19 @@
-import React, { useState, useRef, useEffect} from "react";
+import React, { useState, useEffect} from "react";
 import styles from "./progress.module.css";
-import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 import "@reach/combobox/styles.css";
 import EventForm from "./EventForm";
 
-const libraries = ["places"]
 
 const ProgressBar = ({eventCategories}) => {
   const [eventCategoryState, setEventCategoryState] = useState(eventCategories);
-  const [selected, setSelected] = useState({
-    lat: 41.015137,
-    lng: 28.97953,
-  });
+
   const [titleInput, setTitleInput] = useState("")
   const [districtInput, setDistrictInput] = useState("")
+  const [cityInput, setCityInput] = useState("")
   const [fullAddressInput, setFullAddressInput] = useState("")
   const [descriptionInput, setDescriptionInput] = useState("")
   const [imageInput, setImageInput] = useState("")
 
-  const [checkIfSelected, setCheckIfSelected] = useState();
   const [inputErrors, setInputErrors] = useState({
     titleError: "",
     dateError: "",
@@ -92,22 +87,37 @@ const ProgressBar = ({eventCategories}) => {
   }, [descriptionInput])
 
   /// DISTIRCT ERROR HANDLER 
-  useEffect(() => {
-    const isDistrictValid = districtInput.length <= 0
-    if(checkIfSelected !== undefined) {
-      if(isDistrictValid) {
-        setInputErrors((prevErrors) => ({
-          ...prevErrors,
-          districtError: "Lütfen bir ilçe seçiniz"
-        }))
-      } else {
-        setInputErrors((prevErrors) => ({
-          ...prevErrors,
-          districtError: ""
-        }))
-      }
-    }
-  }, [checkIfSelected, districtInput])
+  // useEffect(() => {
+  //   const isDistrictValid = districtInput.length <= 0
+  //     if(isDistrictValid) {
+  //       setInputErrors((prevErrors) => ({
+  //         ...prevErrors,
+  //         districtError: "Lütfen bir ilçe seçiniz"
+  //       }))
+  //     } else {
+  //       setInputErrors((prevErrors) => ({
+  //         ...prevErrors,
+  //         districtError: ""
+  //       }))
+  //     }
+  // }, [districtInput])
+
+  // // CITY ERROR HANDLER
+
+  //  useEffect(() => {
+  //   const isCityValid = cityInput.length <= 0
+  //     if(isCityValid) {
+  //       setInputErrors((prevErrors) => ({
+  //         ...prevErrors,
+  //         cityError: "Lütfen bir il seçiniz"
+  //       }))
+  //     } else {
+  //       setInputErrors((prevErrors) => ({
+  //         ...prevErrors,
+  //         cityError: ""
+  //       }))
+  //     }
+  // }, [cityInput])
 
   // IMAGE ERROR HANDLER 
  
@@ -177,6 +187,20 @@ const ProgressBar = ({eventCategories}) => {
         districtError: "",
       }));
     }
+
+      // City hata kontrolü
+      if (cityInput.trim() === "") {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          cityError: "*Lütfen ilçe seçiniz",
+        }));
+        hasErrors = true; // Hata olduğunda hasErrors değerini güncelle
+      } else {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          cityError: "",
+        }));
+      }
   
     // Full Address hata kontrolü
     if (fullAddressInput.trim() === "") {
@@ -225,24 +249,6 @@ const ProgressBar = ({eventCategories}) => {
     } 
   }
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyBP-o-ZJuNYF-f6PdriXJ37d-aBlBcj_Ms",
-    libraries: libraries
-  });
-
-  if (!isLoaded) {
-    return (
-      <>
-        <div
-          className="spinner-border  d-flex align-items-center justify-content-center"
-          role="status"
-        >
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <div className="container">
@@ -256,6 +262,8 @@ const ProgressBar = ({eventCategories}) => {
             <EventForm 
             titleInput={titleInput}
             districtInput={districtInput}
+            cityInput={cityInput}
+            setCityInput={setCityInput}
             setDistrictInput={setDistrictInput}
             fullAddressInput={fullAddressInput}
             descriptionInput={descriptionInput}
@@ -264,23 +272,10 @@ const ProgressBar = ({eventCategories}) => {
             inputErrors={inputErrors}
             handleInputChange={handleInputChange}
             formHandlerOnSubmit={formHandlerOnSubmit}
-            eventCategoryState={eventCategoryState}
-            setCheckIfSelected={setCheckIfSelected}
-            setSelected={setSelected} />
+            eventCategoryState={eventCategoryState} />
            
           </div>
           <div className={`col-xl-5 my-5 ${styles.googleMapsContainer}`}>
-            <GoogleMap
-              center={selected}
-              zoom={13}
-              mapContainerStyle={{ width: "100%", height: "100%" }}
-              options={{
-                zoomControl: false,
-                mapTypeControl: false,
-              }}
-            >
-              {selected && <MarkerF position={selected} />}
-            </GoogleMap>
           </div>
         </div>
       </div>

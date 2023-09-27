@@ -2,6 +2,40 @@
     box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .2); 
     border-radius: 5px;
     background-color: rgba(255, 255, 255, .15);
-    
     backdrop-filter: blur(5px);
+
+}
+
+
+
+
+/* LARGER THAN 1200PX */
+@media screen and (min-width: 1200px) {
+    .loginLogo {
+        margin: "0 15rem 7rem 0"
+    }
+
+    .loginBackground {
+        width: 75%;
+    } 
+}
+
+/* SMALLER THAN 1200PX */
+@media screen and (max-width: 1200px) {
+.loginBackground {
+    width: 65%;
+    background: white !important;
+} 
+}
+/* SMALLER THAN 768PX */
+@media screen and (max-width: 768px) {
+    .loginBackground {
+        width: 90%;
+    } 
+}
+/* SMALLER THAN 576px */
+@media screen and (max-width: 576px) {
+    .loginBackground {
+        width: 100%;
+    } 
 }

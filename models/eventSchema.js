@@ -45,7 +45,7 @@ const eventsSchema  = new Schema({
     eventCategory: {
       type: String,
       require: true,
-      enum: ["Sanat ve Kültür", "Spor", "Eğitim ve Gelişim", "Toplum ve Yardım", "İş ve Kariyer", "Teknoloji ve İnovasyon", "Eğlence ve Gezi", "Müzik", "Dans ve Tiyatro", "Film ve Sinema", "Görsel Sanatlar", "Edebiyat ve Yazarlık", "Bilim ve Teknoloji", "Doğa ve Çevre", "Sağlık ve Fitness", "Moda ve Güzellik", "Yiyecek ve İçecek", "Seyahat ve Turizm", "Ev ve Bahçe", "Evcil Hayvanlar", "Oyunlar ve Eğlence", "Konferanslar ve Seminerler", "Çocuk etkinlikleri", "Müzik festivalleri", "Sanat sergileri", "Yardım kampanyaları", "Sosyal sorumluluk projeleri", "Yaz kampı etkinlikleri", "Online etkinlikler"]
+      enum: ["Sanat ve Kültür", "Spor", "Eğitim ve Gelişim", "Toplum ve Yardım", "İş ve Kariyer", "Teknoloji ve İnovasyon", "Eğlence ve Gezi", "Müzik", "Dans ve Tiyatro", "Film ve Sinema", "Görsel Sanatlar", "Edebiyat ve Yazarlık", "Bilim ve Teknoloji", "Doğa ve Çevre", "Sağlık ve Fitness", "Moda ve Güzellik", "Yiyecek ve İçecek", "Seyahat ve Turizm", "Ev ve Bahçe", "Evcil Hayvanlar", "Oyunlar ve Eğlence", "Konferanslar ve Seminerler", "Müzik festivalleri", "Sanat sergileri", "Yardım kampanyaları", "Sosyal sorumluluk projeleri", "Yaz kampı etkinlikleri", "Online etkinlikler"]
     }
   
   });

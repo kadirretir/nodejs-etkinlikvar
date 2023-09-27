@@ -75,7 +75,7 @@ app.get("/", async (req,res) => {
       }).limit(8).populate("organizer");
    
     // Kategorilerin sayımlarını yap
-    const allEvents = await Event.find({});
+    const allEvents = await Event.find({ date: { $gt: currentDate } }); // Sadece geçerli etkinlikleri al
      // Kategori sayımlarını tutmak için bir obje
     const categoryCounts = {};
 

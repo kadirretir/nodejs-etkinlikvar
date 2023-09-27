@@ -21,6 +21,11 @@
 
 .footerElements {
   color: #a9a9a9;
+  
+}
+
+.mainListElements {
+  padding: 3px 0;
 }
 
 @media screen and (max-width: 768px) {

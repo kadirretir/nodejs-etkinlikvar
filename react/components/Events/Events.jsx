@@ -23,8 +23,6 @@ const Events = ({ eventsData, userData, searchresults, categoryData, createdEven
   const [search, setSearch] = useState("")
   const [searchResults, setSearchResults] = useState([])
 
-  const [createdEventSuccess, setCreatedEventSuccess] = useState("")
-
   const searchRef = useRef()
   const searchResultsRef = useRef()
 
@@ -276,24 +274,11 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
      setSelectedProvince(searchRef.current.value)
   }
 
-  // const showMessageFor5Seconds = (message) => {
-  //   setCreatedEventSuccess(message);
-  //   setTimeout(() => {
-  //     setCreatedEventSuccess('');
-  //   }, 5000);
-  // };
-
-  
-  // useEffect(() => {
-  //   if (Object.keys(createdEventMessage).length !== 0) {
-  //     showMessageFor5Seconds(createdEventMessage);
-  //   }
-  // }, [createdEventMessage]);
-
  const handleAnimationEnd  = (e) => {
   e.target.style.display = 'none';
  }
 
+console.log(createdEventMessage)
   return (
     <>
       <section id={styles.eventsId}  >
@@ -301,13 +286,13 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
           <div className="row rounded-right-top rounded-right-bottom">
             <div className="col-lg-10 offset-lg-1 pb-5">
       
-            {createdEventMessage.length !== 0 ? (
+            {Object.keys(createdEventMessage).length !== 0 ? (
             <h1 
             onAnimationEnd={handleAnimationEnd} 
             className={`fs-5 alert alert-success ${styles.alertMessage}`}>
                {createdEventMessage}
             </h1>
-            ) : null}
+            ) : null }
           
             <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center">
                 <h1 className={`fs-2 text-primary-emphasis ${styles.eventsTitle}`}>Etkinliklere Göz Atın</h1>
@@ -318,7 +303,7 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
               <hr className="mb-3" />
               <div className="d-flex flex-column flex-md-row justify-content-start gap-2 mb-5">
                 <div className={styles.searchContainer}>
-                  <input type="search" className={`form-control ${styles.searchElements}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." />
+                  <input type="search" className={`form-control ${styles.searchElements}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." autoComplete="off" />
                     <span className={styles.searchIcon}><i className="fas fa-search"></i></span>
                   {isTyping && typeof searchResults !== "string" && (
                       <div className={styles.searchResults} ref={searchResultsRef}> 

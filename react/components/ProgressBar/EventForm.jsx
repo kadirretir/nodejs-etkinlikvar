@@ -1,13 +1,13 @@
 import React, {useState, useEffect} from 'react'
 import styles from "./progress.module.css";
-import PlacesAutocomplete from "./PlacesAutoComplete";
 
 
 const EventForm = ({
-    setSelected, 
     eventCategoryState,
     titleInput,
     districtInput,
+    cityInput,
+    setCityInput,
     setDistrictInput,
     fullAddressInput,
     descriptionInput,
@@ -15,11 +15,16 @@ const EventForm = ({
     setImageInput,
     inputErrors,
     handleInputChange,
-    setCheckIfSelected,
     formHandlerOnSubmit}) => {
     const [selectedAddressDistricts, setSelectedAddressDistricts] = useState()
-    const [districtsSearch, setDistrictsSearch] = useState('')
+    const [districtsSearch, setDistrictsSearch] = useState("")
     const [districtsResult, setDistrictsResult] = useState([])
+
+    const [cityData, setCityData] = useState([])
+    const [citySearch, setCitySearch] = useState("")
+    const [cityResults, setCityResults] = useState([])
+
+    const [isCitySubmitted, setIsCitySubmitted] = useState(false)
 
 
     const current = new Date();
@@ -47,20 +52,65 @@ const EventForm = ({
         }
       };
 
+        // GET CITY NAME DATA FROM TURKEY API
+      useEffect(() => {
+        const getDataFromApi = async () => {
+          const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,id")
+         const provincesData = await response.json()
+         const provincesDataObject = provincesData.data
+         const getProvinceNames = provincesDataObject.map((province) => {
+        return province.name
+       })
+       setCityData(getProvinceNames)
+       return getProvinceNames
+        }
+        getDataFromApi()
+       
+      }, [])
 
-        // SEARCH API
+
+      // CITY SEARCH
+      const isTypingCity = citySearch.replace(/\s+/, '').length > 0;
+      useEffect(() => {
+        if(isTypingCity) {
+          const getSearchedDistricts = cityData.filter(cityname => cityname.toLocaleLowerCase().includes(citySearch.toLocaleLowerCase()))
+          setCityResults(getSearchedDistricts)
+        } else {
+          setCityResults([])
+        }
+      
+      }, [citySearch])
+      
+      
+
+
+        // DISTRICHS SEARCH API
       const isTyping = districtsSearch.replace(/\s+/, '').length > 0;
       useEffect(() => {
         if(isTyping && selectedAddressDistricts) {
           const getDataToArray = selectedAddressDistricts.map(district => {
             return district.name
           })
-          const getSearchedDistricts = getDataToArray.filter(district => district.toLowerCase().includes(districtsSearch.toLocaleLowerCase()))
+          const getSearchedDistricts = getDataToArray.filter(district => district.toLocaleLowerCase().includes(districtsSearch.toLocaleLowerCase()))
           setDistrictsResult(getSearchedDistricts)
         } else {
           setDistrictsResult([])
         }
       }, [districtsSearch])
+
+
+      // CHECK IF CITY SUBMITTED
+      useEffect(() => {
+          const matchingCities = cityData.filter(city => city.toLocaleLowerCase() === citySearch.toLocaleLowerCase());
+        console.log(citySearch)
+          if(matchingCities.length > 0) {
+            setIsCitySubmitted(true)
+          } else {
+            setIsCitySubmitted(false)
+          }
+
+      }, [citySearch])
+      
   
       const handleGetDistrict = (e) => {
         setDistrictInput(e.target.innerHTML)
@@ -70,6 +120,16 @@ const EventForm = ({
       const handleDistrictChange = (e) =>{
          setDistrictsSearch(e.target.value)
          setDistrictInput(e.target.value)
+      }
+
+      const handleGetCity = (e) => {
+        setCityInput(e.target.innerHTML)
+        setCityResults("")
+      }
+
+      const handleCityChange = (e) => {
+        setCitySearch(e.target.value)
+        setCityInput(e.target.value)
       }
 
 
@@ -124,21 +184,38 @@ const EventForm = ({
       />
       </div>
       <div className="my-3 d-flex gap-2">
-        <div className="w-50">
+      <div className={`w-50 ${styles.searchContainer}`}>
         <p className="form-label fs-5">
-          İl<i className="fs-6 text-secondary">(Gerekli)</i>
+        <label htmlFor="cityname">
+          İl</label><i className="fs-6 text-secondary">(Gerekli)</i>
         </p>
-        <PlacesAutocomplete 
-        setCheckIfSelected={setCheckIfSelected}
-        setSelectedAddressDistricts={setSelectedAddressDistricts} 
-        setSelected={setSelected} />
+        <input className='form-control' value={cityInput} onChange={handleCityChange} id='cityname' name='cityname' type="text" placeholder='İl' />
+        {cityResults && isTypingCity && (
+            <div className={styles.searchResults}> 
+              {cityResults.map((cityname, index) => {
+                return (
+                  <div onClick={handleGetCity} className={styles.searchResultsItems} key={index}>
+                    {cityname}
+                  </div>
+                )
+              })}
+              {Object.keys(cityResults).length === 0 && (
+                <div className={styles.resultNotFound}>
+                  "{citySearch}" adında bir il bulamadık
+                </div>
+              )}
+            </div>
+          )}
+             <h1 className='text-danger my-2'>{inputErrors.cityError.length > 0 && inputErrors.cityError}</h1>
         </div>
+     
 
         <div className={`w-50 ${styles.searchContainer}`}>
         <p className="form-label fs-5">
-          İlçe<i className="fs-6 text-secondary">(Gerekli)</i>
+        <label htmlFor="getDistrictName">
+          İlçe</label><i className="fs-6 text-secondary">(Gerekli)</i>
         </p>
-          <input className={`form-control ${isTyping ? styles.typing : null}`} value={districtInput} onChange={handleDistrictChange} name="getDistrictName" type="text" placeholder="İlçe" />
+          <input className={`form-control ${isTyping ? styles.typing : null}`} disabled={isCitySubmitted ? false : true} value={districtInput} onChange={handleDistrictChange} name="getDistrictName" id='getDistrictName' type="text" placeholder="İlçe" autoComplete="off" />
           {districtsResult && isTyping && (
             <div className={styles.searchResults}> 
               {districtsResult.map((district, index) => {

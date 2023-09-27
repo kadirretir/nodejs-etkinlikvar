@@ -55,51 +55,52 @@ const Login = ({errorMessage}) => {
     <>
     <div className="container-fluid">
         <div className="row d-flex"  style={{height: "100vh"}}>
-        <div className="col-lg-6 order-lg-2 d-flex flex-column align-items-center justify-content-center bg-secondary-subtle">
+        <div className="col-md-12 col-xl-6 py-5 order-xl-2 d-flex flex-column align-items-center justify-content-center bg-secondary-subtle" style={{minHeight: "95vh"}}>
             {showRegisterForm ? (
               <RegisterForm 
               errorState={errorState}
               handleReverseLinkClick={handleReverseLinkClick}
               /> // Kayıt formu görüntüleniyor
             ) : (
-              <div className={`w-75 py-5 ${styles.loginBackground}`}>
-                <h1 className="modal-title fs-1  text-center mt-3 fw-bold">
-                  Giriş Yap
-                </h1>
-                <form  action='/auth/login' method='post' className="w-75 mx-auto my-0 mt-5 rounded-3 py-5">
-                {errorState !== null && errorState.length > 0 && (
-                <h1 className="alert alert-danger">{errorState}</h1>
-                )}
-                  <div className="inputField">
-                    <input type="text" id="email" name="email" placeholder="E-Posta" />
-                  </div>
-                  <div className="inputField">
-                    <input type="password" id="password" name="password" placeholder="Parola" />
-                  </div>
-                  <button type="submit" className="loginButton">Giriş Yap</button>
-                  <p className='fs-4 text-center mt-3'>Hesabın yok mu? <a href="/" onClick={handleRegisterLinkClick}>Kayıt Ol</a></p>
-               
-
-                  <div className="d-flex justify-content-center mt-3"> 
-                  <ReCAPTCHA
-                     className='mt-3 d-block mx-auto'
-                      sitekey="6LeotD4nAAAAAKbVbnsFin9OprFTW_fV4vJpO2w_"
-                        onChange={recapthaOnChange}
-                         />
+                <div className={`py-4 ${styles.loginBackground}`}>
+                  <h1 className="modal-title fs-1  text-center mt-3 fw-bold">
+                    Giriş Yap
+                  </h1>
+                  <form  action='/auth/login' method='post' className="w-75 mx-auto my-0 mt-5 rounded-3 py-5">
+                  {errorState !== null && errorState.length > 0 && (
+                  <h1 className="alert alert-danger">{errorState}</h1>
+                  )}
+                    <div className="inputField">
+                      <input type="text" id="email" name="email" placeholder="E-Posta" />
                     </div>
-                </form>
-              </div>
+                    <div className="inputField">
+                      <input type="password" id="password" name="password" placeholder="Parola" />
+                    </div>
+                    <button type="submit" className="loginButton">Giriş Yap</button>
+                    <p className='fs-4 text-center mt-3'>Hesabın yok mu? <a href="/" onClick={handleRegisterLinkClick}>Kayıt Ol</a></p>
+                
+
+                    <div className="d-flex justify-content-center mt-3"> 
+                    <ReCAPTCHA
+                      className='mt-3 d-block mx-auto'
+                        sitekey="6LeotD4nAAAAAKbVbnsFin9OprFTW_fV4vJpO2w_"
+                          onChange={recapthaOnChange}
+                          />
+                      </div>
+                  </form>
+                </div>
+           
             )}
             </div>
 
-            <div className="col-lg-6 order-lg-1 d-flex flex-column justify-content-evenly align-items-center">
-                <div className="logo d-flex flex-column align-items-start" style={{margin: "0 15rem 7rem 0"}} >
+            <div className="col-md-12 col-xl-6 h-100 order-xl-1 d-flex flex-column justify-content-evenly align-items-center bg-white">
+                <div className={`logo d-flex flex-column align-items-start ${styles.loginLogo}`} >
                     <a href="/" style={{fontSize:"4rem"}}>etkinlikvar</a> <br />
                     <p className="fs-5 fst-italic text-secondary">Şimdi ücretsiz kayıt ol,<br/> etkinliklere katılmaya başla!</p>
                 </div>
                 <div style={{marginTop: "-10rem"}}>
-                    <h1 className='fs-1 text-dark fw-bold' style={{fontFamily: 'var(--second-font)'}}>Yaşadığınız il'de neler var?</h1>
-                    <p className='fs-4 text-secondary mt-3'>Şimdi görün ve katılın</p>
+                    <h1 className='fs-1 text-dark fw-bold' style={{fontFamily: 'var(--second-font)'}}>Yaşadığınız ilde neler var?</h1>
+                    <p className='fs-4 text-secondary mt-2'>Şimdi görün ve katılın...</p>
                 </div>
             </div>
 
@@ -209,7 +210,7 @@ const RegisterForm = ({handleReverseLinkClick, errorState}) => {
   };
 
 return (
-    <div className={`w-75 py-5 ${styles.loginBackground}`}>
+    <div className={`py-5 my-5 ${styles.loginBackground}`}>
         <h1 className="modal-title fs-3 text-center mt-1 fw-bold">
                             Üye Ol
                         </h1>

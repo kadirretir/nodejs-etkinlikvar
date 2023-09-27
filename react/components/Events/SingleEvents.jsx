@@ -43,7 +43,7 @@ const SingleEvents = ({ filteredEvents, loadingFilter }) => {
       const displayDate = isToday ? "Bugün" : formattedDate;
 
         return !loadingFilter && (
-          <div className="card mb-4 rounded-0 border-0" key={index}  style={{ maxWidth: "640px" }}
+          <div className="card my-4 rounded-0 border-0" key={index}  style={{ maxWidth: "640px" }}
           >
             <a href={`/events/${event._id}`}>
               <div className="row g-0">

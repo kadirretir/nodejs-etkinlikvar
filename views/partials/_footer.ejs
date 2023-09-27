@@ -16,18 +16,28 @@
       <div class="col-md-5 col-lg-4 mt-3">
         <h5 class="fs-5 text-center mb-3" style="color: var(--light-color)">Hesabım</h5>
         <ul class="d-flex flex-column align-items-center justify-content-center">
-          <li class="mb-1"><a href="#" class="footerElements">Giriş Yap</a></li>
-          <li><a href="#" class="footerElements">Kayıt Ol</a></li>
+          <% if (!user) { %>
+            <li class="mb-1"><a href="/login" class="footerElements">Giriş Yap</a></li>
+            <li><a href="/login" class="footerElements">Kayıt Ol</a></li>
+          <% } else if (user.membershipLevel === 'premium' || user.membership === 'premium') { %>
+            <li class="mb-1"><a href="/user/profile?ayarlar" class="footerElements">Ayarlar</a></li>
+            <li><a href="/user/profile" class="footerElements">Profilim</a></li>
+            <% } else { %>
+              <li class="mb-1"><a href="/pricing" class="footerElements">Premium Ol</a></li>
+              <li class="mb-1"><a href="/user/profile?ayarlar" class="footerElements">Ayarlar</a></li>
+              <li><a href="/user/profile" class="footerElements">Profilim</a></li>
+              <%  }%>
+        
         </ul>
       </div>
 
       <div class="col-md-5 col-lg-4 mt-3">
         <h5 class="fs-5 text-center mb-3" style="color: var(--light-color)">etkinlikvar</h5>
         <ul class="d-flex flex-column align-items-center justify-content-center">
-          <li><a href="/complaints" class="footerElements">Şikayet ve Öneri</a></li>
-          <li class="mb-1"><a href="#" class="footerElements">Etkinlikler</a></li>
-          <li><a href="#" class="footerElements">İletişim</a></li>
-          <li><a href="#" class="footerElements">Yardım</a></li>
+          <li class="mainListElements"><a href="/complaints" class="footerElements">Şikayet ve Öneri</a></li>
+          <li class="mainListElements"><a href="/events" class="footerElements">Etkinlikler</a></li>
+          <li class="mainListElements"><a href="/contact" class="footerElements">İletişim</a></li>
+          <li class="mainListElements"><a href="/help" class="footerElements">Yardım</a></li>
         </ul>
       </div>
 
@@ -55,17 +65,19 @@
   </div>
   </div>
 </footer>
+<% if (user) { %>
+  <script>
+    const button = document.querySelector('.userButtonDesktop');
+    button.addEventListener('click', () => {
+        if (button.classList.contains('show')) {
+            button.classList.add('custom-style');
+        } else {
+           button.classList.remove('custom-style');
+        }
+    });
+  </script> 
+<% } %>
 
-<script>
-  const button = document.querySelector('.userButtonDesktop');
-  button.addEventListener('click', () => {
-      if (button.classList.contains('show')) {
-          button.classList.add('custom-style');
-      } else {
-         button.classList.remove('custom-style');
-      }
-  });
-</script> 
 <script src="https://kit.fontawesome.com/fbc606679a.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>

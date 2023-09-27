@@ -48,10 +48,12 @@ module.exports.home_get = async (req,res) => {
         const eventCategories = Event.schema.path('eventCategory').enumValues;
         res.locals.categories = eventCategories
         res.locals.events = events
-        const createdMessage = req.flash('success');
-        res.render("events.ejs", {createdMessage})
+        const successMessage = req.flash('success'); // Flash mesajını al
+        res.locals.successMessage = successMessage;
+        res.render("events.ejs")
+
         await new Promise ((resolve, reject) => {
-          const data = req.app.locals.searchresults = {}
+          const data = req.app.locals.searchresults = {};
           resolve(data)
         })
     
@@ -85,11 +87,20 @@ module.exports.singular_event_get = async (req,res) => {
     const findEvent = await Event.findById(req.params.id)
     const findOrganizer = await User.findById(findEvent.organizer) 
     const findAttendeeUsers = await User.find({ _id: { $in: findEvent.attendees } });
-   
+
+    const eventCategory = findEvent.eventCategory;
+    const eventCity = findEvent.cityName;
+
+    const findSimilarEvents = await Event.find({
+      eventCategory: eventCategory, // Aynı kategoriye sahip
+      cityName: eventCity,
+      _id: { $ne: req.params.id }, // Şu anki etkinliği dışarıda bırak
+  }).limit(5); // En fazla 5 etkinliği al
     res.render('event.ejs', {
       findEvent: findEvent,
        findOrganizer: findOrganizer,
-       findAttendeeUsers: findAttendeeUsers
+       findAttendeeUsers: findAttendeeUsers,
+       findSimilarEvents: findSimilarEvents
       })
     } catch (error) {
         throw new Error(error);
@@ -231,7 +242,6 @@ module.exports.getNotificationById = async (req,res) => {
   
   
 
-
 module.exports.newevent_post = async (req,res, err) => {
     try {
         await connectToDb()
@@ -272,8 +282,9 @@ module.exports.newevent_post = async (req,res, err) => {
             organizer: res.locals.user.id,
             eventCategory: req.body.getEventCategory
         })
-        req.flash('success', 'Etkinliğiniz başarıyla oluşturuldu');
-        res.redirect("/events")
+      
+          req.flash('success', 'Etkinliğiniz başarıyla oluşturuldu.');
+          res.redirect("/events");
     } catch (error) {
       res.redirect("/events/newevent")
     }

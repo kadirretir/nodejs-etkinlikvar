@@ -64,8 +64,8 @@ a {
     --second-color: #5F51FE;
     --light-color: #FFFFFF;
     --dark-color: #000000;
-    --light-grey-color: #E7E5FA;
-	--main-background: linear-gradient(to bottom, #f7f7f7, #e6e6e6);;
+    --light-grey-color: rgb(231, 229, 250);
+	--main-background: linear-gradient(to bottom, #f7f7f7, #e6e6e6);
 
 
 

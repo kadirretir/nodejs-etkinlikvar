@@ -1,4 +1,28 @@
-.pricing-header {
-    max-width: 700px;
+#pricing {
+    min-height: 95vh;
   }
-  
+
+.firstRow {
+  min-height: 33vh;
+  padding: 5rem 0;
+  background:linear-gradient(rgba(231, 229, 250, 0.1), rgba(231, 229, 250, 0.5))
+}
+
+
+.firstRow .col-12 h1 {
+  font-family: var(--third-font);
+
+}
+
+.firstRow .col-12 p {
+
+}
+
+/* CARDS */
+
+.pricing-card {
+  border-radius: 10px; /* İsteğe bağlı: Köşeleri yuvarlama */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); /* X-offset, Y-offset, Bulanıklık, Renk */
+}
+
+
