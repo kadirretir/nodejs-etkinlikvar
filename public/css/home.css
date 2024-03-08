@@ -213,6 +213,25 @@ font-family: var(--second-font);
 }
 
 
+.attendees-container img:nth-of-type(1) {
+  z-index: 2;
+  }
+
+.attendees-container img:nth-of-type(2) {
+z-index: 1;
+margin-left: -25px;
+}
+
+.attendees-container img:nth-of-type(3) {
+  z-index: 0;
+  margin-left: -25px;
+  filter: blur(1px);
+  }
+
+.location-span {
+  font-size: 1.1rem;
+}
+
 
 @media (max-width: 1200px) and (min-width: 992px)  {
   .row .col-lg-4:nth-child(2) .imageText {

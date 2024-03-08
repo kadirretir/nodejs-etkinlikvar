@@ -4,7 +4,7 @@ import "@reach/combobox/styles.css";
 import EventForm from "./EventForm";
 
 
-const ProgressBar = ({eventCategories}) => {
+const ProgressBar = ({eventCategories, userInfo}) => {
   const [eventCategoryState, setEventCategoryState] = useState(eventCategories);
 
   const [titleInput, setTitleInput] = useState("")
@@ -192,7 +192,7 @@ const ProgressBar = ({eventCategories}) => {
       if (cityInput.trim() === "") {
         setInputErrors((prevErrors) => ({
           ...prevErrors,
-          cityError: "*Lütfen ilçe seçiniz",
+          cityError: "*Lütfen il seçiniz",
         }));
         hasErrors = true; // Hata olduğunda hasErrors değerini güncelle
       } else {
@@ -272,6 +272,7 @@ const ProgressBar = ({eventCategories}) => {
             inputErrors={inputErrors}
             handleInputChange={handleInputChange}
             formHandlerOnSubmit={formHandlerOnSubmit}
+            userInfo={userInfo}
             eventCategoryState={eventCategoryState} />
            
           </div>

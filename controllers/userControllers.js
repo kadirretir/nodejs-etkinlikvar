@@ -11,7 +11,8 @@ module.exports.profile_get = async (req,res) => {
         await connectToDb()
         const userEvents = await Event.find({organizer: req.user.id})
         const user = await User.findById(req.user.id)
-        res.render("user.ejs", {user: user, events: userEvents});
+        const successMessages = req.flash('success');
+        res.render("user.ejs", {user: user, events: userEvents, successMessages: successMessages});
     } catch (error) {
         throw new Error(error)
     }

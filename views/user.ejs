@@ -1,8 +1,8 @@
 <%- include('./partials/_header.ejs') -%>
   <section id="userProfile" 
+  cancelled-event-message="<%=(successMessages.length > 0) ? JSON.stringify(successMessages) : '[]'%>"
   event-data="<%=(typeof events !== 'undefined') ? JSON.stringify(events) : '{}'%>"
   user-data="<%=(typeof user !== 'undefined') ? JSON.stringify(user) : '{}'%>" >
-
   </section>
 <%- include('./partials/_footer.ejs') -%>
 

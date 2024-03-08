@@ -80,5 +80,75 @@
 
 <script src="https://kit.fontawesome.com/fbc606679a.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script>
+
+  let globalToken = undefined;
+    function onSubmitCallback(token) {
+        globalToken = token;
+        
+          }
+
+    document.getElementById("getLoginForm").addEventListener("submit", function(event) {
+  
+      if(globalToken) {
+        console.log("token girişi başarılı")
+      } else {
+        event.preventDefault();
+        console.log("başarısız")
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById('getLoginForm');
+    const submitBtn = document.querySelector('.loginButton');
+    const popoverContainer = document.getElementById('popoverContainer');
+
+    form.addEventListener('submit', function() {
+
+
+      
+        let popoverContent = '';
+        if (!globalToken) {
+            popoverContent = 'Lütfen Doğrulama İşlemini Yapınız';
+        }
+
+        
+        const popover = new bootstrap.Popover(popoverContainer, {
+            content: popoverContent,
+            trigger: 'manual',
+            container: popoverContainer,
+        });
+        popover.show();
+
+        document.addEventListener('click', function(event) {
+
+if (!popoverContainer.contains(event.target) && !submitBtn.contains(event.target)) {
+    popover.hide();
+}
+});
+
+
+submitBtn.addEventListener('click', function(event) {
+
+event.stopPropagation(); 
+if (popover) {
+popover.hide();
+}
+});
+    });
+
+   
+});
+
+    
+              
+</script>
+
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+  const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+</script>
 </body>
 </html>

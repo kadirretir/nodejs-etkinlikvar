@@ -72,7 +72,11 @@ module.exports.home_post = (req,res) => {
 
 module.exports.newevent_get= (req,res) => {
         const eventCategories = Event.schema.path('eventCategory').enumValues;
-        res.render("newevent.ejs", {eventCategories: eventCategories})
+        const usermembership = req.user ? req.user.membershipLevel : null;
+        res.render("newevent.ejs", 
+        {eventCategories: eventCategories,
+          usermembership: usermembership
+        })
 }
 
 module.exports.singular_event_get = async (req,res) => {
@@ -82,24 +86,34 @@ module.exports.singular_event_get = async (req,res) => {
     const userId = req.user ? req.user.id : null;
     const event = await Event.findById(eventId);
     const checkUserAttend = event.attendees.some(attendee => attendee.equals(userId));
+    const checkIfCurrentOrganizer = event.organizer.equals(userId);
+    // ORGANIZER ID => MEVCUT ID İLE EŞLEŞİYORSA, 
+    res.locals.checkIfCurrentOrganizer = checkIfCurrentOrganizer;
     res.locals.checkUserAttend = checkUserAttend;
 
     const findEvent = await Event.findById(req.params.id)
     const findOrganizer = await User.findById(findEvent.organizer) 
+  
     const findAttendeeUsers = await User.find({ _id: { $in: findEvent.attendees } });
-
     const eventCategory = findEvent.eventCategory;
     const eventCity = findEvent.cityName;
 
+  
+  // findEvent.attendees içerisindeki kullanıcı kimliklerini bir dizi olarak alın
+  const attendeeIds = findEvent.attendees;
+  // findAttendeeUsers dizisini, findEvent.attendees içerisindeki sıralamaya göre yeniden düzenleyin
+  const reorderedAttendeeUsers = attendeeIds.map(id => findAttendeeUsers.find(user => user.id.toString() === id.toString()));
+  
+
     const findSimilarEvents = await Event.find({
       eventCategory: eventCategory, // Aynı kategoriye sahip
-      cityName: eventCity,
+      cityName: eventCity, // Aynı şehire sahip
       _id: { $ne: req.params.id }, // Şu anki etkinliği dışarıda bırak
-  }).limit(5); // En fazla 5 etkinliği al
+  }).limit(4); // En fazla 5 etkinliği al
     res.render('event.ejs', {
       findEvent: findEvent,
        findOrganizer: findOrganizer,
-       findAttendeeUsers: findAttendeeUsers,
+       findAttendeeUsers: reorderedAttendeeUsers,
        findSimilarEvents: findSimilarEvents
       })
     } catch (error) {
@@ -189,6 +203,32 @@ module.exports.remove_attendee_post = async (req,res) => {
       }
 }
 
+module.exports.cancel_event_post = async (req,res) => {
+  const organizerId = req.user.id; // Organizatör kullanıcının kimliği
+    const eventId = req.params.id; // İptal edilmek istenen etkinliğin kimliği
+
+    try {
+        // İptal edilmek istenen etkinliği bulma
+        const event = await Event.findById(eventId);
+
+        // Eğer etkinlik bulunamazsa veya organizatör kullanıcı etkinliği iptal etme yetkisine sahip değilse
+        if (!event || !event.organizer.equals(organizerId)) {
+            return res.status(404).json({ error: "Etkinlik bulunamadı veya iptal etme yetkiniz yok." });
+        }
+
+        // Etkinliği iptal etme
+        event.status = "cancelled"; // Örnek olarak etkinliğin durumunu "iptal edildi" olarak güncelleme
+        await event.save();
+
+        // Başarılı bir yanıt döndürme
+        req.flash("success", "Etkinliğiniz başarıyla iptal edildi!");
+        res.redirect("/user/profile?etkinliklerim");
+    } catch (error) {
+        console.error("Etkinlik iptal edilirken bir hata oluştu:", error);
+        return res.status(500).json({ error: "Etkinlik iptal edilirken bir hata oluştu." });
+    }
+}
+
 module.exports.requested_events_get = async (req,res) => {
   try {
     await connectToDb()
@@ -271,17 +311,22 @@ module.exports.newevent_post = async (req,res, err) => {
               }
 
           });
-          await Event.create({
+
+          const newEvent = await Event.create({
             title: req.body.eventPostTitle,
             description: req.body.eventPostDescription,
-            cityName: req.body.eventPostLocation,
+            cityName: req.body.cityname,
             districtName: req.body.getDistrictName,
             fullAddress: req.body.fulladress,
             date: req.body.eventPostDate,
             eventImage: req.file.path,
+            participantLimit: req.body.getEventPartLimit,
             organizer: res.locals.user.id,
             eventCategory: req.body.getEventCategory
         })
+  
+        newEvent.attendees.push(req.user.id);
+          await newEvent.save();
       
           req.flash('success', 'Etkinliğiniz başarıyla oluşturuldu.');
           res.redirect("/events");

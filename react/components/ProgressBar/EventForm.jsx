@@ -7,6 +7,7 @@ const EventForm = ({
     titleInput,
     districtInput,
     cityInput,
+    userInfo,
     setCityInput,
     setDistrictInput,
     fullAddressInput,
@@ -16,16 +17,20 @@ const EventForm = ({
     inputErrors,
     handleInputChange,
     formHandlerOnSubmit}) => {
-    const [selectedAddressDistricts, setSelectedAddressDistricts] = useState()
-    const [districtsSearch, setDistrictsSearch] = useState("")
-    const [districtsResult, setDistrictsResult] = useState([])
+   
+      const [fullData, setFullData] = useState([])
 
-    const [cityData, setCityData] = useState([])
+
+    const [districtsSearch, setDistrictsSearch] = useState("")
+    const [districtsResults, setDistrictsResults] = useState([])
+
     const [citySearch, setCitySearch] = useState("")
     const [cityResults, setCityResults] = useState([])
 
-    const [isCitySubmitted, setIsCitySubmitted] = useState(false)
+    const [citySubmitted, setCitySubmitted] = useState(false)
 
+    // CHECKBOX FOR SINIRLANDIRMA
+    const [isSubscribed, setIsSubscribed] = useState(false);
 
     const current = new Date();
     const turkiyeZamanDilimi = new Date(current.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
@@ -52,69 +57,60 @@ const EventForm = ({
         }
       };
 
-        // GET CITY NAME DATA FROM TURKEY API
+        // GET FULL TURKEY API DATA FROM TURKEY API
       useEffect(() => {
         const getDataFromApi = async () => {
-          const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,id")
+          const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,id,districts")
          const provincesData = await response.json()
          const provincesDataObject = provincesData.data
-         const getProvinceNames = provincesDataObject.map((province) => {
-        return province.name
+       const getProvinceNames = provincesDataObject.map((province) => {
+        return province;
        })
-       setCityData(getProvinceNames)
-       return getProvinceNames
+       setFullData(getProvinceNames)
+
+       return getProvinceNames;
         }
         getDataFromApi()
        
       }, [])
 
 
+
       // CITY SEARCH
       const isTypingCity = citySearch.replace(/\s+/, '').length > 0;
       useEffect(() => {
         if(isTypingCity) {
-          const getSearchedDistricts = cityData.filter(cityname => cityname.toLocaleLowerCase().includes(citySearch.toLocaleLowerCase()))
-          setCityResults(getSearchedDistricts)
+          const getCityNameFilter = fullData.filter(province => province.name.toLocaleLowerCase().includes(citySearch.toLocaleLowerCase()))
+          const getCityNames = getCityNameFilter.map(provinces => provinces.name)
+           setCityResults(getCityNames)
         } else {
           setCityResults([])
         }
       
       }, [citySearch])
       
-      
-
-
-        // DISTRICHS SEARCH API
-      const isTyping = districtsSearch.replace(/\s+/, '').length > 0;
+        // DISTRICTS SEARCH API
       useEffect(() => {
-        if(isTyping && selectedAddressDistricts) {
-          const getDataToArray = selectedAddressDistricts.map(district => {
-            return district.name
-          })
-          const getSearchedDistricts = getDataToArray.filter(district => district.toLocaleLowerCase().includes(districtsSearch.toLocaleLowerCase()))
-          setDistrictsResult(getSearchedDistricts)
+        const checkIfCityMatched = fullData.filter(provinces => provinces.name.toLocaleLowerCase() === cityInput.toLocaleLowerCase())
+          if(checkIfCityMatched.length > 0) {
+            setCitySubmitted(true);
+              const getDistricts = checkIfCityMatched.map(districts => districts.districts)
+              const getDistrictsNames = getDistricts[0].map(provinceDistricts => provinceDistricts.name)
+              const filterDistricts = getDistrictsNames.filter(districts => districts.toLocaleLowerCase().includes(districtsSearch.toLocaleLowerCase()))
+
+              setDistrictsResults(filterDistricts)
+              setCityResults(undefined)
         } else {
-          setDistrictsResult([])
+          setCitySubmitted(false)
+          setDistrictsResults([])
         }
-      }, [districtsSearch])
 
+      }, [citySearch, districtsSearch])
 
-      // CHECK IF CITY SUBMITTED
-      useEffect(() => {
-          const matchingCities = cityData.filter(city => city.toLocaleLowerCase() === citySearch.toLocaleLowerCase());
-        console.log(citySearch)
-          if(matchingCities.length > 0) {
-            setIsCitySubmitted(true)
-          } else {
-            setIsCitySubmitted(false)
-          }
-
-      }, [citySearch])
-      
-  
+      // DISTRICTS HANDLERS
       const handleGetDistrict = (e) => {
         setDistrictInput(e.target.innerHTML)
-        setDistrictsResult("")
+        setDistrictsResults("")
       }
       
       const handleDistrictChange = (e) =>{
@@ -122,9 +118,12 @@ const EventForm = ({
          setDistrictInput(e.target.value)
       }
 
+
+      // CITY HANDLERS
       const handleGetCity = (e) => {
         setCityInput(e.target.innerHTML)
         setCityResults("")
+        setCitySubmitted(true)
       }
 
       const handleCityChange = (e) => {
@@ -145,7 +144,10 @@ const EventForm = ({
         } 
         setImageInput(event.target.value)
       };
-    
+
+      const handleChange = () => {
+        setIsSubscribed(current => !current);
+      };
 
   return (
     <form
@@ -166,6 +168,7 @@ const EventForm = ({
           placeholder="Başlık girin..."
           id="exampleInputEmail1"
           aria-describedby="emailHelp"
+          autoComplete='off'
         />
             <h1 className='text-danger'>{inputErrors.titleError.length > 0 && inputErrors.titleError}</h1>
       </div>
@@ -189,7 +192,7 @@ const EventForm = ({
         <label htmlFor="cityname">
           İl</label><i className="fs-6 text-secondary">(Gerekli)</i>
         </p>
-        <input className='form-control' value={cityInput} onChange={handleCityChange} id='cityname' name='cityname' type="text" placeholder='İl' />
+        <input className='form-control'autoComplete='off' value={cityInput} onChange={handleCityChange} id='cityname' name='cityname' type="text" placeholder='İl' />
         {cityResults && isTypingCity && (
             <div className={styles.searchResults}> 
               {cityResults.map((cityname, index) => {
@@ -215,17 +218,17 @@ const EventForm = ({
         <label htmlFor="getDistrictName">
           İlçe</label><i className="fs-6 text-secondary">(Gerekli)</i>
         </p>
-          <input className={`form-control ${isTyping ? styles.typing : null}`} disabled={isCitySubmitted ? false : true} value={districtInput} onChange={handleDistrictChange} name="getDistrictName" id='getDistrictName' type="text" placeholder="İlçe" autoComplete="off" />
-          {districtsResult && isTyping && (
+        <input className="form-control" autoComplete='off'  disabled={citySubmitted || districtsSearch ? false : true} value={districtInput} onChange={handleDistrictChange} name="getDistrictName" id='getDistrictName' type="text" placeholder="İlçe" /> 
+          {districtsResults && (
             <div className={styles.searchResults}> 
-              {districtsResult.map((district, index) => {
+              {districtsResults.map((district, index) => {
                 return (
                   <div onClick={handleGetDistrict} className={styles.searchResultsItems} key={index}>
                     {district}
                   </div>
                 )
               })}
-              {districtsResult.length === 0 && selectedAddressDistricts && (
+              {districtsResults.length === 0 && districtsResults === "" && (
                 <div className={styles.resultNotFound}>
                   "{districtsSearch}" ile bağlantılı bir ilçe bulamadık
                 </div>
@@ -244,18 +247,63 @@ const EventForm = ({
        <input className="form-control" id="fulladress" name="fulladress" value={fullAddressInput} onChange={handleInputChange} placeholder="Mahalle, Cadde, Sokak, Mevki, Apartman Numarası / Daire numarası " type="text" />
        <h1 className='text-danger my-2'>{inputErrors.fullAdressError.length > 0 && inputErrors.fullAdressError}</h1>
       </div>
-      <div className="my-3">
-      <p className="form-label fs-5">
-          Kategori<i className="fs-6 text-secondary">(Gerekli)</i>
-        </p>
-      <select className="form-select" name="getEventCategory" aria-label="select">
-        <option className="fs-5" defaultValue disabled>Etkinliğiniz ne ile alakalı?</option>
-          {eventCategoryState.map((category,index) => {
-            return (
-                <option className="fs-5" key={index} defaultValue={index}>{category}</option>
-            )
-          })}
-      </select>
+      <div className="d-flex my-3">
+
+        <div style={{width: "50%"}}>
+            <p className="form-label fs-5">
+              Kategori<i className="fs-6 text-secondary">(Gerekli)</i>
+            </p>
+          <select className="form-select" name="getEventCategory" aria-label="select">
+            <option className="fs-5" defaultValue disabled>Etkinliğiniz ne ile alakalı?</option>
+              {eventCategoryState.map((category,index) => {
+                return (
+                    <option className="fs-5" key={index} defaultValue={index}>{category}</option>
+                )
+              })}
+          </select>
+        </div>
+
+        <div style={{width: "50%"}}>
+        {userInfo === "free" ? (
+          <>
+                   <div className="form-check form-switch form-check">
+                <input className="form-check-input"
+                  disabled
+                 type="checkbox" 
+                 id="flexSwitchCheckReverse"/>
+                <label className="form-check-label fs-5" htmlFor="flexSwitchCheckReverse">Katılımcı Sınırlandırması (E+)</label>
+              </div>
+
+
+              <select className="form-select" name="getEventCategory" aria-label="select" disabled>
+              <option className="fs-5" defaultValue>Sınırlandırma</option>
+             
+              </select>
+          </>
+     
+              ) : (
+                <>
+                  <div className="form-check form-switch form-check">
+                <input className="form-check-input"
+                  value={isSubscribed}
+                  onChange={handleChange}
+                 type="checkbox" 
+                 id="flexSwitchCheckReverse"/>
+                <label className="form-check-label fs-5" htmlFor="flexSwitchCheckReverse">Katılımcı Sınırlandırması (E+)</label>
+              </div>
+
+                <select className="form-select" name="getEventPartLimit" aria-label="select" disabled={isSubscribed ? false : true}>
+                              {[...Array(20)].map((_, index) => (
+                                      <option className='fs-5' key={index + 1}>{`${index + 1}`}</option>         
+                                  ))}
+                    </select>
+                </>
+    
+           )}
+        </div>
+
+    
+  
       </div>
       <div className="my-4">
         <label htmlFor="floatingTextarea2" className="form-label fs-5">

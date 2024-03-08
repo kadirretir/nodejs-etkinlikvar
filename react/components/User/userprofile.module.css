@@ -35,3 +35,24 @@
   .listStyle a:focus {
     outline: none;
   }
+
+  .alertMessage {
+    text-align: center;
+    background-color: #5cb85c; /* Başarılı mesajın arka plan rengi */
+    color: #ffffff;
+    opacity: 0; /* Başlangıçta mesajın görünürlüğü 0 */
+    height: 50px;
+    line-height: 50px;
+    margin: 1rem;
+    border-radius: 6px;
+    animation: fadeInOut 5s ease-in-out forwards; /* 5 saniye süreyle animasyonu başlat */
+  }
+  
+  @keyframes fadeInOut {
+    0%, 100% {
+      opacity: 0; /* Başlangıçta ve sonunda mesajın görünürlüğü 0 */
+    }
+    10%, 90% {
+      opacity: 1; /* 5 saniye süresinin yüzde 10 ve yüzde 90'larda mesajın görünürlüğü 1 (görünür) */
+    }
+  }

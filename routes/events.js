@@ -16,6 +16,7 @@ router.get("/requestedevents/:title", eventsController.getEventByTitle);
 router.get("/:id", eventsController.singular_event_get);
 router.post("/:id/join", eventsController.add_attendees_post);
 router.post("/:id/remove", eventsController.remove_attendee_post);
+router.post("/:id/cancelevent", eventsController.cancel_event_post);
 router.get("/", eventsController.home_get);
 router.post("/", eventsController.home_post);
 module.exports = router

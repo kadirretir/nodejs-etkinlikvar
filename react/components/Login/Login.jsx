@@ -1,12 +1,46 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef } from 'react'
+import ReCaptcha from './Recaptcha';
 import styles from './Login.module.css'
-import ReCAPTCHA from "react-google-recaptcha";
-import axios from 'axios';
 
 const Login = ({errorMessage}) => {
     const [errorState, setErrorState] = useState(null)
     const [showRegisterForm, setShowRegisterForm] = useState(false);
+    const [token, setToken] = useState('');
+    const [popoverContent, setPopoverContent] = useState('');
+    const [showPopover, setShowPopover] = useState(false);
+    const formRef = useRef(null);
+    const submitBtnRef = useRef(null);
+    const popoverContainerRef = useRef(null);
 
+
+  const handleToken = (token) => {
+    setToken(token)
+}
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+        if (!popoverContainerRef.current.contains(event.target) && !submitBtnRef.current.contains(event.target)) {
+            setShowPopover(false);
+        }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+        document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+
+const handleSubmit = (event) => {
+  if (token === "") {
+    event.preventDefault();
+    setPopoverContent('Lütfen Doğrulama İşlemini Yapınız');
+    setShowPopover(true);
+  }
+
+  
+};
 
     const handleRegisterLinkClick = (e) => {
         e.preventDefault();
@@ -28,28 +62,10 @@ const Login = ({errorMessage}) => {
         setErrorState(errorMessage)
         if (errorMessage[0] === "Bu e-posta zaten kullanılıyor") {
           setShowRegisterForm(true);
+        } else if (errorMessage[0] === "Lütfen gerekli alanları doldurunuz") {
+          setShowRegisterForm(true);
         }
       }, [errorMessage])
-
-      async function recapthaOnChange(value) {
-        try {
-          // secret=6LeotD4nAAAAAIRM5E7ivgFcregwvJ0akQRXr-NB
-          // https://www.google.com/recaptcha/api/siteverify
-
-          await axios.post("/send-recaptha", { value: value })
-
-      
-          // const data = await response.json();
-
-          
-          // Doğrulama başarılıysa, data.success değeri true olacaktır.
-        
-        } catch (error) {
-          console.error("ReCAPTCHA doğrulama hatası:", error);
-          // Hata durumunda gerekli işlemleri yapabilirsiniz.
-        }
-      }
-      
 
   return (
     <>
@@ -66,9 +82,9 @@ const Login = ({errorMessage}) => {
                   <h1 className="modal-title fs-1  text-center mt-3 fw-bold">
                     Giriş Yap
                   </h1>
-                  <form  action='/auth/login' method='post' className="w-75 mx-auto my-0 mt-5 rounded-3 py-5">
+                  <form onSubmit={handleSubmit}  ref={formRef} action='/auth/login' method='post' className="w-75 mx-auto my-0 mt-5 rounded-3 py-5">
                   {errorState !== null && errorState.length > 0 && (
-                  <h1 className="alert alert-danger">{errorState}</h1>
+                  <h1 className={`alert ${errorState[0] === "Başarıyla kayıt olundu. Giriş yapabilirsiniz." ? "alert-success" : "alert-danger"}`}>{errorState && errorState[0]}</h1>
                   )}
                     <div className="inputField">
                       <input type="text" id="email" name="email" placeholder="E-Posta" />
@@ -76,27 +92,27 @@ const Login = ({errorMessage}) => {
                     <div className="inputField">
                       <input type="password" id="password" name="password" placeholder="Parola" />
                     </div>
-                    <button type="submit" className="loginButton">Giriş Yap</button>
+               
+                    <button type="submit" ref={submitBtnRef} className="loginButton">Giriş Yap</button>
                     <p className='fs-4 text-center mt-3'>Hesabın yok mu? <a href="/" onClick={handleRegisterLinkClick}>Kayıt Ol</a></p>
-                
-
-                    <div className="d-flex justify-content-center mt-3"> 
-                    <ReCAPTCHA
-                      className='mt-3 d-block mx-auto'
-                        sitekey="6LeotD4nAAAAAKbVbnsFin9OprFTW_fV4vJpO2w_"
-                          onChange={recapthaOnChange}
-                          />
+              
+                    <div ref={popoverContainerRef} className="d-flex justify-content-center mt-3"> 
+                        
+                        <ReCaptcha id="popoverContainer" siteKey="6LfSOIMpAAAAALflHA0EvX3T5cVo-8uK9df3Tcu6"
+                            callback={handleToken} />
+                               {showPopover && <PopoverContent content={popoverContent} />}
                       </div>
+                   
                   </form>
                 </div>
-           
+          
             )}
             </div>
 
             <div className="col-md-12 col-xl-6 h-100 order-xl-1 d-flex flex-column justify-content-evenly align-items-center bg-white">
                 <div className={`logo d-flex flex-column align-items-start ${styles.loginLogo}`} >
                     <a href="/" style={{fontSize:"4rem"}}>etkinlikvar</a> <br />
-                    <p className="fs-5 fst-italic text-secondary">Şimdi ücretsiz kayıt ol,<br/> etkinliklere katılmaya başla!</p>
+                    <p className="fs-5 fst-italic text-secondary">Şimdi ücretsiz etkinlikvar üyesi ol,<br/> etkinliklere katılmaya başla!</p>
                 </div>
                 <div style={{marginTop: "-10rem"}}>
                     <h1 className='fs-1 text-dark fw-bold' style={{fontFamily: 'var(--second-font)'}}>Yaşadığınız ilde neler var?</h1>
@@ -109,6 +125,15 @@ const Login = ({errorMessage}) => {
     </>
   )
 }
+
+
+const PopoverContent = ({ content }) => {
+  return (
+      <div className={`${styles.popover} ${styles.animated}`}>
+          <div className="popover-content">{content}</div>
+      </div>
+  );
+};
 
 
 const RegisterForm = ({handleReverseLinkClick, errorState}) => {
@@ -216,7 +241,7 @@ return (
                         </h1>
                         <form onSubmit={handleSubmit} method="POST" action="/auth/register" className="w-75 mx-auto my-0 mt-4">
                         {errorState !== null && errorState.length > 0 && (
-                        <h1 className="alert alert-danger">{errorState}</h1>
+                        <h1 className="alert alert-danger">{errorState && errorState[0]}</h1>
                         )}
                             <div className="inputField">
                                 <label htmlFor="signupusername">Adınız</label>

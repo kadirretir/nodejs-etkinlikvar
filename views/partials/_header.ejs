@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>etkinlikvar.com</title>
+    <title>Anasayfa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/nav.css" />
     <link rel="stylesheet" href="css/home.css" />
@@ -31,17 +32,43 @@
             <% if(typeof user !== 'undefined') { %>
                 <div class="d-flex align-items-center justify-content-end">
                     <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
+    
+                        <div class="mini-logo mx-3 premiumLink">
+                            <a href="/events/newevent" class="d-flex flex-column justify-content-center align-items-center">
+                                <p>e+</p>
+                                <p>Etkinlik Oluştur</p>
+                            </a>
+                          
+                        </div>
+
                             <div id="notificationNode"
                             notification-data="<%=(typeof notifications !== 'undefined') ? JSON.stringify(notifications) : '{}'%>"
                             ></div>
                        
-                        <h1 class="me-3 mt-2 createEventLink">
-                            <a class="premiumLink" href="/events/newevent">Etkinlik Oluştur <i class="fa-solid fa-crown"></i></a>
-                        </h1>
+                     
                         <% } else { %>
-                            <h1 class="fs-6 me-3 mt-2 createEventLinkFreeUser">
-                                <a href="/events/newevent">Şimdi Etkinlik Oluştur(%30 İndirim)</a>
-                            </h1>
+                         
+                            <div class="mini-logo mx-3 premiumLink">
+                                <a href="/events/newevent" class="d-flex flex-column justify-content-center align-items-center">
+                                    <p>e+</p>
+                                    <p>Ücretsiz Dene</p>
+                                </a>
+                              
+                            </div>
+                      
+                            <a href="/events/newevent">
+                                <div class="createEvent mx-3 d-flex flex-column justify-content-center align-items-center premiumLink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="black" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                      </svg>
+                                    <p>Etkinlik Oluştur</p>
+                                </div></i>
+                            </a>
+
+                            <div id="notificationNode"
+                            notification-data="<%=(typeof notifications !== 'undefined') ? JSON.stringify(notifications) : '{}'%>"
+                            ></div>
                             <% } %>
                 
                             
@@ -63,13 +90,16 @@
                             <img class="rounded-circle d-block mx-auto" src="../<%=user.profileImage%>" width="25%" alt="user image">
                             <h5 class="text-center fs-6 my-4"><a href="#">Hoşgeldiniz <%= user.email %></a></h5>
                             <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="badge">e+ (Premium Üyelik)</span>
+                                </div>
                                 <li class="smallerCreateEventLink"><a class="dropdown-item" href="/events/newevent">
                                     Etkinlik Oluştur
                                     <i class="fa-solid fa-crown"></i>
                                  </a></li>
                                 <% } else { %>
                                     <li class="smallerCreateEventLink"><a class="dropdown-item" href="/pricing">
-                                        Etkinlik Oluştur (%30 İndirim)
+                                        Etkinlik Oluştur
                                      </a></li>
                                     <% } %>
                             <li><a class="dropdown-item" href="/user/profile?etkinliklerim">Etkinliklerim</a></li>
@@ -157,10 +187,10 @@
                                Kayıt Ol
                               </a>
                             </p>
-                            <form method="post" action="/auth/login" class="w-75 mx-auto my-0 mt-5">
-                                <%  if(messages.error) { %>
+                            <form method="post" id="getLoginForm" action="/auth/login" class="w-75 mx-auto my-0 mt-5">
+                                <!-- <%  if(messages.error) { %>
                                     <h5 class="alert alert-danger"><%= messages.error %></h5>
-                                <% } %>
+                                <% } %> -->
                                 <div class="inputField">
                                     <input type="text" id="email" name="email" placeholder="E-Posta" />
                                 </div>
@@ -168,6 +198,10 @@
                                     <input type="password" id="password" name="password" placeholder="Parola" />
 
                                 </div>
+                             
+                                        <div class="g-recaptcha ps-3" id="popoverContainer" data-callback="onSubmitCallback" data-sitekey="6LfSOIMpAAAAALflHA0EvX3T5cVo-8uK9df3Tcu6"></div>
+                                      
+                            
                                 <button type="submit" class="loginButton">Giriş Yap</button>
                             </form>
                         </div>

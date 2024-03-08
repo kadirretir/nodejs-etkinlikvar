@@ -4,7 +4,14 @@
          <div class="row py-5">
             <div class="col-lg-12">
               <div class="container">
-               <h1 class="fs-1"><%=findEvent.title%></h1> <br/>
+             
+               <div class="d-flex align-items-center justify-content-between">
+                  <h1 class="fs-1"><%=findEvent.title%></h1> <br/>
+                  <h1 class="fs-4 text-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="currentColor" class="bi bi-geo-fill" viewBox="0 0 16 16">
+                     <path fill-rule="evenodd" d="M4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.3 1.3 0 0 0-.37.265.3.3 0 0 0-.057.09V14l.002.008.016.033a.6.6 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.6.6 0 0 0 .146-.15l.015-.033L12 14v-.004a.3.3 0 0 0-.057-.09 1.3 1.3 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465s-2.462-.172-3.34-.465c-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411"/>
+                   </svg> <%=findEvent.cityName%>, <%=findEvent.districtName%></h1>
+               </div>
+            
                <hr />
                <div class="row w-25 align-items-center">
                   <div class="col-lg-7">
@@ -43,13 +50,13 @@
                  
                  <% if(findEvent.attendees.length > 0) { %>
                   <div class="gray-background w-100 my-3">
-                 <% findAttendeeUsers.map((attendee) => { %>
-                    <div class="d-flex flex-column justify-content-center align-items-center">
-                     <img src="<%=attendee.profileImage%>" class="rounded-circle" width="70%" alt="attendee image">
-                     <h1 class="fs-5 text-center"><%=(user && user.username === attendee.username) ? 'Siz' : attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1)%></h1>
-                    </div>
-                 <% }) %>
-                   </div>
+                     <% findAttendeeUsers.map((attendee) => { %>
+                        <div class="d-flex flex-column justify-content-center align-items-center">
+                           <img src="<%=attendee.profileImage%>" class="rounded-circle" width="70%" alt="attendee image">
+                           <h1 class="fs-5 text-center"><%=(user && user.username === attendee.username) ? 'Siz' : attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1) + (attendee._id.equals(findEvent.organizer) ? ' (Kurucu)' : '')%></h1>
+                        </div>
+                     <% }) %>
+                  </div>
                   <% } else { %>
                      <div class="fs-4 py-5 d-inline-flex text-secondary">
                         <h1>İlk katılımcısı sen olmak ister misin?</h1>
@@ -57,16 +64,26 @@
                 <%  } %>
               
               </div>
-              <% if(checkUserAttend) { %>
-                  <h1 class="fs-5 py-3">Bu etkinliğe gidiyorsunuz!</h1>
-                 <form action="/events/<%= findEvent._id %>/remove" method="post">
-                  <button type="submit" class="btn btn-success w-100">İptal</button>
-                 </form>
-               <% } else { %>
-                  <form action="/events/<%= findEvent._id %>/join" method="post" class="d-flex flex-column justify-content-around">
-                     <button type="submit" class="btn btn-success my-4 px-3 py-2 float-right">Katıl</button>
-                    </form>
-               <% } %>
+              <% if (findEvent.status === 'cancelled') { %>
+               <h1 class="alert alert-info fs-5 py-3">Bu etkinlik organizatörü tarafından iptal edildi.</h1>
+           <% } else if (new Date(findEvent.date) < new Date()) { %>
+            <h1 class="alert alert-info fs-5 py-3">Bu etkinlik tamamlandı!</h1>
+           <% } else if (checkUserAttend && !checkIfCurrentOrganizer) { %>
+               <h1 class="fs-5 py-3">Bu etkinliğe gidiyorsunuz!</h1>
+               <form action="/events/<%= findEvent._id %>/remove" method="post">
+                   <button type="submit" class="btn btn-danger w-100">İptal</button>
+               </form>
+           <% } else if (checkUserAttend && checkIfCurrentOrganizer) { %>
+               <h1 class="fs-5 py-3">Oluşturduğunuz Etkinliğiniz</h1>
+               <form action="/events/<%= findEvent._id %>/cancelevent" method="post">
+                   <button type="submit" class="btn btn-danger w-100">Etkinliği İptal Edin</button>
+               </form>
+           <% } else { %>
+               <form action="/events/<%= findEvent._id %>/join" method="post" class="d-flex flex-column justify-content-around">
+                   <button type="submit" class="btn btn-success my-4 px-3 py-2 float-right">Katıl</button>
+               </form>
+           <% } %>
+           
 
                <% function formatDate(dateStr) { %>
                   <% const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' }; %>
@@ -99,7 +116,7 @@
                <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 my-2">
                  <a href="<%=event._id%>" class="w-100 d-flex justify-content-center align-items-center">
                    <div class="card" style="width: 20rem; height: 22rem;">
-                     <img src="<%event.eventImage%>" class="card-img-top img-fluid" alt="...">
+                     <img src="../<%=event.eventImage%>" class="card-img-top img-fluid" alt="...">
                      <div class="card-body d-flex flex-column">
                        <h5 class="card-title">
                          <% const options = { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "numeric" }; %>

@@ -3,12 +3,13 @@
  .mainHeader {
     margin: 0 auto;
     width: 95%;
-    height: 50px;
+    height: 52px;
     
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+/* FOR LEFT SIDE OF THE HEADER (LOGO) */
 
 .logo a {
   font-size: 35px;
@@ -16,16 +17,49 @@
   color: var(--first-color);
 }
 
+.badge {
+  font-size: 20px;
+  font-family: var(--first-font);
+  color: var(--first-color);
+}
+
+/* FOR RIGHT SIDE OF THE HEADER */
+.mini-logo a p:first-of-type {
+  font-size: 26px;
+  font-family: var(--first-font);
+  color: var(--first-color);
+}
+
+
+.mini-logo a p:last-of-type {
+  color: black;
+  font-family: var(--second-font);
+  font-style: bold;
+}
+
+.createEvent p  {
+  color: black;
+  font-family: var(--second-font);
+  font-style: bold;
+}
+
 nav button {
     color: var(--dark-color);
     background-color: var(--light-grey-color);
     transition: all 0.2s ease-in-out;
+    font-family: var(--second-font) !important;
+    font-size: 1.1rem !important;
 }
 
 nav button:hover:first-child {
-    background-color: var(--first-color) ;
-    color: var(--light-color);
-    transition: all ease-in-out 0.2s;
+  background-color: var(--first-color) ;
+  color: var(--light-color);
+  transition: all ease-in-out 0.2s;
+}
+
+nav button:active {
+  background-color: #FF7F50 !important ;
+  color: white !important;
 }
 
 nav button:last-child {
@@ -190,7 +224,7 @@ nav button:last-child:hover {
 
 
   .premiumLink {
-    font-size: 1.2rem;
+    color: #004080;
   }
 
   .modal .fade {
@@ -278,6 +312,10 @@ nav button:last-child:hover {
   border: none;
 }
 
+.premiumLink {
+  display: none !important;
+}
+
 /* WORKS LARGER THAN 1200PX */
 @media screen and (min-width: 1200px) {
   /* FOR NON REGISTERED USERS */
@@ -286,6 +324,10 @@ nav button:last-child:hover {
 }
 #navbarUnregistered {
   display: block;
+}
+
+.premiumLink {
+  display: flex !important;
 }
 
 /* FOR LOGGED IN USERS */
@@ -311,9 +353,6 @@ nav button:last-child:hover {
     display: none;
   }
   /* LOGGED IN USERS */
-  .createEventLink {
-    display: none;
-  }
 
   .createEventLinkFreeUser {
     display: none;

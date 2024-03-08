@@ -58,15 +58,8 @@ const checkIfNotAuthed = (req,res,next) => {
 
 
 const authForNewEvent = (req,res,next) => {
-      let user;
-      if(res.locals.user && res.locals.user.membershipLevel) {
-        user = res.locals.user.membershipLevel
-
-        if(req.isAuthenticated() && user === "premium") {
-          return next()
-        } else {
-          return res.redirect("/pricing")
-        }
+      if(res.locals.user && req.isAuthenticated()) {
+        next()
       } else {
         return res.redirect("/")
       }
@@ -76,8 +69,8 @@ const authForNewEvent = (req,res,next) => {
 
   module.exports = {
     getUserInfo: getUserInfo,
-    authForNewEvent: authForNewEvent,
     checkIfNotAuthed: checkIfNotAuthed,
+    authForNewEvent: authForNewEvent,
     checkIfAuthed: checkIfAuthed,
     getUserNotification: getUserNotification
   }

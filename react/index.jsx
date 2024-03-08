@@ -16,10 +16,12 @@ function checkValue (val) {
       const progressNode = document.getElementById('progress-root');
       const progressRoot = createRoot(progressNode);
       const eventCategories = JSON.parse(progressNode.getAttribute("event-categories"))
+      const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
       progressRoot.render(
         <StrictMode>
           <ProgressBar
           eventCategories={eventCategories}
+          userInfo={userInfo}
           />
         </StrictMode>
       );
@@ -63,11 +65,13 @@ function checkValue (val) {
       const userRoot = createRoot(userNode);
       const userData = JSON.parse(userNode.getAttribute("user-data"));
       const eventsData = JSON.parse(userNode.getAttribute("event-data"));
+      const cancelledMessage = JSON.parse(userNode.getAttribute("cancelled-event-message"))
       userRoot.render(
         <StrictMode>
           <UserProfile 
           userData={userData}
           eventsData={eventsData}
+          cancelledMessage={cancelledMessage}
           />
         </StrictMode>
       );
@@ -104,8 +108,4 @@ if (checkValue(pathname)) {
                     </StrictMode>
                   );
               }
-
-      
-       
-
 }

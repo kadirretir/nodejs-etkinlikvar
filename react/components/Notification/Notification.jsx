@@ -58,7 +58,7 @@ const Notification = ({notificationData}) => {
                 </span>
               </>
             ) : (
-              <i className="fa-regular fa-bell fa-xl"></i>
+              <i  style={{color: "black"}} className="fa-regular fa-bell fa-xl"></i>
             )}
           </button>
           <div className="dropdown-menu p-0" style={{ width: '300px' }}>

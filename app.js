@@ -15,7 +15,6 @@ const Event = require("./models/eventSchema")
 const User = require("./models/userSchema")
 const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
-const { default: axios } = require("axios")
 
 
 app.set("view engine", "ejs")
@@ -64,15 +63,14 @@ app.get("/", async (req,res) => {
       nextTenDays.setHours(23, 59, 59, 999); // Son saat ve dakikayı ayarla
 
       const events = await Event.find({ 
-        date: {
-          $gte: currentDate,
-          $lte: nextTenDays,
-        },
+        status: { $ne: "cancelled" }, // Statusu "cancelled" olan etkinlikleri almayacağız
         $or: [
-          { date: { $gt: currentDate } },
-          { date: currentDate, hour: { $gte: currentDate.getHours() } },
-        ],
-      }).limit(8).populate("organizer");
+            { date: { $gt: currentDate } }, // Tarihi bugünün tarihinden büyük olan etkinlikleri al
+            { date: currentDate, hour: { $gte: currentDate.getHours() } } // Bugünün tarihine eşit olan ve saati şu andan büyük olan etkinlikleri al
+        ]
+    }).limit(8).populate("organizer attendees");
+    
+
    
     // Kategorilerin sayımlarını yap
     const allEvents = await Event.find({ date: { $gt: currentDate } }); // Sadece geçerli etkinlikleri al
@@ -135,29 +133,5 @@ app.post("/complaint", async (req,res) => {
     throw new Error(error)
   }
 })
-
-
-app.post("/send-recaptha", async (req,res, next) => {
-console.log(req.body.value)
-if(!req.body) {
-return res.status(400).json({error: "Rechaptcha value is missing"})
-}
-
-try {
-  const googleUrl = `https://www.google.com/recaptcha/api/siteverify?secret=6LeotD4nAAAAAIRM5E7ivgFcregwvJ0akQRXr-NB&response=${req.body}`
-  const response = await axios.post(googleUrl)
-  const {success} = response.data;
-  if(success) {
-    console.log(success)
-    return res.send("başarılı")
-
-  } else {
-    console.log("not success")
-  }
-} catch (error) {
-  
-}
-})
-
 
 app.listen(3000)

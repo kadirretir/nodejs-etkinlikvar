@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import styles from './userprofile.module.css';
 import ContentLoader from "react-content-loader"
 
-const UserProfile = ({userData, eventsData}) => {
+const UserProfile = ({userData, eventsData, cancelledMessage}) => {
   const queryString = window.location.search;
   const queryWithoutQuestionMark = queryString.replace('?', '');
    const replaceActiveTab = queryWithoutQuestionMark ? queryWithoutQuestionMark : "profilim"
@@ -29,12 +29,19 @@ const UserProfile = ({userData, eventsData}) => {
   
       eventGroups[formattedDate].push(event);
     });
+
+    const handleAnimationEnd  = (e) => {
+      e.target.style.display = 'none';
+     }
   
     return (
       <div className="mb-5">
         <h1 className="display-6 text-center">Profilim</h1>
         <hr />
         <div className="container pt-5">
+            {cancelledMessage.length > 0 ? 
+            <h1 onAnimationEnd={handleAnimationEnd} className={`fs-4 text-center ${styles.alertMessage}`}>{cancelledMessage}</h1> 
+            : null}
           <div className="row">
             <div className="col-lg-3">
               <div className="row">
@@ -47,7 +54,7 @@ const UserProfile = ({userData, eventsData}) => {
                   )}
                   <li className={`list-group-item ${activeTab === 'etkinliklerim' ? 'active' : ''}`}>
                     <a href="#" onClick={() => handleTabClick('etkinliklerim')}>
-                      Etkinliklerim
+                      Geçmiş Etkinliklerim
                     </a>
                   </li>
                   <li className={`list-group-item ${activeTab === 'profilim' ? 'active' : ''}`}>

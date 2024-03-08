@@ -6,7 +6,36 @@
 
 }
 
+.popover {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 17px;
+    opacity: 0;
+    visibility: hidden;
+    right: -75px;
+    bottom: 90px;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transform: translateY(-20px);
+}
 
+.popover::before {
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 8px 10px 8px 0;
+    border-color: transparent #fff;
+    top: 50%;
+    left: -10px;
+    margin-top: -8px;
+}
+
+.animated {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
 
 
 /* LARGER THAN 1200PX */
