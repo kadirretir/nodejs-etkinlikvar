@@ -16,7 +16,6 @@ const User = require("./models/userSchema")
 const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
 
-
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
 app.use(express.static('public'))
@@ -43,7 +42,6 @@ app.use(methodOverride('_method'))
 app.use(authMiddleware.getUserInfo)
 app.use(authMiddleware.getUserNotification)
 app.use(flash());
-
 //cloneDocument(7);
 
 

@@ -88,7 +88,35 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
   }, [search, searchAPI]);
 
 
+  const fetchDataByDate = async (date) => {
+    try {
+        const fetchMyData = await fetch(`/events/requestedevents?date=${date}`);
+        const data = await fetchMyData.json();
+        return data;
+    } catch (error) {
+        throw new Error(error);
+    }
+};
 
+const fetchDataByCategory = async (category) => {
+    try {
+        const fetchMyData = await fetch(`/events/requestedevents?category=${category}`);
+        const data = await fetchMyData.json();
+        return data;
+    } catch (error) {
+        throw new Error(error);
+    }
+};
+
+const fetchDataByProvince = async (province) => {
+    try {
+        const fetchMyData = await fetch(`/events/requestedevents?province=${province}`);
+        const data = await fetchMyData.json();
+        return data;
+    } catch (error) {
+        throw new Error(error);
+    }
+};
 
   // FILTER BY DATES
   useEffect(() => {
@@ -277,14 +305,63 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
  const handleAnimationEnd  = (e) => {
   e.target.style.display = 'none';
  }
-
-console.log(createdEventMessage)
   return (
     <>
       <section id={styles.eventsId}  >
       <div className="container">
+          <div className="d-flex mb-5 flex-column flex-sm-row justify-content-between align-items-center">
+              
+              {Object.keys(userData).length !== 0 || userData.membershipLevel === "free" ? (
+                    <h1 className={`fs-2 text-primary-emphasis text-capitalize ${styles.eventsTitle}`}>Hoş Geldin {userData.username} &nbsp;
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                    <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
+                  </svg></h1>
+              ) : <h1 className="fs-5 fw-bold" style={{color: "var(--second-color)"}}>
+                 E+
+                </h1>}
+              </div>
           <div className="row rounded-right-top rounded-right-bottom">
-            <div className="col-lg-10 offset-lg-1 pb-5">
+
+            
+
+          <div className="col-lg-4">
+            <div className="container">
+                  <div className="row my-5">
+                    <div className="col-12">
+                        <div className={styles.yourEventsBackground}>
+                              <h1 className="fs-5 text-center py-3">Yaklaşan Etkinlikleriniz</h1>
+                              <p className="mx-auto text-center ">
+                                <a className="fs-6 link-dark link-offset-2 link-underline-opacity-75 link-underline-opacity-100-hover" href="/user/profile?etkinliklerim">Hepsini Gör</a>
+                              </p>
+
+                              <div className={styles.yourEventsInside}>
+                                    <p className="text-secondary text-center py-1">Henüz bir etkinliğe katılmadınız.</p>
+                                    <p className="text-center py-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-view-stacked" viewBox="0 0 16 16">
+                                      <path d="M3 0h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 8h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+                                    </svg>
+                                    </p>
+                                    <p className="text-center py-1 text-secondary">Katıldığınız ve yaklaşan etkinlikleriniz burada gözükür.</p>
+                              </div>
+                        </div>
+                    </div>
+                  </div>
+                  {userData.membershipLevel === "free" && (
+                        <div className="row">
+                        <div className="col-12">
+                        <div className={styles.marketingBackground}>
+                            <p className={`text-start p-3 text-light ${styles.directPremium}`}><span className={styles.badge}>Etkinlikvar+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
+                            <a href="/pricing" type="button" className="btn btn-warning ms-3">Ücretsiz Denemeni Başlat</a>
+                        </div>
+                        </div>
+                  </div>
+                  )}
+              
+            </div>
+             
+          </div>
+            <div className="col-lg-8 pb-5">
       
             {Object.keys(createdEventMessage).length !== 0 ? (
             <h1 
@@ -294,13 +371,6 @@ console.log(createdEventMessage)
             </h1>
             ) : null }
           
-            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center">
-                <h1 className={`fs-2 text-primary-emphasis ${styles.eventsTitle}`}>Etkinliklere Göz Atın</h1>
-                {Object.keys(userData).length === 0 || userData.membershipLevel === "free" ? (
-                  <h1 className="fs-5 text-primary-emphasis text-center"><a href="/pricing">Sen de Etkinlik Oluştur(10 Gün Deneme)  <i className="fa-solid fa-crown" style={{color: "var(--first-color)"}} /></a></h1>
-                ) : <h1 className="fs-5 fw-bold" style={{color: "var(--second-color)"}}>Premium Üye ({userData.username})</h1>}
-                </div>
-              <hr className="mb-3" />
               <div className="d-flex flex-column flex-md-row justify-content-start gap-2 mb-5">
                 <div className={styles.searchContainer}>
                   <input type="search" className={`form-control ${styles.searchElements}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." autoComplete="off" />

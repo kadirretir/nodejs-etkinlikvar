@@ -55,20 +55,20 @@ const SingleEvents = ({ filteredEvents, loadingFilter }) => {
                   />
                 </div>
                 <div className="col-sm-8">
-                  <div className="card-body p-0 ps-3 py-1  d-flex flex-column" style={{ background: "linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))", height: "100%" }}>
-                  <small className='fw-bolder py-1 mt-1' style={{color: "var(--second-color)"}}>{displayDate}</small>
-                    <h5 className="card-title mt-3 py-1 fs-4 text-body">{event.title}</h5>
-                    
-                    <div className="mt-auto mb-2 py-1 text-end pe-2 d-flex justify-content-between align-items-center">
-                    <p className="card-text fs-5 mt-auto fw-light text-body-secondary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-geo-alt-fill text-secondary" viewBox="0 0 16 16">
-                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                  </svg>
-                      {event.cityName + ',' + ' ' + event.districtName}
-                    </p>
-                    <b className='card-text fs-6 fw-light text-secondary'>{event.attendees.length === 0 ? <b>Henüz katılımcı yok</b> : event.attendees.length + " Katılımcı"}</b>
+                    <div className="card-body p-0 ps-3 py-1  d-flex flex-column" style={{ background: "linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))", height: "100%" }}>
+                    <small className='fw-bolder py-1 mt-1' style={{color: "var(--second-color)"}}>{displayDate}</small>
+                      <h5 className="card-title mt-3 py-1 fs-4 text-body">{event.title}</h5>
+                      <h5 className='fs-4'>{event.eventCategory}</h5>
+                      <div className="mt-auto mb-2 py-1 text-end pe-2 d-flex justify-content-between align-items-center">
+                      <p className="card-text fs-5 mt-auto fw-light text-body-secondary">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-geo-alt-fill text-secondary" viewBox="0 0 16 16">
+                      <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                    </svg>
+                        {event.cityName + ',' + ' ' + event.districtName}
+                      </p>
+                      <b className='card-text fs-6 fw-light text-secondary'>{event.attendees.length === 0 ? <b>Henüz katılımcı yok</b> : event.attendees.length + " Katılımcı"}</b>
+                      </div>
                     </div>
-                  </div>
                 </div>
               </div>
             </a>

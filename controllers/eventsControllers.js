@@ -253,6 +253,41 @@ module.exports.getEventByTitle = async (req,res) => {
  
 }
 
+module.exports.getEventsByDate = async (req, res) => {
+  try {
+      const { date } = req.query;
+      // Tarihe göre etkinlikleri filtrele
+      const events = await Event.find({ date });
+      res.json(events);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
+
+// Belirli bir kategoriye göre etkinlikleri filtreleyen kontrolcü
+module.exports.getEventsByCategory = async (req, res) => {
+  try {
+      const { category } = req.query;
+      // Kategoriye göre etkinlikleri filtrele
+      const events = await Event.find({ eventCategory: category });
+      res.json(events);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
+
+// Belirli bir il/ilçeye göre etkinlikleri filtreleyen kontrolcü
+module.exports.getEventsByProvince = async (req, res) => {
+  try {
+      const { province } = req.query;
+      // İl/ilçeye göre etkinlikleri filtrele
+      const events = await Event.find({ cityName: province });
+      res.json(events);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports.notifications_get = async (req,res) => {
   try {
     await connectToDb()
