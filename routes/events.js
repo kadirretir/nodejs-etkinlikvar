@@ -11,8 +11,8 @@ router.get("/newevent", authMiddleware.authForNewEvent, eventsController.neweven
 router.post("/newevent", upload.single('eventPhoto'), eventsController.newevent_post);
 router.get("/notifications", eventsController.notifications_get);
 router.get("/notifications/:id", eventsController.getNotificationById);
-router.get("/requestedevents", eventsController.requested_events_get);
-router.get("/requestedevents/:title", eventsController.getEventByTitle);
+router.get("/requestedevents/category/:category", eventsController.getEventsByCategory);
+router.get("/requestedevents", eventsController.getEventsByDate);
 router.get("/:id", eventsController.singular_event_get);
 router.post("/:id/join", eventsController.add_attendees_post);
 router.post("/:id/remove", eventsController.remove_attendee_post);

@@ -1,13 +1,17 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import styles from './userprofile.module.css';
 import ContentLoader from "react-content-loader"
+import Profile from './Profile';
+import PersonalInfo from './Personal';
+import Privacy from './Privacy';
+import Interests from './Interests';
+import Subscription from './Subscription';
+import PaymentMethod from './PaymentMethod';
+
 
 const UserProfile = ({userData, eventsData, cancelledMessage}) => {
-  const queryString = window.location.search;
-  const queryWithoutQuestionMark = queryString.replace('?', '');
-   const replaceActiveTab = queryWithoutQuestionMark ? queryWithoutQuestionMark : "profilim"
-
-    const [activeTab, setActiveTab] = useState(replaceActiveTab);
+  const ulList = useRef(null);
+    const [activeTab, setActiveTab] = useState("profilim");
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -33,151 +37,143 @@ const UserProfile = ({userData, eventsData, cancelledMessage}) => {
     const handleAnimationEnd  = (e) => {
       e.target.style.display = 'none';
      }
-  
+
+
+     // KULLANICI KAYIT TARIHINI GUN AY YILA CEVIR
+     const date = new Date(userData.signInDate);
+     const options = { day: 'numeric', month: 'long', year: 'numeric' };
+     const formattedDate = date.toLocaleDateString('tr-TR', options); // 'tr-TR' Türkçe lokalizasyonu için
+
+     useEffect(() => {
+      const handleBlur = (event) => {
+        const clickedElement = event.relatedTarget;
+        const ulMenu = ulList.current;
+        const links = ulMenu.querySelectorAll('li a');
+
+        let isInsideLink = false;
+
+        links.forEach(link => {
+          if (link.contains(clickedElement)) {
+            isInsideLink = true;
+          }
+        });
+        
+        if (!isInsideLink) {
+          const link = event.target;
+          link.focus();
+        }
+      };
+    
+      const ulMenu = ulList.current;
+      const links = ulMenu.querySelectorAll('li a');
+      links.forEach(link => {
+        link.onblur = handleBlur;
+      });
+
+      return () => {
+        // Temizlik için, bileşen kaldırıldığında olay dinleyicilerini kaldır
+        links.forEach(link => {
+          link.onblur = null;
+        });
+      };
+    }, []);
+
     return (
-      <div className="mb-5">
-        <h1 className="display-6 text-center">Profilim</h1>
-        <hr />
-        <div className="container pt-5">
-            {cancelledMessage.length > 0 ? 
-            <h1 onAnimationEnd={handleAnimationEnd} className={`fs-4 text-center ${styles.alertMessage}`}>{cancelledMessage}</h1> 
-            : null}
-          <div className="row">
-            <div className="col-lg-3">
-              <div className="row">
-                <div className="col-lg-12">
-                <ul className={`${styles.listStyle}`}>
-                {userData.membershipLevel === "premium" && (
-                    <>
-                    <h1 className='fs-4 text-center mb-4 border border-1 py-3'><i className="fa-solid fa-crown fa-lg" style={{color: "var(--first-color)"}}></i> Premium Üye <p>({userData.username})</p> </h1>
-                    </>
-                  )}
-                  <li className={`list-group-item ${activeTab === 'etkinliklerim' ? 'active' : ''}`}>
-                    <a href="#" onClick={() => handleTabClick('etkinliklerim')}>
-                      Geçmiş Etkinliklerim
-                    </a>
-                  </li>
-                  <li className={`list-group-item ${activeTab === 'profilim' ? 'active' : ''}`}>
-                    <a href="#" onClick={() => handleTabClick('profilim')}>
-                      Profilim
-                    </a>
-                  </li>
-                  <li className={`list-group-item ${activeTab === 'mesajlarim' ? 'active' : ''}`}>
-                    <a href="#" onClick={() => handleTabClick('mesajlarim')}>
-                      Mesajlarım
-                    </a>
-                  </li>
-                  <li className={`list-group-item ${activeTab === 'ayarlar' ? 'active' : ''}`}>
-                    <a href="#" onClick={() => handleTabClick('ayarlar')}>
-                      Ayarlar
-                    </a>
-                  </li>
-                  <li className={`list-group-item ${activeTab === 'premium' ? 'active' : ''}`}>
-                    <a href="#" onClick={() => handleTabClick('premium')}>
-                      Premium
-                    </a>
-                  </li>
-                </ul>
+      <div className={styles.containerFluid}>
+        {/* PROFILE BANNER */}
+        <div className="row">
+          <div className={`col-1 col-lg-2 w-auto ${styles.colWidth}`}>
+              <aside className={styles.asideMenu}>
+                <h1 className='fs-4 mb-2 ms-4'>Ayarlar</h1>
+                  <ul className={styles.ulMenu} ref={ulList}>
+                    <li>
+                    <a className='text-secondary-emphasis' href='#' onClick={() => handleTabClick('profilim')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16">
+                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                      </svg>
+                   <span>Profili Düzenle</span>
+                   </a>
+                      </li>
+
+                      <li>
+                      <a className='text-light-emphasis' href='#'  onClick={() => handleTabClick('Kişisel Bilgiler')}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-person-badge-fill" viewBox="0 0 16 16">
+                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm4.5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zM8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6m5 2.755C12.146 12.825 10.623 12 8 12s-4.146.826-5 1.755V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1z"/>
+                      </svg>
+                   <span>Kişisel Bilgiler</span>
+                   </a>
+                      </li>
+
+                      <li>
+                      <a className='text-light-emphasis' href='#'  onClick={() => handleTabClick('Gizlilik ve Güvenlik')}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-lock-fill" viewBox="0 0 16 16">
+                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
+                      </svg>
+                   <span>Gizlilik ve Güvenlik</span>
+                   </a>
+                      </li>
+
+                      <li>
+                      <a className='text-light-emphasis' href='#'  onClick={() => handleTabClick('İlgilerim')}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
+                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                      </svg>
+                  <span>İlgilerim</span>
+                   </a>
+                      </li>
+
+                      <li>
+                      <a className='text-light-emphasis' href='#'  onClick={() => handleTabClick('Abonelik')}>
+                      <span className={styles.premiumBadge}>e+</span>
+                   <span>Etkinlikvar+ Aboneliği</span>
+                   </a>
+                      </li>
+
+                      <li>
+                      <a className='text-light-emphasis' href='#'  onClick={() => handleTabClick('Ödeme Yöntemleri')}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-credit-card-2-back-fill" viewBox="0 0 16 16">
+                      <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5H0zm11.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM0 11v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1z"/>
+                    </svg>
+                  <span>Ödeme Yöntemleri</span>
+                   </a>
+                      </li>
+
+                      <li>
+                      <a className='text-light-emphasis' href='/help'  onClick={() => handleTabClick('yardim')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-info-circle-fill" viewBox="0 0 16 16">
+                          <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+                        </svg>
+                  <span>Yardım</span>
+                   </a>
+                      </li>
+
+                  </ul>
+              </aside>
+          </div>
+
+          <div className="col-8 bg-light">
+              <div className="container pt-5">
+                {cancelledMessage.length > 0 ? 
+                <h1 onAnimationEnd={handleAnimationEnd} className={`fs-4 text-center ${styles.alertMessage}`}>{cancelledMessage}</h1> 
+                : null}
+              <div className="row">    
+                <div className="col-12">
+                    {activeTab === 'etkinliklerim' && <EventsComp userData={userData} eventGroups={eventGroups} />}
+
+                {activeTab === 'profilim' && <Profile userData={userData} /> }
+                {activeTab === 'Kişisel Bilgiler' && <PersonalInfo />}
+                {activeTab === 'Gizlilik ve Güvenlik' && <Privacy />}
+                {activeTab === 'İlgilerim' && <Interests />}
+                {activeTab === 'Abonelik' && <Subscription />}
+                {activeTab === 'Ödeme Yöntemleri' && <PaymentMethod />}
                 </div>
               </div>
             </div>
-  
-            <div className="col-lg-9 bg-light-subtle">
-                {activeTab === 'etkinliklerim' && <EventsComp userData={userData} eventGroups={eventGroups} />}
-            {activeTab === 'profilim' && <Profile userData={userData} /> }
-            {activeTab === 'mesajlarim' && <div className="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">...</div>}
-            {activeTab === 'ayarlar' && <div className="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">...</div>}
-            {activeTab === 'premium' && <h1>premium</h1>}
-            </div>
           </div>
         </div>
+
       </div>
     );
-}
-
-const Profile = ({userData}) => {
-const [showPicSuccess, setShowPicSuccess] = useState(false)
-const [imageFile, setImageFile] = useState("");
-
-  const checkFileSize = (event) => {
-    const file = event.target.files[0];
-    const maxSize = 2 * 1024 * 1024; // Maksimum 2MB (2 * 1024 * 1024 bayt)
-  
-    if (file && file.size > maxSize) {
-      alert("Dosya boyutu 2MB'dan büyük olamaz.");
-      // Dosyayı yüklemeyi engellemek için input değerini sıfırla
-      event.target.value = "";
-      setImageFile("")
-    }
-
-    if(event.target.files.length > 0) {
-        setImageFile(event.target.value)
-        setShowPicSuccess(true)
-    } else {
-      setImageFile("")
-      setShowPicSuccess(false)
-    }
-
-  };
-
-  useEffect(() => {
-    console.log(imageFile)
-  }, [imageFile])
-
-  const cancelImageUpload = (e) => {
-    e.preventDefault();
-    setImageFile("")
-    setShowPicSuccess(false)
-  }
-
-  const handleForm = (e) => {
-    if(imageFile === "") {
-      e.preventDefault()
-      
-    }
-  }
-
-    return (
-        <>
-        <div className="container">
-          <div className="row border border-1 py-2">
-            <div className="col text-center">
-              <h1 className='fs-4 mb-4'>Profil Fotoğrafımı Değiştir</h1>
-              <form onSubmit={handleForm} action='/user/changeprofilePicture' method="post" encType="multipart/form-data">
-                
-              <div className='row border border-1 py-2 my-4'>
-                <label htmlFor="profilePictureInput" style={{cursor: "pointer"}}>
-                  <img src={`./${userData.profileImage}`}  className="rounded-circle" width={100} alt="" />
-              </label>
-                <input
-                value={imageFile}
-                  type="file"
-                  id="profilePictureInput"
-                  name="newUserPhoto"
-                  style={{ display: 'none' }}
-                  onChange={checkFileSize}
-                  accept="image/png, image/jpeg, image/jpg"
-                />
-                   {showPicSuccess && (
-                    <> 
-                    <b className='text-success fs-5 my-3'>Resim başarıyla yüklendi!</b>
-                    <button type='submit' className='btn btn-danger w-25 py-2 mx-auto' onClick={cancelImageUpload}>İptal</button>
-                </>
-              )}
-              </div>
-           
-                <div className="row">
-                  <div className="col text-end">
-                   <button className='btn btn-dark px-4 py-2' type='submit'>Kaydet</button>
-                  </div>
-                </div>
-           
-              </form>
-            </div>
-          </div>
-        </div>
-        </>
-    )
 }
 
 

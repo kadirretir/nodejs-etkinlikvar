@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from './events.module.css'
 import SingleEvents from "./SingleEvents";
-import getDates from './getDates'
+import TrendingEvents from "./TrendingEvents";
+import TrendingCategories from "./TrendingCategories";
 
-const Events = ({ eventsData, userData, searchresults, categoryData, createdEventMessage }) => {
+const Events = ({ userEvents, userData, searchresults, categoryData, createdEventMessage, trendingEvents, popularCategories }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
 
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ const Events = ({ eventsData, userData, searchresults, categoryData, createdEven
   const searchResultsRef = useRef()
 
 // get dates
-const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
+// const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
 
 
 
@@ -99,88 +100,36 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
 };
 
 const fetchDataByCategory = async (category) => {
-    try {
-        const fetchMyData = await fetch(`/events/requestedevents?category=${category}`);
-        const data = await fetchMyData.json();
-        return data;
-    } catch (error) {
-        throw new Error(error);
-    }
+  try {
+    const fetchMyData = await fetch(`/events/requestedevents/category/${category}`);
+    const data = await fetchMyData.json();
+    return data;
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
-const fetchDataByProvince = async (province) => {
-    try {
-        const fetchMyData = await fetch(`/events/requestedevents?province=${province}`);
-        const data = await fetchMyData.json();
-        return data;
-    } catch (error) {
-        throw new Error(error);
-    }
-};
+const handleCategoryLeft = (event) => {
+  setSelectedCategory(event)
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
   // FILTER BY DATES
   useEffect(() => {
     const fetchData = async () => {
       setLoadingFilter(true); // Filtreleme işlemi başladığında loadingFilter'ı true olarak ayarla
-      try {
-        const fetchMyData = await fetch("/events/requestedevents");
-        const data = await fetchMyData.json();
-      
-        let filteredData = [];
+      try {   
+        let filteredData = []
         if (selectedDate === "Bugün") {
-          const formattedDate = getDate();
-          const dateObjFormat = new Date(formattedDate);
-          const currentHour = formattedDate.substring(11, 16);
-          filteredData = data.filter((event) => {
-            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-            const eventSaat = String(turkiyeZamanDilimi.getHours()).padStart(2, '0');
-            const eventDakika = String(turkiyeZamanDilimi.getMinutes()).padStart(2, '0');
-        
-            const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
-            const isLaterTime = `${eventSaat}:${eventDakika}` > currentHour;
-        
-            return isSameDay && isLaterTime;
-          });
+          filteredData = await fetchDataByDate("Bugün");
         } else if (selectedDate === "Yarın") {
-          const formattedDate = getTomorrowDate();
-          const dateObjFormat = new Date(formattedDate);
-          filteredData = data.filter((event) => {
-            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-            const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
-            return isSameDay 
-          });
+          filteredData = await fetchDataByDate("Yarın");
         } else if (selectedDate === "Bu Hafta") {
-          const { startOfWeek, endOfWeek } = getWeekRange();
-        
-          filteredData = data.filter((event) => {
-            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-        
-            const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
-            const isLaterTime = turkiyeZamanDilimi > new Date();
-        
-            return isWithinWeek && isLaterTime;
-          });
+          filteredData = await fetchDataByDate("Bu Hafta");
         }else if (selectedDate === "Bu Haftasonu") {
-          const { startOfWeekend, endOfWeekend } = getWeekendRange();
-
-          filteredData = data.filter((event) => {
-            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-
-            const isWithinWeek = turkiyeZamanDilimi >= startOfWeekend && turkiyeZamanDilimi <= endOfWeekend;
-            const isLaterTime = turkiyeZamanDilimi > new Date();
-
-             return isWithinWeek && isLaterTime;
-          });
+          filteredData = await fetchDataByDate("Bu Haftasonu");
         } else if (selectedDate === "Önümüzdeki Hafta") {
-          const {startOfWeek, endOfWeek} = getNextWeekRange();
-          filteredData = data.filter((event) => {
-            const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-
-            const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
-            const isLaterTime = turkiyeZamanDilimi > new Date();
-
-            return isWithinWeek && isLaterTime;
-          });
+          filteredData = await fetchDataByDate("Önümüzdeki Hafta");
         }
   
         if (selectedCategory !== "Kategori" && selectedProvince !== "") {
@@ -231,9 +180,8 @@ const fetchDataByProvince = async (province) => {
       setLoadingFilter(true); // Filtreleme işlemi başladığında loadingFilter'ı true olarak ayarla
   
       try {
-        const fetchMyData = await fetch("/events/requestedevents");
-        const data = await fetchMyData.json();
-  
+        const data = await fetchDataByCategory(selectedCategory);
+    
         const filterByCategory = data.filter((event) => event.eventCategory === selectedCategory);
   
         // Yeni eşleşen etkinlikleri bul
@@ -305,63 +253,109 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
  const handleAnimationEnd  = (e) => {
   e.target.style.display = 'none';
  }
+// KULLANICI VAR MI YOK MU TESPIT ET
+ const isUserRegistered = Object.keys(userData).length !== 0;
+
   return (
     <>
       <section id={styles.eventsId}  >
       <div className="container">
-          <div className="d-flex mb-5 flex-column flex-sm-row justify-content-between align-items-center">
+          <div className="mb-5">
               
-              {Object.keys(userData).length !== 0 || userData.membershipLevel === "free" ? (
+              {Object.keys(userData).length !== 0 ? (
                     <h1 className={`fs-2 text-primary-emphasis text-capitalize ${styles.eventsTitle}`}>Hoş Geldin {userData.username} &nbsp;
                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                     <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
                   </svg></h1>
-              ) : <h1 className="fs-5 fw-bold" style={{color: "var(--second-color)"}}>
-                 E+
-                </h1>}
+              ) : (
+                <h1 className={`fs-2 text-primary-emphasis text-end text-capitalize ${styles.eventsTitle}`}>Hoş Geldin Misafir &nbsp;
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
+              </svg></h1>
+              )}
               </div>
           <div className="row rounded-right-top rounded-right-bottom">
 
-            
-
-          <div className="col-lg-4">
-            <div className="container">
-                  <div className="row my-5">
-                    <div className="col-12">
-                        <div className={styles.yourEventsBackground}>
-                              <h1 className="fs-5 text-center py-3">Yaklaşan Etkinlikleriniz</h1>
-                              <p className="mx-auto text-center ">
-                                <a className="fs-6 link-dark link-offset-2 link-underline-opacity-75 link-underline-opacity-100-hover" href="/user/profile?etkinliklerim">Hepsini Gör</a>
-                              </p>
-
-                              <div className={styles.yourEventsInside}>
-                                    <p className="text-secondary text-center py-1">Henüz bir etkinliğe katılmadınız.</p>
-                                    <p className="text-center py-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-view-stacked" viewBox="0 0 16 16">
-                                      <path d="M3 0h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 8h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
-                                    </svg>
-                                    </p>
-                                    <p className="text-center py-1 text-secondary">Katıldığınız ve yaklaşan etkinlikleriniz burada gözükür.</p>
-                              </div>
-                        </div>
-                    </div>
-                  </div>
-                  {userData.membershipLevel === "free" && (
-                        <div className="row">
+             {/* Kullanıcı girişi yaptıysa */}
+            {isUserRegistered && (
+               <>
+                <div className="col-lg-4">
+                <div className="container">
+                      <div className="row my-5">
                         <div className="col-12">
-                        <div className={styles.marketingBackground}>
-                            <p className={`text-start p-3 text-light ${styles.directPremium}`}><span className={styles.badge}>Etkinlikvar+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
-                            <a href="/pricing" type="button" className="btn btn-warning ms-3">Ücretsiz Denemeni Başlat</a>
+                          {Object.keys(userData).length !== 0 && (
+                                <div className={styles.yourEventsBackground}>
+                                <h1 className="fs-5 text-center py-3">Yaklaşan Etkinlikleriniz</h1>
+                                <p className="mx-auto text-center ">
+                                  <a className="fs-6 link-dark link-offset-2 link-underline-opacity-75 link-underline-opacity-100-hover" href="/user/profile?etkinliklerim">Hepsini Gör</a>
+                                </p>
+                                <div className={styles.yourEventsInside}>
+                                  {userEvents && userEvents.length > 0 ? (
+                                      <>
+                                      {userEvents.map((singular, id) => (
+                                        <div className="card mb-2" key={id} style={{maxWidth: "540px"}}>
+                                        <div className="row g-0">
+                                          <div className="col-md-4">
+                                            <img src={`../${singular.eventImage}`} className="img-fluid rounded-start" alt="eventImage" />
+                                          </div>
+                                          <div className="col-md-8">
+                                            <div className="card-body">
+                                              <h5 className="card-title">{singular.title}</h5>
+                                              <p className="card-text">{singular.description}</p>
+                                              <p className="card-text"><small className="text-body-secondary">{singular.eventCategory}</small></p>
+                                              <p className="card-text"><small className="text-body-secondary">{singular.date}</small></p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      ))}
+                                      </>
+                                  ) : (
+                                    <>
+                                         <p className="text-secondary text-center py-1">Henüz bir etkinliğe katılmadınız.</p>
+                                      <p className="text-center py-1">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-view-stacked" viewBox="0 0 16 16">
+                                        <path d="M3 0h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 8h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+                                      </svg>
+                                      </p>
+                                      <p className="text-center py-1 text-secondary">Katıldığınız ve yaklaşan etkinlikleriniz burada gözükür.</p>
+                                    </>
+                                  )}
+                                 
+                                </div>
+                          </div>
+                          )}
                         </div>
+                      </div>
+                      <div className="row">
+                      <div className="col-12"> 
+                               <TrendingCategories 
+                               popularCategories={popularCategories}
+                               handleCategoryLeft={handleCategoryLeft}
+                               />
                         </div>
-                  </div>
-                  )}
-              
-            </div>
+                      </div>
+                      {userData.membershipLevel === "free" && (
+                            <div className="row">
+                            <div className="col-12">
+                            <div className={styles.marketingBackground}>
+                                <p className={`text-start p-3 text-light ${styles.directPremium}`}><span className={styles.badge}>Etkinlikvar+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
+                                <a href="/pricing" type="button" className="btn btn-warning ms-3">Ücretsiz Denemeni Başlat</a>
+                            </div>
+                            </div>
+                      </div>
+                      )}    
+                </div>
+              </div>
+
              
-          </div>
-            <div className="col-lg-8 pb-5">
+              </>
+            )}
+{/* 
+className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
+            <div className="pb-5 col-lg-8" >
       
             {Object.keys(createdEventMessage).length !== 0 ? (
             <h1 
@@ -436,16 +430,57 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
 
                 <button onClick={handleReset} className="btn btn-light">Sıfırla</button>
               </div>
+              {(selectedDate !== "Bugün" || selectedCategory !== "Kategori" || selectedProvince !== "") && (
+                  <h1 className="fs-5 my-2">Filtreleriniz:</h1>
+              )}
+             <div className="my-2 d-inline-flex align-items-center justify-content-start">
+              {selectedDate !== "Bugün" && (
+                    <button onClick={() => setSelectedDate("Bugün")} className={`${styles.cancelFilterButtons} me-1`} type="button">{selectedDate}</button>
+              )}
+              {selectedCategory !== "Kategori" && (
+                   <button onClick={() => setSelectedCategory("Kategori")} className={`${styles.cancelFilterButtons} me-1`} type="button">{selectedCategory}</button>
+              )}
+              {selectedProvince !== "" && (
+                  <button onClick={() => {setSelectedProvince(""); searchRef.current.value = ""}} className={`${styles.cancelFilterButtons} me-1`} type="button">{selectedProvince}</button>
+              )}
+
+             </div>
+         
              
                  <SingleEvents
                  loadingFilter={loadingFilter}
                filteredEvents={filteredEvents} />
          
             </div>
+                {/* KULLANICI GİRİŞİ YAPILMADI ISE TREND OLAN EVENTLERI VE KATEGORİLERİ SAYFANIN SAĞINDA GOSTER */}
+            {!isUserRegistered && (
+                  <div className="col-lg-4">
+                       <div className="container">
+                          <div className="row my-5">
+                             <div className="col-12">
+                                        <TrendingEvents
+                                          trendingEvents={trendingEvents}
+                                           />
+                                           <TrendingCategories 
+                                           handleCategoryLeft={handleCategoryLeft}
+                                           popularCategories={popularCategories}
+                                           />
+                              </div>
+                            </div>
+                        </div>
+           
+            </div>
+            )}
+           
+          
+
+   
           </div>
         </div>
       </section>
     </>
   );
 }
+
+
 export default Events;

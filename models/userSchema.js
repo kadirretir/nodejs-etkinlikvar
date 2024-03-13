@@ -19,6 +19,10 @@ const userSchema = new Schema({
         type: String,
         require: false
     },
+    signInDate: {
+        type: Date,
+        default: Date.now
+    },
     membershipLevel: {
         type: String,
         enum: ['free', 'premium'],

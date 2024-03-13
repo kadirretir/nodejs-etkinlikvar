@@ -4,6 +4,9 @@
     search-results="<%=(typeof searchresults !== 'undefined') ? JSON.stringify(searchresults) : '{}' %>"
      data-user="<%=(typeof user !== 'undefined') ? JSON.stringify(user) : '{}' %>"
      category-data="<%=(typeof categories !== 'undefined') ? JSON.stringify(categories) : '{}'%>"
-     data-events="<%=JSON.stringify(events)%>"></div>
+     user-events="<%=(typeof userEvents !== 'undefined') ? JSON.stringify(userEvents) : '{}'%>"
+     trending-events="<%=(typeof trendingEvents !== 'undefined') ? JSON.stringify(trendingEvents) : '{}'%>"
+     trending-categories="<%=(typeof popularCategories !== 'undefined') ? JSON.stringify(popularCategories) : '{}'%>"
+     ></div>
 <%- include('./partials/_footer.ejs') -%>
 

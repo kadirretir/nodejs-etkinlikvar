@@ -30,18 +30,22 @@ function checkValue (val) {
     case "/events/":
       const eventsNode = document.getElementById('myEvents');
       const eventsRoot = createRoot(eventsNode);
-      const eventData = JSON.parse(eventsNode.getAttribute('data-events'));
       const usersData = JSON.parse(eventsNode.getAttribute('data-user'));
       const searchresults = JSON.parse(eventsNode.getAttribute('search-results'));
       const categoryData = JSON.parse(eventsNode.getAttribute("category-data"));
       const createdEventMessage = JSON.parse(eventsNode.getAttribute("created-event-message"))
+      const trendingEvents = JSON.parse(eventsNode.getAttribute("trending-events"))
+      const popularCategories = JSON.parse(eventsNode.getAttribute("trending-categories"))
+      const userEvents = JSON.parse(eventsNode.getAttribute("user-events"))
       eventsRoot.render(
         <StrictMode>
           <Events 
+          userEvents={userEvents}
           createdEventMessage={createdEventMessage}
-          eventsData={eventData} 
           searchresults={searchresults} 
           categoryData={categoryData}
+          trendingEvents={trendingEvents}
+          popularCategories={popularCategories}
           userData={usersData} />
         </StrictMode>
       );
