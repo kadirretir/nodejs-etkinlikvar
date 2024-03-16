@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("./userSchema");
+const eventSubCategories = require("./eventSubCategories");
 const { Schema } = mongoose;
 
 const eventsSchema  = new Schema({
@@ -51,6 +52,10 @@ const eventsSchema  = new Schema({
       require: true,
       enum: ["Sanat ve Kültür", "Spor", "Eğitim ve Gelişim", "Toplum ve Yardım", "İş ve Kariyer", "Teknoloji ve İnovasyon", "Eğlence ve Gezi", "Müzik", "Dans ve Tiyatro", "Film ve Sinema", "Görsel Sanatlar", "Edebiyat ve Yazarlık", "Bilim ve Teknoloji", "Doğa ve Çevre", "Sağlık ve Fitness", "Moda ve Güzellik", "Yiyecek ve İçecek", "Seyahat ve Turizm", "Ev ve Bahçe", "Evcil Hayvanlar", "Oyunlar ve Eğlence", "Konferanslar ve Seminerler", "Müzik festivalleri", "Sanat sergileri", "Yardım kampanyaları", "Sosyal sorumluluk projeleri", "Yaz kampı etkinlikleri", "Online etkinlikler"]
     },
+    eventSubCategory: {
+      type: [[String]],
+      default: eventSubCategories,
+  },
    participantLimit: {
       type: Number,
       default: null, // Varsayılan olarak sınırsız

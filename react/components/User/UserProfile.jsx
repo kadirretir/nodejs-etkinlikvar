@@ -11,7 +11,7 @@ import PaymentMethod from './PaymentMethod';
 
 const UserProfile = ({userData, eventsData, cancelledMessage}) => {
   const ulList = useRef(null);
-    const [activeTab, setActiveTab] = useState("profilim");
+    const [activeTab, setActiveTab] = useState("Profilim");
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -44,39 +44,39 @@ const UserProfile = ({userData, eventsData, cancelledMessage}) => {
      const options = { day: 'numeric', month: 'long', year: 'numeric' };
      const formattedDate = date.toLocaleDateString('tr-TR', options); // 'tr-TR' Türkçe lokalizasyonu için
 
-     useEffect(() => {
-      const handleBlur = (event) => {
-        const clickedElement = event.relatedTarget;
-        const ulMenu = ulList.current;
-        const links = ulMenu.querySelectorAll('li a');
+    //  useEffect(() => {
+    //   const handleBlur = (event) => {
+    //     const clickedElement = event.relatedTarget;
+    //     const ulMenu = ulList.current;
+    //     const links = ulMenu.querySelectorAll('li a');
 
-        let isInsideLink = false;
+    //     let isInsideLink = false;
 
-        links.forEach(link => {
-          if (link.contains(clickedElement)) {
-            isInsideLink = true;
-          }
-        });
+    //     links.forEach(link => {
+    //       if (link.contains(clickedElement)) {
+    //         isInsideLink = true;
+    //       }
+    //     });
         
-        if (!isInsideLink) {
-          const link = event.target;
-          link.focus();
-        }
-      };
+    //     if (!isInsideLink) {
+    //       const link = event.target;
+    //       link.focus();
+    //     }
+    //   };
     
-      const ulMenu = ulList.current;
-      const links = ulMenu.querySelectorAll('li a');
-      links.forEach(link => {
-        link.onblur = handleBlur;
-      });
+    //   const ulMenu = ulList.current;
+    //   const links = ulMenu.querySelectorAll('li a');
+    //   links.forEach(link => {
+    //     link.onblur = handleBlur;
+    //   });
 
-      return () => {
-        // Temizlik için, bileşen kaldırıldığında olay dinleyicilerini kaldır
-        links.forEach(link => {
-          link.onblur = null;
-        });
-      };
-    }, []);
+    //   return () => {
+    //     // Temizlik için, bileşen kaldırıldığında olay dinleyicilerini kaldır
+    //     links.forEach(link => {
+    //       link.onblur = null;
+    //     });
+    //   };
+    // }, []);
 
     return (
       <div className={styles.containerFluid}>
@@ -87,7 +87,7 @@ const UserProfile = ({userData, eventsData, cancelledMessage}) => {
                 <h1 className='fs-4 mb-2 ms-4'>Ayarlar</h1>
                   <ul className={styles.ulMenu} ref={ulList}>
                     <li>
-                    <a className='text-secondary-emphasis' href='#' onClick={() => handleTabClick('profilim')}>
+                    <a className='text-secondary-emphasis' href='#' onClick={() => handleTabClick('Profilim')}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16">
                         <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
                       </svg>
@@ -158,9 +158,7 @@ const UserProfile = ({userData, eventsData, cancelledMessage}) => {
                 : null}
               <div className="row">    
                 <div className="col-12">
-                    {activeTab === 'etkinliklerim' && <EventsComp userData={userData} eventGroups={eventGroups} />}
-
-                {activeTab === 'profilim' && <Profile userData={userData} /> }
+                {activeTab === 'Profilim' && <Profile userData={userData} /> }
                 {activeTab === 'Kişisel Bilgiler' && <PersonalInfo />}
                 {activeTab === 'Gizlilik ve Güvenlik' && <Privacy />}
                 {activeTab === 'İlgilerim' && <Interests />}

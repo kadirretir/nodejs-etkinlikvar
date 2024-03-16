@@ -1,0 +1,148 @@
+<%- include('./partials/_header.ejs') -%>
+
+
+  <section id="verifySection">
+    <div class="progress rounded-0" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar" style="width: 50%"></div>
+    </div>
+  <% if(messages.success) { %>
+    <h1 class="alert alert-success text-center"><%=messages.success%></h1>
+ <% } %>
+ <div class="container mt-5">
+  <div class="row justify-content-center">
+      <div class="col-md-6">
+          <div class="card">
+              <div class="card-body">
+                  <h1 class="card-title">Hesabınızı Doğrulayın</h1>
+                  <p class="card-text">Lütfen hesabınızı tamamlamak için e-posta adresinize gönderilen doğrulama bağlantısını tıklayın veya aşağıdaki doğrulama kodunu girin:</p>
+                  <!-- Doğrulama formu -->
+                  <form id="verificationForm">
+                    <label for="emailToken">Doğrulama Kodu:</label>
+                    <input type="text" id="emailToken" name="emailToken" required>
+                    <button type="submit">Doğrula</button>
+                </form>
+                <div id="errorContainer"></div>
+                  <!-- E-postayı yeniden gönderme seçeneği -->
+                  <p class="mt-3">Eğer doğrulama e-postasını almadıysanız, lütfen spam/junk klasörünü kontrol edin veya <a href="/resend-verification">buradan</a> yeniden gönderin.</p>
+                  <!-- Yardım ve destek bilgileri -->
+                  <p>Yardıma ihtiyacınız varsa lütfen <a href="/contact">destek ekibimizle iletişime geçin</a>.</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+  </section>
+
+  <!----------------------------------------------------- VERIFY.JS SCRIPTS -------------------------------------------------------- -->
+
+  <script>
+    const verificationForm = document.getElementById('verificationForm');
+    const errorContainer = document.getElementById('errorContainer');
+    
+    verificationForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+    
+        const formData = new FormData(verificationForm);
+    const urlEncodedData = new URLSearchParams();
+    
+    for (const pair of formData) {
+    urlEncodedData.append(pair[0], pair[1]);
+    }
+    
+    
+        try {
+            const response = await fetch('/user/verify', {
+                method: 'POST',
+                body: urlEncodedData
+            });
+    
+            const result = await response.json();
+    
+            console.log(result);
+            if (response.ok) {
+                // Doğrulama başarılı ise
+                errorContainer.textContent = "DOĞRULAMA ONAYLANDI"; // Hata mesajını temizle
+                    // Yükleniyor butonunu göster
+               errorContainer.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor...</span></div>';
+               setTimeout(() => {
+    loadSPAContent('interests');
+  }, 2000);
+
+            } else {
+                // Hata durumunda
+                errorContainer.textContent = result.error; // Hata mesajını göster
+            }
+        } catch (error) {
+            console.error('İstek sırasında bir hata oluştu:', error);
+            errorContainer.textContent = "İstek sırasında bir hata oluştu.";
+        }
+    });
+    </script>
+
+
+<script>
+function checkWindowSize() {
+  if (window.innerWidth < 1200) {
+    document.body.style.overflowY = 'scroll';
+  } else {
+    document.body.style.overflowY = 'hidden';
+  }
+}
+
+// Pencere yüklendiğinde ve yeniden boyutlandırıldığında fonksiyonu çağır
+window.onload = checkWindowSize;
+window.onresize = checkWindowSize;
+
+async function loadSPAContent(page) {
+  try {
+    // Sayfa içeriğini fetch ile al
+    const response = await fetch(`/user/${page}`);
+    if (!response.ok) throw new Error('Sayfa yüklenemedi');
+
+    const html = await response.text();
+    const appContainer = document.getElementById('verifySection');
+    appContainer.innerHTML = html;
+
+    // Sayfa içindeki tüm script'leri çalıştır
+    const scripts = appContainer.querySelectorAll('script');
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        // Dış kaynaklı script ise
+        newScript.src = script.src;
+      } else {
+        // İçerikli script ise
+        newScript.textContent = script.textContent;
+      }
+      // Eski script'i yeni script ile değiştir
+      script.parentNode.replaceChild(newScript, script);
+    });
+  } catch (error) {
+    console.error('SPA içeriği yüklenirken bir hata oluştu:', error);
+  }
+}
+// document.addEventListener('DOMContentLoaded', async function() {
+//     try {
+//       const getContainer = document.getElementById("verifySection");
+//         // Sunucudan .ejs dosyasının içeriğini almak için fetch isteği gönder
+//         const response = await fetch('/user/interests'); // EJS dosyasının URL'sini buraya yazın
+
+//         // Sunucudan gelen yanıtı metin olarak al
+//         const ejsContent = await response.text();
+
+//         getContainer.innerHTML = ejsContent;
+//     } catch (error) {
+//         console.error('EJS içeriği yüklenirken bir hata oluştu:', error);
+//     }
+// });
+
+
+
+</script>
+
+</body>
+</html> 
+
+
+
+

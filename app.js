@@ -16,8 +16,11 @@ const User = require("./models/userSchema")
 const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
 
+
+
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 app.use(express.static('public'))
 app.use('/events', express.static('public'))
 app.use('/events', express.static('dist'))
@@ -103,6 +106,7 @@ app.get("/pricing", (req,res) => {
 app.get("/login", authMiddleware.checkIfNotAuthed, (req,res) => {
   res.render("login.ejs")
 })
+
 
 // COMPLAINTS
 app.get("/complaints", (req,res) => {

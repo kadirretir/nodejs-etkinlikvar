@@ -1,0 +1,57 @@
+#interestsSection {
+    background: white;
+    border-top: 1px solid #ccc;
+}
+
+.cancelFilterButtons {
+    padding: 8px 20px;
+    background-color: #f44336; /* Kırmızı arka plan */
+    color: white; /* Beyaz metin */
+    font-size: 16px; /* Metin boyutu */
+    border: none; /* Kenarlık yok */
+    border-radius: 5px; /* Hafif yuvarlak köşeler */
+    cursor: pointer; /* İmleç buton üzerine geldiğinde el şeklini alır */
+    display: inline-block; /* Satır içi blok öğesi olarak görüntülenir */
+  }
+  
+  .cancelFilterButtons:hover {
+    background-color: #d32f2f; /* Butonun üzerine gelindiğinde arka plan rengi koyulaşır */
+  }
+  
+  .cancelFilterButtons:after {
+    content: '✖'; /* Butonun içeriğinde X işareti */
+    padding-left: 10px; /* X işaretinin sağında biraz boşluk */
+  }
+
+
+/* search styles */
+#searchContainer {
+  margin-bottom: 20px; /* İstenilen boşluk miktarı */
+}
+
+#searchinterests {
+  width: 100%; /* Kutu genişliği */
+  padding: 10px; /* Kutu iç içe boşluk */
+  font-size: 16px; /* Yazı boyutu */
+  border: 1px solid #ccc; /* Kenarlık rengi ve kalınlığı */
+  border-radius: 4px; /* Kenar yuvarlaklığı */
+}
+
+/* Sonuç kutusu stilleri */
+#interestsResults {
+  width: 100%;
+  max-height: 200px; /* Maksimum yükseklik */
+  overflow-y: auto; /* Dikey kaydırma çubuğu eklendiğinde görüntülenecek */
+  border: 1px solid #ccc; /* Kenarlık rengi ve kalınlığı */
+  border-radius: 4px; /* Kenar yuvarlaklığı */
+}
+
+#interestsResults div {
+  padding: 10px; /* Div iç içe boşluk */
+  cursor: pointer; /* İlgili öğe üzerine gelindiğinde imlecin şekli */
+}
+
+#interestsResults div:hover {
+  background-color: #f0f0f0; /* Fare üzerine gelindiğinde arka plan rengi */
+}
+

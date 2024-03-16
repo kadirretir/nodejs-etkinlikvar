@@ -49,12 +49,12 @@ const Profile = ({userData}) => {
                   <h3 className='text-start fs-5'>Profil Resmini Değiştir</h3>
 
                   <div className='row py-2 my-4'>
-                    <div className="col-lg-6">
+                    <div className="col-lg-6 align-items-center justify-content-center d-flex">
                     <img src={`./${userData.profileImage}`}  className="rounded-circle me-5 ms-1" width={100} alt="" />
                     </div>
 
-                    <div className="col-lg-6 align-items-center justify-content-center d-flex">
-                      <button type='button' className='btn btn-info align-self-center'>
+                    <div className="col-lg-6 align-items-center justify-content-start d-flex">
+                      <button type='button' className='btn btn-warning align-self-center'>
                         <label htmlFor="profilePictureInput" style={{cursor: "pointer"}}>
                         Masaüstünden Yükle
                           </label>
@@ -74,7 +74,7 @@ const Profile = ({userData}) => {
                 
                   </div>
                   {showPicSuccess && (
-                        <div className='d-flex flex-column align-items-center justify-content-center'> 
+                        <div className='d-flex flex-column align-items-center justify-content-center my-3'> 
                         <b className='text-success fs-5 my-3'>Resim başarıyla yüklendi!</b>
                         <button type='submit' className='btn btn-danger py-2 mx-auto' onClick={cancelImageUpload}>İptal</button>
                     </div>
@@ -83,19 +83,19 @@ const Profile = ({userData}) => {
               
     
                   <div className="d-flex flex-column ps-3">
-                    <div className="mb-3">
+                    <div className="mb-5 mt-2">
                       <p className='text-start'>
-                      <label className='form-label text-left text-secondary' htmlFor='username'>
-                      Kullanıcı Adım
+                      <label className='form-label fs-4 text-left text-dark' htmlFor='username'>
+                      İsim
                       </label>
                       </p>
-                      <input type="text" className='form-control' id='username' name='username' />
+                      <input type="text" className='form-control' id='username' name='username' value={userData.username} />
                     </div>
     
                     <div className="">
                     <p className='text-start'>
-                      <label className='form-label text-left text-secondary' htmlFor="myemail">
-                        E-Posta Adresim
+                      <label className='form-label text-left text-dark fs-4' htmlFor="myemail">
+                        E-Posta Adresi
                       </label>
                       </p>
                       <input type="email" className='form-control' id="myemail" name="myemail"  />

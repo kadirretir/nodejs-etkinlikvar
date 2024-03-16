@@ -5,7 +5,6 @@ const sharp = require('sharp');
 const fs = require("fs")
 const path = require('path');
 
-
 module.exports.profile_get = async (req,res) => {
     try {
         await connectToDb()
@@ -15,6 +14,71 @@ module.exports.profile_get = async (req,res) => {
         res.render("user.ejs", {user: user, events: userEvents, successMessages: successMessages});
     } catch (error) {
         throw new Error(error)
+    }
+}
+
+module.exports.verify_post = async (req,res, next) => {
+  console.log(req.body)
+  try {
+    await connectToDb();
+    const emailToken = req.body.emailToken;
+
+    if (!emailToken) {
+        return res.status(400).json({ error: "E-Mail onaylamada bir sorun oluştu. Lütfen yetkililere danışınız." });
+    }
+
+    const user = await User.findOne({ emailToken });
+
+    if (user) {
+        // user.emailToken = null;
+        // user.isVerified = true;
+        return res.json({ message: "DOĞRULAMA ONAYLANDI" });
+    } else {
+        // Kullanıcı bulunamadığında hata mesajını döndür
+        return res.status(404).json({ error: "Kullanıcı bulunamadı. Bu hatanın gereksiz olduğunu düşünüyorsanız lütfen bize bildirin." });
+    }
+} catch (error) {
+    // Sunucu hatası durumunda hata mesajını döndür
+    return res.status(500).json({ error: "Sunucu hatası: " + error.message });
+}
+}
+
+
+module.exports.verify_get = (req,res) => {
+  res.render("verify.ejs", { messages: req.flash()})
+}
+
+
+module.exports.interests_get = async (req,res) => {
+  try {
+    await connectToDb();
+    
+    const eventSchema = Event.schema;
+
+      // Get Categories
+    const eventCategories = eventSchema.path('eventCategory').enumValues;
+
+    // Get SubCategories
+    const subCategories = eventSchema.path('eventSubCategory').defaultValue();
+
+    res.render("interests.ejs", {eventCategories:eventCategories, subCategories: subCategories} )
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
+module.exports.interests_post = async (req,res) => {
+    try {
+      await connectToDb();
+      console.log(req.body);
+      const findUser = await User.findById(req.user.id);
+
+      findUser.interests = req.body.selectedContents;
+      await findUser.save()
+      return res.redirect("/user/profile")
+    } catch (error) {
+      throw new Error(error)
     }
 }
 

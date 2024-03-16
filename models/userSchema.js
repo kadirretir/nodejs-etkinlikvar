@@ -6,14 +6,26 @@ const userSchema = new Schema({
         type: String,
         require: true,
     },
+    name: {
+        type: String,
+        require: true
+    },
     email: {
         type: String,
         require: true,
         unique: true,
     },
+    emailToken: {
+        type: String
+    },
     password: {
         type: String,
         require: true,
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+        require: true
     },
     location: {
         type: String,
@@ -31,7 +43,12 @@ const userSchema = new Schema({
     profileImage: {
         type: String,
         require: true
-      }
+      },    
+    interests: [{
+        type: String,
+        required: true
+    }]
+
 })
 
 
