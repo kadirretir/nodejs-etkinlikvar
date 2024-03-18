@@ -18,7 +18,6 @@ module.exports.profile_get = async (req,res) => {
 }
 
 module.exports.verify_post = async (req,res, next) => {
-  console.log(req.body)
   try {
     await connectToDb();
     const emailToken = req.body.emailToken;
@@ -27,11 +26,12 @@ module.exports.verify_post = async (req,res, next) => {
         return res.status(400).json({ error: "E-Mail onaylamada bir sorun oluştu. Lütfen yetkililere danışınız." });
     }
 
-    const user = await User.findOne({ emailToken });
-
+    const user = await User.findOne({ _id: req.user.id, emailToken: req.body.emailToken });
     if (user) {
-        // user.emailToken = null;
-        // user.isVerified = true;
+        user.emailToken = null;
+        user.isVerified = true;
+
+        await user.save()
         return res.json({ message: "DOĞRULAMA ONAYLANDI" });
     } else {
         // Kullanıcı bulunamadığında hata mesajını döndür
@@ -44,8 +44,14 @@ module.exports.verify_post = async (req,res, next) => {
 }
 
 
-module.exports.verify_get = (req,res) => {
-  res.render("verify.ejs", { messages: req.flash()})
+module.exports.verify_get = async (req,res) => {
+  try {
+    await connectToDb();
+    const findToken = await User.findById(req.user.id).select("emailToken")
+    res.render("verify.ejs", { messages: req.flash(), userToken: findToken})
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
 
@@ -70,6 +76,7 @@ module.exports.interests_get = async (req,res) => {
 
 module.exports.interests_post = async (req,res) => {
     try {
+      console.log(req.body)
       await connectToDb();
       console.log(req.body);
       const findUser = await User.findById(req.user.id);

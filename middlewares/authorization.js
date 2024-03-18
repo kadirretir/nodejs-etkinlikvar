@@ -6,7 +6,7 @@ const User = require("../models/userSchema")
 const getUserInfo = async (req, res, next) => {
   try {
     await connectToDb();
-    const currentUser = await User.findById(req.user.id).select("membershipLevel username location profileImage email")
+    const currentUser = await User.findById(req.user.id).select("membershipLevel username location profileImage email interests")
     res.locals.user = currentUser || undefined;
     next();
   } catch (error) {

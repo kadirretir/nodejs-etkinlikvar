@@ -3,6 +3,7 @@ const app = express()
 const authRoutes = require("./routes/auth")
 const eventRoutes = require("./routes/events")
 const userRoutes = require("./routes/user")
+const memberRoutes = require("./routes/members")
 const flash = require("express-flash")
 const passport = require('passport');
 const MongoStore = require("connect-mongo")
@@ -22,12 +23,19 @@ app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 app.use(express.static('public'))
+
 app.use('/events', express.static('public'))
 app.use('/events', express.static('dist'))
+
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('dist'));
+
 app.use('/user', express.static('public'))
 app.use('/user', express.static('dist'))
+
+app.use('/members', express.static('public'))
+app.use('/members', express.static('dist'))
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads_little', express.static(path.join(__dirname, 'uploads_little')));
 app.use(session({
@@ -47,10 +55,15 @@ app.use(authMiddleware.getUserNotification)
 app.use(flash());
 // cloneDocument(9);
 
+const {checkIfAuthed} = authMiddleware;
 
 app.use("/auth", authRoutes)
 app.use("/events", eventRoutes)
-app.use("/user", authMiddleware.checkIfAuthed, userRoutes)
+app.use("/user", checkIfAuthed, userRoutes)
+app.use("/members", memberRoutes)
+
+
+
 
 app.get("/", async (req,res) => {
     try {
@@ -74,7 +87,13 @@ app.get("/", async (req,res) => {
 
    
     // Kategorilerin sayımlarını yap
-    const allEvents = await Event.find({ date: { $gt: currentDate } }); // Sadece geçerli etkinlikleri al
+    const allEvents = await Event.find({ 
+        status: { $ne: "cancelled" }, // Statusu "cancelled" olan etkinlikleri almayacağız
+        $or: [
+            { date: { $gt: currentDate } }, // Tarihi bugünün tarihinden büyük olan etkinlikleri al
+            { date: currentDate, hour: { $gte: currentDate.getHours() } } // Bugünün tarihine eşit olan ve saati şu andan büyük olan etkinlikleri al
+        ]
+    }); // Sadece geçerli etkinlikleri al
      // Kategori sayımlarını tutmak için bir obje
     const categoryCounts = {};
 
@@ -104,7 +123,11 @@ app.get("/pricing", (req,res) => {
 
 // LOGIN
 app.get("/login", authMiddleware.checkIfNotAuthed, (req,res) => {
-  res.render("login.ejs")
+  if(req.session.returnTo && req.session.returnTo.includes("member")) {
+    return res.render("login.ejs");
+  }
+  req.session.returnTo = req.headers.referer || '/';
+  return res.render("login.ejs")
 })
 
 

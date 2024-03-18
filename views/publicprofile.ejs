@@ -1,0 +1,95 @@
+<%- include('./partials/_header.ejs') -%>
+
+<section id="publicProfile">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="profileLeftBg">
+                    <div class="card">
+                        <img src="<%=findUser.profileImage%>" class="card-img"/>
+                        <div class="card-img-overlay text-white flex-column d-flex align-items-start justify-content-end">
+                            <% if(findUser.membershipLevel === "premium") { %>
+                                <h4 class="card-title memberBadge">e<span>+</span></h4>
+                            <% } %>
+                            
+                            <h5 class="card-title text-capitalize fs-3"><%=findUser.username%></h5>
+                            <p class="card-text text-capitalize my-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                  <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+                                </svg>
+                              <%=findUser.location%>
+                          </p>
+                          <%
+                              function formatDate(dateString) {
+                                  const options = { year: 'numeric', month: 'long', day: '2-digit' };
+                                  const date = new Date(dateString);
+                                  return date.toLocaleDateString('tr-TR', options);
+                              }
+  
+                      
+                              %>
+                            <p class="card-text"><small>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-minus-fill" viewBox="0 0 16 16">
+                                  <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1"/>
+                                </svg>
+                              <%=formatDate(findUser.signInDate)%> Tarihinde Katıldı
+                          </small></p>
+                          </div>
+                      </div>
+
+                      <div class="about-me-pubprofile">
+                        Etkinlikleri
+                      </div>
+
+                      <div class="beneathImage">
+                        <!-- ORTAK İLGİLERİ YAZDIR -->
+                  
+                            <% if (user.id !== findUser.id) { %>
+                                <% 
+                                const commonInterests = [];
+                                user.interests.forEach(interest => {
+                                    if (findUser.interests.includes(interest)) {
+                                        commonInterests.push(interest);
+                                    }
+                                });
+                                
+                                if (commonInterests.length > 0) {
+                                %>
+                                <h1 class="fs-4 text-center my-2">Ortak ilgileriniz var! <%= commonInterests.join(', ') %></h1>
+                                <% } %>
+                            <% } %>
+                  
+              
+                    </div>
+                </div>
+            </div>
+         
+            <div class="col-lg-8">
+                <% if(user.membershipLevel !== 'premium') { %>
+                    <div class="marketingBackground mb-5">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="text-start p-3 text-light directPremium"><span class="">Etkinlikvar+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
+                                        <h5 class="text-light ps-3 light-text-marketing">e+ Üyeleri etkinliklerden ve yeniliklerden haberdan olan ilk kişiler. Sen de aralarına katılmak ister misin?</h5>
+                                    </div>
+
+                                    <div class="col-md-6 d-flex align-items-start justify-content-end">
+                                        <a href="/pricing" type="button" class="btn mt-5 me-3 btn-warning">Ücretsiz Denemeni Başlat</a>
+                                    </div>
+                                </div>
+                    </div>
+              <%  } %>
+
+              <% if(findUser.interests.length > 0) { %>      
+                <h1 class="fs-3  mb-4">İlgi Alanları(<%=findUser.interests.length%>)</h1>
+                <% findUser.interests.map((interest) => { %>
+                    <button type="button" class="btn btn-info me-1 my-2"><a class="text-dark" href="/events?<%=interest%>"><%=interest%></a></h>
+                <% }) %>
+             <% } %> 
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<%- include('./partials/_footer.ejs') -%>

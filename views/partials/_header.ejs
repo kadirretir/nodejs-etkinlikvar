@@ -18,14 +18,14 @@
     <link rel="stylesheet" href="css/pricing.css" />
     <link rel="stylesheet" href="css/event.css" />
     <link rel="stylesheet" href="css/userprofile.css" />
+    <link rel="stylesheet" href="css/publicprofile.css" />
     <link rel="stylesheet" href="css/complaints.css" />
     <link rel="stylesheet" href="css/interests.css" />
     <link rel="stylesheet" href="css/verify.css" />
-    
 </head>
 
 <body>
-
+  
     <header class="container-fluid" id="header">
         <div class="mainHeader">
             <div class="logo d-flex align-items-center">
@@ -89,7 +89,7 @@
                                  
                           
 
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <img class="rounded-circle d-block mx-auto" src="../<%=user.profileImage%>" width="25%" alt="user image">
                             <h5 class="text-center fs-6 my-4"><a href="#">Hoşgeldiniz <%= user.email %></a></h5>
                             <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
@@ -105,9 +105,8 @@
                                         Etkinlik Oluştur
                                      </a></li>
                                     <% } %>
-                            <li><a class="dropdown-item" href="/user/profile?etkinliklerim">Etkinliklerim</a></li>
-                            <li><a class="dropdown-item" href="/user/profile">Profil</a></li>
-                            <li><a class="dropdown-item" href="/user/profile?ayarlar">Ayarlar</a></li>
+                            <li><a class="dropdown-item" href="/members/<%=user.id%>">Profili Gör</a></li>
+                            <li><a class="dropdown-item" href="/user/profile">Ayarlar</a></li>
                             <li><a class="dropdown-item" href="/help">Yardım</a></li>
                             <form action="/auth/logout?_method=DELETE" method="post">
                                 <li><button class="dropdown-item" href="#">Çıkış Yap</bu></li>

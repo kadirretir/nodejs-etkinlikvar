@@ -1,16 +1,18 @@
-document.addEventListener('DOMContentLoaded', function() {
+
+  function initializeDynamicSubmit () {
     // Kaydet butonunu dinleyen fonksiyonu tanımla
     const handleSaveButtonClick = function(event) {
-          const selectedButtons = document.querySelectorAll('#selectedCategoriesContainer div');
+    
+          const selectedButtons = document.querySelectorAll('#selectedCategoriesContainer button');
           const selectedContents = Array.from(selectedButtons).map(button => button.textContent); 
       
           const data = {
               selectedContents: selectedContents
           };
-  
+    
   
           if(data.selectedContents.length > 0) {
-              fetch("http://localhost:3000/user/interests", {
+              fetch("/user/interests", {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json'
@@ -19,8 +21,25 @@ document.addEventListener('DOMContentLoaded', function() {
           })
           .then(response => {
               if (response.ok) {
-                  console.log('İstek başarıyla gönderildi.');
-                  // İstek başarılı ise burada yapılacak işlemleri ekleyebilirsiniz
+            const getErrorElem = document.getElementById("errorMessageInterests");
+            const div = document.createElement("div");
+
+            // Bootstrap yükleniyor animasyonu için gerekli class'ları ekle
+            div.className = "d-flex justify-content-center flex-column align-items-center";
+            
+            // Yükleniyor animasyonunu içeren HTML'i ayarla
+            div.innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Yükleniyor...</span>
+            </div>
+            <h2 class="fs-4">İlgi alanlarınızı aldık. Yönlendiriliyorsunuz...</h2>
+            `;
+            getErrorElem.appendChild(div)
+            setTimeout(() => {
+                window.location.href = "/user/profile"
+            }, 1000)
+                  
+    
               } else {
                   console.error('İstek gönderilirken bir hata oluştu.');
                   // İstek başarısız ise burada yapılacak işlemleri ekleyebilirsiniz
@@ -46,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Kaydet butonunu bul ve tıklayınca handleSaveButtonClick fonksiyonunu çalıştır
       const saveButton = document.getElementById('saveButton');
       saveButton.addEventListener('click', handleSaveButtonClick);
-  
+      
       // DOM değişikliklerini izleyen bir izleyici oluştur
       const observer = new MutationObserver(mutationsList => {
           mutationsList.forEach(mutation => {
@@ -64,4 +83,4 @@ document.addEventListener('DOMContentLoaded', function() {
       // İzleyiciyi hedeflenen düğüme bağlayın ve izlemek istediğiniz türleri belirtin
       const config = { childList: true, subtree: true };
       observer.observe(targetNode, config);
-  });
+  };

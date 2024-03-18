@@ -19,9 +19,11 @@
                   </div>
                   <div class="col-lg-5">
                      <div class="d-flex flex-column align-items-center">
+                        <a href="../members/<%=findOrganizer.id%>">
                         <img src="../<%=findOrganizer.profileImage%>" class="rounded-circle" width="60%" alt="profileimage" />
                         <h1 class="fs-5"><%= (user && user.username === findOrganizer.username) ? 'Siz' : findOrganizer.username.toUpperCase() %>
                         </h1>
+                     </a>
                        </div>
                   </div>
       

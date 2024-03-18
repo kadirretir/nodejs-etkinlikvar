@@ -52,7 +52,6 @@ module.exports.home_get = async (req,res) => {
             status: 'active', // Durumu 'active' olan etkinlikleri getir
             date: { $gte: currentDate } // Bugünden sonraki tarihli etkinlikleri getir
         }).limit(3);
-
         res.locals.userEvents = matchingEvents;
        
         } else {
@@ -84,7 +83,13 @@ module.exports.home_get = async (req,res) => {
 
 
           // FIND TREND CATEGORIES
-          const allEvents = await Event.find({ date: { $gt: currentDate } }); // Sadece geçerli etkinlikleri al
+          const allEvents = await Event.find({ 
+            status: { $ne: "cancelled" }, // Statusu "cancelled" olan etkinlikleri almayacağız
+            $or: [
+                { date: { $gt: currentDate } }, // Tarihi bugünün tarihinden büyük olan etkinlikleri al
+                { date: currentDate, hour: { $gte: currentDate.getHours() } } // Bugünün tarihine eşit olan ve saati şu andan büyük olan etkinlikleri al
+            ]
+        }); // Sadece geçerli etkinlikleri al
           // Kategori sayımlarını tutmak için bir obje
          const categoryCounts = {};
      
@@ -298,7 +303,10 @@ module.exports.getEventsByDate = async (req, res) => {
       const dateObjFormat = new Date(formattedDate);
       const currentHour = formattedDate.substring(11, 16);
 
-      const events = await Event.find({ date: { $gte: dateObjFormat } }).limit(40); // Belirtilen tarihten sonraki etkinlikleri getirir
+      const events = await Event.find({ 
+        date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
+        status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
+    }).limit(40); // Belirtilen tarihten sonraki etkinlikleri getirir
   
      const filteredData = events.filter((event) => {
         const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
@@ -316,7 +324,10 @@ module.exports.getEventsByDate = async (req, res) => {
       const formattedDate = getTomorrowDate();
       const dateObjFormat = new Date(formattedDate);
 
-      const events = await Event.find({ date: { $gte: dateObjFormat } }).limit(40);
+      const events = await Event.find({ 
+        date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
+        status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
+    }).limit(40);
 
 
       const filteredData = events.filter((event) => {
@@ -333,7 +344,8 @@ module.exports.getEventsByDate = async (req, res) => {
         date: { 
           $gte: startOfWeek, // Bu hafta başlangıç tarihinden büyük veya eşit olan
           $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
-        } 
+        },
+        status: { $ne: "cancelled" }
       }).limit(40);
     
       const filteredData = events.filter((event) => {
@@ -353,7 +365,8 @@ module.exports.getEventsByDate = async (req, res) => {
         date: { 
           $gte: startOfWeekend, // Bu hafta başlangıç tarihinden büyük veya eşit olan
           $lte: endOfWeekend     // Bu hafta bitiş tarihinden küçük veya eşit olan
-        } 
+        },
+        status: { $ne: "cancelled" }
       }).limit(40);
 
       const filteredData = events.filter((event) => {
@@ -372,7 +385,8 @@ module.exports.getEventsByDate = async (req, res) => {
         date: { 
           $gte: startOfWeek, // Bu hafta başlangıç tarihinden büyük veya eşit olan
           $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
-        } 
+        },
+        status: { $ne: "cancelled" }
       }).limit(40);
 
       const filteredData = events.filter((event) => {

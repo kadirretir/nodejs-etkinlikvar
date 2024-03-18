@@ -57,8 +57,13 @@ module.exports.register_post= async (req,res, next) => {
     try {
         await connectToDb()
         const findUser = await User.findOne({email: req.body.signupemail})
+        const isUserNameTaken = await User.findOne({username: req.body.signupusername})
         if(!req.body.signupemail) {
           req.flash("error", "Lütfen gerekli alanları doldurunuz");
+          return res.redirect("/login");
+        } else if (isUserNameTaken) {
+          req.flash("error", "Bu kullanıcı adı alınmış.");
+          // Kayıt sayfasına yönlendirme yapın
           return res.redirect("/login");
         } else if (!findUser) {
           const hashedPass = await bcrypt.hash(req.body.signuppassword, 10)
@@ -200,12 +205,19 @@ module.exports.login_post = async (req, res, next) => {
   const token = req.body['g-recaptcha-response']
   const SECRET_KEY_v2 = '6LfSOIMpAAAAALIQhxkrl6k2j_PCHNJkD037EQKK';   
   const recaptchaResponse = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY_v2}&response=${token}`);
-   if(recaptchaResponse.data.success) {
-    passport.authenticate('local', {
-      successRedirect: '/events',
-      failureRedirect: '/login',
-      failureFlash: true,
-      badRequestMessage: "Lütfen alanları uygun biçimde doldurunuz"
+  let backUrl = req.session.returnTo ? req.session.returnTo : '/events'
+  if(recaptchaResponse.data.success) {
+    passport.authenticate('local', (err, user, info) => {
+      if (err || !user) {
+        return res.redirect('/login');
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        return res.redirect(backUrl)
+      });
+
     })(req, res, next);
   } else {
     // reCAPTCHA doğrulaması başarısız olduğunda veya bir hata oluştuğunda bu kısım çalışır
