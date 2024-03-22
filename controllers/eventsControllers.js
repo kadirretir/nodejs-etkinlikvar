@@ -37,6 +37,10 @@ function handleWebSocketConnection(socket) {
 }
 
 wss.on("connection", handleWebSocketConnection);
+function validateSearchTerm(term) {
+  // Türkçe karakterler, boşluklar ve noktalama işaretlerini de içeren genişletilmiş regex
+  return /^[\p{L}0-9\s.,!?]*$/u.test(term);
+}
 
 
 module.exports.home_get = async (req,res) => {
@@ -44,7 +48,7 @@ module.exports.home_get = async (req,res) => {
         await connectToDb()
         // Eşleşen etkinlikleri bulmak için kullanılan sorgu
         const userId = req.user ? req.user.id : null
-
+  
         if(userId) {
           const currentDate = new Date(); // Şu anki tarih ve zamanı al
           const matchingEvents = await Event.find({
@@ -107,39 +111,71 @@ module.exports.home_get = async (req,res) => {
            const popularCategories = sortedCategories.slice(0, 6);
 
            res.locals.popularCategories = popularCategories.length > 0 ? popularCategories : null
-        
+
+             // SEARCH RESULTS FOR GENERAL SEARCH QUERY
+               // Veritabanına bağlan
+               let generalSearchResults;
+               if (req.query.searchquery) {
+                 // searchTerm yerine doğrudan req.query.searchquery kullanın
+                 if (!validateSearchTerm(req.query.searchquery)) {
+                   return res.redirect("/")
+                 } else {
+                   const searchQuery = {
+                     $text: {
+                       $search: req.query.searchquery
+                     }
+                   };
+                   generalSearchResults = await Event.find({
+                    $and: [
+                      searchQuery, // Mevcut arama sorgusu
+                      { 
+                        status: { $ne: "cancelled" }, // "cancelled" olmayan etkinlikler
+                        date: { $gt: new Date() } // Geçmemiş tarihli etkinlikler
+                      }
+                    ]
+                  }).exec();
+                 }
+               }
 
         const eventCategories = Event.schema.path('eventCategory').enumValues;
         res.locals.categories = eventCategories
         const successMessage = req.flash('success'); // Flash mesajını al
         res.locals.successMessage = successMessage;
-        res.render("events.ejs")
 
-        await new Promise ((resolve, reject) => {
-          const data = req.app.locals.searchresults = {};
-          resolve(data)
-        })
-    
+        const searchresults = req.flash('searchresults');
+        const interestsearch = req.flash('interestsearch');
+
+
+        res.render("events.ejs",
+         { searchresults: searchresults[0] || {},
+          interestsearch: interestsearch[0] || {},
+          generalSearchResults: generalSearchResults
+        });
     } catch (error) {
-        throw new Error(error)
+        res.status(404).render("404.ejs")
     }
 }
 
 module.exports.home_post = (req,res) => {
-    req.app.locals.searchresults = {
-        searchforevent: req.body.searchforevent,
-        searchforeventlocation: req.body.searchforeventlocation
+    req.flash('searchresults', {
+      searchforevent: req.body.searchforevent,
+      searchforeventlocation: req.body.searchforeventlocation
+    });
+
+    req.flash('interestsearch', {
+      interest: req.body.interest
+    })
+   
+    if(req.body.fromFooter) {
+      res.json({redirect: '/events'})
+    } else {
+      res.redirect("/events")
     }
-    res.redirect("/events")
 }
 
 module.exports.newevent_get= (req,res) => {
-        const eventCategories = Event.schema.path('eventCategory').enumValues;
-        const usermembership = req.user ? req.user.membershipLevel : null;
-        res.render("newevent.ejs", 
-        {eventCategories: eventCategories,
-          usermembership: usermembership
-        })
+    const usermembership = req.user ? req.user.membershipLevel : null;
+    res.render("newevent.ejs", {usermembership: usermembership})
 }
 
 module.exports.singular_event_get = async (req,res) => {
@@ -180,25 +216,34 @@ module.exports.singular_event_get = async (req,res) => {
        findSimilarEvents: findSimilarEvents
       })
     } catch (error) {
-        throw new Error(error);
+        res.status(404).render("404.ejs")
     }
 }
 
 module.exports.add_attendees_post = async (req, res) => {
     try {
       const eventId = req.params.id;
-      const userId = req.user ? req.user.id : null; // Kullanıcının kimliğini alın (oturum açmış olduğunu varsayıyoruz)
-      const message = "Kurduğunuz etkinliğe yeni biri katıldı!";
+      const userId = req.user ? req.user.id : null; // Kullanıcının kimliğini alın (oturum açmış olduğunu varsayıyoruz)  
+         // Etkinlik sahibinin ve katılan kullanıcının bilgilerini alın
+           const [eventOwner, user] = await Promise.all([
+            Event.findById(eventId).populate("organizer"),
+            User.findById(userId)
+        ]);
 
-      
-      broadcastMessage(JSON.stringify({ eventId, message }));
-     // ETKİNLİK SAHİBİNİ BUL
-     const eventOwner = await Event.findById(eventId).populate("organizer");
-      // Etkinliği bulun
-      const event = await Event.findById(eventId);
+        if (!user) {
+            return res.redirect(`/login`);
+        }
+
+        // Bildirim mesajını oluştur
+        const message = `${user.username} kurduğunuz etkinliğe katıldı!`;
+        broadcastMessage(JSON.stringify({ eventId, message }));
+    //  // ETKİNLİK SAHİBİNİ BUL
+    //  const eventOwner = await Event.findById(eventId).populate("organizer");
+    //   // Etkinliği bulun
+   const event = await Event.findById(eventId);
   
-      // Kullanıcının "free" üyelik düzeyine sahip olup olmadığını kontrol edin
-      const user = await User.findById(userId);
+    //   // Kullanıcının "free" üyelik düzeyine sahip olup olmadığını kontrol edin
+    //   const user = await User.findById(userId);
       if(user !== null) {
         if (user.membershipLevel === 'free' && event.attendees.length >= 10) {
           // "free" üyelik düzeyine sahip kullanıcı için katılımcı sınırlaması kontrolü
@@ -477,7 +522,6 @@ module.exports.newevent_post = async (req,res, err) => {
               }
 
           });
-
           const newEvent = await Event.create({
             title: req.body.eventPostTitle,
             description: req.body.eventPostDescription,
@@ -488,7 +532,8 @@ module.exports.newevent_post = async (req,res, err) => {
             eventImage: req.file.path,
             participantLimit: req.body.getEventPartLimit,
             organizer: res.locals.user.id,
-            eventCategory: req.body.getEventCategory
+            eventCategory: req.body.eventCategory,
+            eventSubCategory: req.body.eventSubCategory
         })
   
         newEvent.attendees.push(req.user.id);
@@ -497,6 +542,16 @@ module.exports.newevent_post = async (req,res, err) => {
           req.flash('success', 'Etkinliğiniz başarıyla oluşturuldu.');
           res.redirect("/events");
     } catch (error) {
+      console.log(error)
       res.redirect("/events/newevent")
     }
 }
+
+
+module.exports.general_search_post = async (req, res) => {
+    const resultsString = encodeURIComponent(req.query);
+    // İstemciyi sonuçlarla birlikte /events sayfasına yönlendir
+    res.redirect(`/events?searchResults=${resultsString}`);
+  
+};
+

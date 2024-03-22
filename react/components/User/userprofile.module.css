@@ -129,7 +129,7 @@ transition: ease-in-out 0.1s;
  position: relative;
 } 
 
- .ulMenu li a::after {
+ /* .ulMenu li a::after {
   content: "";
   position: absolute;
   top: 0;
@@ -143,7 +143,34 @@ transition: ease-in-out 0.1s;
 
  .ulMenu li a:focus::after {
   transform: scaleX(1);
-}  
+}   */
+
+.ulMenu li a::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background-color: rgba(108, 117, 125, 0); /* Başlangıçta görünmez */
+  transform: scaleY(0);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+
+/* Aktif NavLink için ::after pseudo-element stil */
+.ulMenu li a.active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background-color: rgba(108, 117, 125, 1);
+  transform: scaleY(1); /* Aktif olduğunda görünür olacak */
+  transition: transform 0.2s ease;
+}
+
 
 
 @media screen and (max-width: 1200px) {

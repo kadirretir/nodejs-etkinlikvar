@@ -6,7 +6,7 @@
 /* RESIM STILLERI */
 .imageHalf {
     height: 90vh;
-    background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.9)),
     url('/home.jpg');
     background-repeat: no-repeat;
     background-position:center;
@@ -25,27 +25,23 @@
     display: block;
     color: var(--light-color);
     font-family: var(--second-font);
-    text-indent: 1.1rem;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    hyphens: auto;
-    white-space: normal;
     margin-bottom: 1rem;
 }
 
 .middle h1 span {
     display: inline-block;
     padding: 0.2rem;
-    padding-right: 1.8rem;
+    padding-right: 1rem;
     background: linear-gradient(rgba(253, 52, 18, 1), rgba(253, 52, 18, 0.5));
     border-radius: 30%;
 }
 
-.middle i {
-    font-size: 1.2rem;
+.middle h3 {
+    font-size: 1rem;
     color: var(--light-grey-color);
-    font-family: var(--second-font);
+    font-family: var(--third-font);
     margin-left: 0.5rem;
+    font-weight: 400;
 }
 /* OTHERHALF'IN FORM STILLERI */
 .otherHalf {
@@ -247,23 +243,12 @@ margin-left: -25px;
   display: block;
   color: var(--light-color);
   font-family: var(--second-font);
-  text-indent: 2rem;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  hyphens: auto;
-  white-space: normal;
   margin-bottom: 1.3rem;
   text-align: center;
+  text-indent: 1rem;
 }
 
-.middle h1 span {
-  padding-right: 1.8rem;
-}
 
-.middle i {
- display: block;
-  text-align: center;
-}
 
 /* OTHER HALF */
   .otherHalf {

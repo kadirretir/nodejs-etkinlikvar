@@ -30,12 +30,34 @@ module.exports.verify_post = async (req,res, next) => {
     if (user) {
         user.emailToken = null;
         user.isVerified = true;
+        await user.save();
 
-        await user.save()
+        const updatedUser = {
+          ...req.user,
+          emailToken: user.emailToken,
+          isVerified: user.isVerified
+      };
+
+        req.logIn(updatedUser, function(err) {
+          if (err) {
+            res.json({error: "404"})
+            console.log(err, "  HATA")
+          } else {
+            console.log("HATA YOK")
+          }
+        });
+        req.session.passport.user = updatedUser;
+        req.session.save(function(err) {
+  if (err) {
+    // Hata işleme
+  } else {
+    // Oturum verisi başarıyla güncellendi
+  }
+}); 
         return res.json({ message: "DOĞRULAMA ONAYLANDI" });
     } else {
         // Kullanıcı bulunamadığında hata mesajını döndür
-        return res.status(404).json({ error: "Kullanıcı bulunamadı. Bu hatanın gereksiz olduğunu düşünüyorsanız lütfen bize bildirin." });
+        return res.json({ error: "Girilen Kod Geçersiz" });
     }
 } catch (error) {
     // Sunucu hatası durumunda hata mesajını döndür
@@ -76,9 +98,7 @@ module.exports.interests_get = async (req,res) => {
 
 module.exports.interests_post = async (req,res) => {
     try {
-      console.log(req.body)
       await connectToDb();
-      console.log(req.body);
       const findUser = await User.findById(req.user.id);
 
       findUser.interests = req.body.selectedContents;
@@ -89,43 +109,64 @@ module.exports.interests_post = async (req,res) => {
     }
 }
 
-module.exports.changeProfilePicture_post = async (req,res) => {
+module.exports.profile_edit_post = async (req,res) => {
     try {
         await connectToDb()
-
-        const resizedImageBuffer = await sharp(req.file.path)
-        .resize(256, 256, {fit: "cover", background: { r: 255, b: 255, g: 255 } })
-        .toBuffer();
-
-        const userFolder = `./uploads/${req.user.id}`;
-
-
-        const ext = path.extname(req.file.originalname); // Resmin uzantısını al
-        const fileName = `profile${ext}`; 
-
-        const profileImagePath = path.join(userFolder, fileName);
-        // Kullanıcının klasörünü oluşturma (varsa tekrar oluşturmayacak)
-        fs.mkdirSync(userFolder, { recursive: true });
-
-        if (fs.existsSync(profileImagePath)) {
-            fs.unlinkSync(profileImagePath);
-          }
-
-        fs.writeFile(profileImagePath, resizedImageBuffer, (err) => {
-          if (err) {
-            console.error('Dosya kaydedilemedi:', err);
-            return;
-          }
-          fs.unlinkSync(req.file.path);
-        });
-       
         const user = await User.findById(req.user.id);
-        user.profileImage = `../${profileImagePath}`;
-        await user.save();
+        if (req.body.username) {
+          user.username = req.body.username;
+        }
     
+        if (req.body.biografy) {
+          user.biografy = req.body.biografy;
+        }
+
+        if (req.file && req.file.path) { 
+          const resizedImageBuffer = await sharp(req.file.path)
+          .resize(256, 256, {fit: "cover", background: { r: 255, b: 255, g: 255 } })
+          .toBuffer();
+  
+          const userFolder = `./uploads/${req.user.id}`;
+  
+  
+          const ext = path.extname(req.file.originalname); // Resmin uzantısını al
+          const fileName = `profile${ext}`; 
+  
+          const profileImagePath = path.join(userFolder, fileName);
+          // Kullanıcının klasörünü oluşturma (varsa tekrar oluşturmayacak)
+          fs.mkdirSync(userFolder, { recursive: true });
+  
+          if (fs.existsSync(profileImagePath)) {
+              fs.unlinkSync(profileImagePath);
+            }
+  
+          fs.writeFile(profileImagePath, resizedImageBuffer, (err) => {
+            if (err) {
+              console.error('Dosya kaydedilemedi:', err);
+              return;
+            }
+            fs.unlinkSync(req.file.path);
+          });
+
+          user.profileImage = `../${profileImagePath}`;
+        }
+ 
+        await user.save();
         res.redirect("/user/profile")
     } catch (error) {
         throw new Error(error)
     }
+}
+
+module.exports.main_get = async (req,res) => {
+  try {
+    await connectToDb()
+    const userEvents = await Event.find({organizer: req.user.id})
+    const user = await User.findById(req.user.id)
+    const successMessages = req.flash('success');
+    res.render("user.ejs", {user: user, events: userEvents, successMessages: successMessages});
+} catch (error) {
+    throw new Error(error)
+}
 }
 

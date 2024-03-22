@@ -24,8 +24,7 @@ const getUserInfo = async (req, res, next) => {
         const findNotification = req.user
           ? await Notification.find({ userId: req.user.id })
           : null;
-        const sirala = req.user
-          ? findNotification.map((notif) => {
+        const sirala = req.user ? findNotification.map((notif) => {
               return [notif.message, notif.isNotificationSeen, notif._id];
             })
           : null;
@@ -63,7 +62,18 @@ const authForNewEvent = (req,res,next) => {
       } else {
         return res.redirect("/")
       }
+}
+
+const checkVerificationComplete = (req,res,next) => {
+  console.log("ÇALIŞTI", req.user.emailToken)
+    if(req.user.emailToken === null) {
     
+      return res.redirect("/")
+    } else {
+      next()
+    }
+  
+
 }
 
 
@@ -72,5 +82,6 @@ const authForNewEvent = (req,res,next) => {
     checkIfNotAuthed: checkIfNotAuthed,
     authForNewEvent: authForNewEvent,
     checkIfAuthed: checkIfAuthed,
+    checkVerificationComplete: checkVerificationComplete,
     getUserNotification: getUserNotification
   }

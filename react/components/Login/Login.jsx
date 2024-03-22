@@ -111,8 +111,8 @@ const handleSubmit = (event) => {
 
             <div className="col-md-12 col-xl-6 h-100 order-xl-1 d-flex flex-column justify-content-evenly align-items-center bg-white">
                 <div className={`logo d-flex flex-column align-items-start ${styles.loginLogo}`} >
-                    <a href="/" style={{fontSize:"4rem"}}>etkinlikvar</a> <br />
-                    <p className="fs-5 fst-italic text-secondary">Şimdi ücretsiz etkinlikvar üyesi ol,<br/> etkinliklere katılmaya başla!</p>
+                    <a href="/" style={{fontSize:"4rem"}}>etkinlikdolu</a> <br />
+                    <p className="fs-5 fst-italic text-secondary">Şimdi ücretsiz etkinlikdolu üyesi ol,<br/> etkinliklere katılmaya başla!</p>
                 </div>
                 <div style={{marginTop: "-10rem"}}>
                     <h1 className='fs-1 text-dark fw-bold' style={{fontFamily: 'var(--second-font)'}}>Yaşadığınız ilde neler var?</h1>

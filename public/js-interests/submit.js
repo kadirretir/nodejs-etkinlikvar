@@ -1,17 +1,23 @@
 
   function initializeDynamicSubmit () {
-    // Kaydet butonunu dinleyen fonksiyonu tanımla
+    let dynamicUserId = getUser._id;
     const handleSaveButtonClick = function(event) {
-    
+   
           const selectedButtons = document.querySelectorAll('#selectedCategoriesContainer button');
           const selectedContents = Array.from(selectedButtons).map(button => button.textContent); 
       
           const data = {
               selectedContents: selectedContents
           };
-    
-  
+        
+          console.log(dynamicUserId)
           if(data.selectedContents.length > 0) {
+            saveButton.disabled = true;
+            saveButton.insertAdjacentHTML('beforeend', `
+            <div class="spinner-border ms-2 spinner-border-sm text-primary" role="status">
+              <span class="visually-hidden">Yükleniyor...</span>
+            </div>
+          `);
               fetch("/user/interests", {
               method: 'POST',
               headers: {
@@ -21,23 +27,9 @@
           })
           .then(response => {
               if (response.ok) {
-            const getErrorElem = document.getElementById("errorMessageInterests");
-            const div = document.createElement("div");
-
-            // Bootstrap yükleniyor animasyonu için gerekli class'ları ekle
-            div.className = "d-flex justify-content-center flex-column align-items-center";
-            
-            // Yükleniyor animasyonunu içeren HTML'i ayarla
-            div.innerHTML = `
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Yükleniyor...</span>
-            </div>
-            <h2 class="fs-4">İlgi alanlarınızı aldık. Yönlendiriliyorsunuz...</h2>
-            `;
-            getErrorElem.appendChild(div)
             setTimeout(() => {
-                window.location.href = "/user/profile"
-            }, 1000)
+                window.location.href = `/members/${dynamicUserId}`
+            }, 500)
                   
     
               } else {
@@ -49,15 +41,7 @@
               console.error('Bir hata oluştu:', error);
           });
           } else {
-              event.preventDefault(); // Sayfanın yeniden yüklenmesini önlemek için
-              const getErrorElem = document.getElementById("errorMessageInterests");
-  
-              if (getErrorElem && !getErrorElem.querySelector('p')) {
-                  const p = document.createElement("p");
-                  p.className = "text-danger fs-5 my-3 text-center";
-                  p.textContent = "İlgi alanlarınızı seçebilirsiniz ya da vazgeçebilirsiniz.";
-                  getErrorElem.appendChild(p);
-      }
+            window.location.href = `/members/${dynamicUserId}`
           }
        
       };

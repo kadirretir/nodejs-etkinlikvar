@@ -29,11 +29,13 @@
     <header class="container-fluid" id="header">
         <div class="mainHeader">
             <div class="logo d-flex align-items-center">
-                <a href="/">etkinlikvar</a>
+                <a href="/">etkinlikdolu</a>
             </div>
 
+            <div id="searchRoot" search-value="<%=(typeof searchvalue !== 'undefined') ? JSON.stringify(searchvalue) : '{}' %>"></div>
+
             <% if(typeof user !== 'undefined') { %>
-                <div class="d-flex align-items-center justify-content-end">
+                <div class="push d-flex align-items-center justify-content-end">
                     <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
     
                         <div class="mini-logo mx-3 premiumLink">
@@ -75,7 +77,7 @@
                             <% } %>
                 
                             
-                    <div class="dropdown d-flex justify-content-end">
+                    <div id="navDropdown" class="dropdown d-flex justify-content-end">
                         <!-- BUTTON FOR LARGER THAN 1200PX -->
                         <button class="btn btn-secondary dropdown-toggle userButtonMobile" id="dropdown-menu-align-end" type="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
@@ -145,10 +147,10 @@
                     </div>
                     </div>
                     <nav id="navbarUnregistered">
-                        <button type="button"  class="btn border-0" data-bs-toggle="modal" data-bs-target="#loginmodal">
+                        <button type="button"  class="btn generalButton border-0" data-bs-toggle="modal" data-bs-target="#loginmodal">
                             Giriş Yap
                           </button>
-                        <button type="button"  class="btn ms-2 border-0" data-bs-toggle="modal" data-bs-target="#signupmodal">
+                        <button type="button"  class="generalButton btn" data-bs-toggle="modal" data-bs-target="#signupmodal">
                             Ücretsiz Kayıt Ol
                           </button>
                     </nav>
@@ -180,7 +182,7 @@
                         </div>
                         <div class="modal-body py-5">
                             <div class="mb-4 badgeLogo">
-                                <h2>etkinlikvar</h2>
+                                <h2>etkinlikdolu</h2>
                             </div>
                             <h1 class="modal-title fs-1 text-center mt-3 fw-bold" id="loginModalToggleLabel">
                                 Giriş Yap

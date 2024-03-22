@@ -3,11 +3,18 @@
  .mainHeader {
     margin: 0 auto;
     width: 95%;
-    height: 52px;
+    height: 55px;
     
     display: flex;
-    justify-content: space-between;
     align-items: center;
+}
+
+.push {
+  margin-left: auto;
+}
+
+.mainHeader:nth-last-of-type() {
+  align-self: end;
 }
 /* FOR LEFT SIDE OF THE HEADER (LOGO) */
 
@@ -391,8 +398,8 @@ nav button:last-child:hover {
 
 
 
-  .dropdown {
-    width: 17%;
+  #navDropdown {
+    width: 17% !important;
   }
 
   .smallerCreateEventLink {
@@ -401,21 +408,21 @@ nav button:last-child:hover {
   }
 
   @media screen and (max-width: 576px) { 
-    .dropdown {
-      width: 20%;
+    #navDropdown {
+      width: 20% !important;
     }
   
   }
 
   @media screen and (max-width: 450px) { 
-    .dropdown {
-      width: 25%;
+    #navDropdown {
+      width: 25% !important;
     }
   }
 
   @media screen and (max-width: 400px) { 
-    .dropdown {
-      width: 30%;
+    #navDropdown {
+      width: 30% !important;
     }
   }
 

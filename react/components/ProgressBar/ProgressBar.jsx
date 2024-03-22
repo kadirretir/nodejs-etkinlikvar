@@ -2,10 +2,10 @@ import React, { useState, useEffect} from "react";
 import styles from "./progress.module.css";
 import "@reach/combobox/styles.css";
 import EventForm from "./EventForm";
+import eventSubCategories from './eventSubCategories'
 
 
-const ProgressBar = ({eventCategories, userInfo}) => {
-  const [eventCategoryState, setEventCategoryState] = useState(eventCategories);
+const ProgressBar = ({userInfo}) => {
 
   const [titleInput, setTitleInput] = useState("")
   const [districtInput, setDistrictInput] = useState("")
@@ -23,6 +23,21 @@ const ProgressBar = ({eventCategories, userInfo}) => {
     descriptionError: "",
     imageError: ""
   })
+
+  const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  const [subCategoryOptions, setSubCategoryOptions] = useState([]);
+
+  
+
+  useEffect(() => {
+    if (category) {
+      setSubCategoryOptions(eventSubCategories[category]);
+    } else {
+      setSubCategoryOptions([]);
+    }
+    setSubCategory('');
+  }, [category]);
 
   const handleInputChange = (e) => {
     if(e.target.name === "eventPostTitle") {
@@ -86,38 +101,6 @@ const ProgressBar = ({eventCategories, userInfo}) => {
     }
   }, [descriptionInput])
 
-  /// DISTIRCT ERROR HANDLER 
-  // useEffect(() => {
-  //   const isDistrictValid = districtInput.length <= 0
-  //     if(isDistrictValid) {
-  //       setInputErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         districtError: "Lütfen bir ilçe seçiniz"
-  //       }))
-  //     } else {
-  //       setInputErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         districtError: ""
-  //       }))
-  //     }
-  // }, [districtInput])
-
-  // // CITY ERROR HANDLER
-
-  //  useEffect(() => {
-  //   const isCityValid = cityInput.length <= 0
-  //     if(isCityValid) {
-  //       setInputErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         cityError: "Lütfen bir il seçiniz"
-  //       }))
-  //     } else {
-  //       setInputErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         cityError: ""
-  //       }))
-  //     }
-  // }, [cityInput])
 
   // IMAGE ERROR HANDLER 
  
@@ -155,7 +138,8 @@ const ProgressBar = ({eventCategories, userInfo}) => {
   }
 
   // FORM VALIDATION
-  const formHandlerOnSubmit = (e) => {
+  const formHandlerOnSubmit = async (e) => {
+
     checkIfImageSubmitted()
 
     let hasErrors = false;
@@ -273,7 +257,13 @@ const ProgressBar = ({eventCategories, userInfo}) => {
             handleInputChange={handleInputChange}
             formHandlerOnSubmit={formHandlerOnSubmit}
             userInfo={userInfo}
-            eventCategoryState={eventCategoryState} />
+            category={category}
+            setCategory={setCategory}
+            setSubCategory={setSubCategory}
+            subCategory={subCategory}
+            subCategoryOptions={subCategoryOptions}
+            eventSubCategories={eventSubCategories}
+            />
            
           </div>
           <div className={`col-xl-5 my-5 ${styles.googleMapsContainer}`}>

@@ -5,41 +5,46 @@
     <div class="progress rounded-0" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
       <div class="progress-bar" style="width: 50%"></div>
     </div>
-  <% if(messages.success) { %>
-    <h1 class="alert alert-success text-center"><%=messages.success%></h1>
- <% } %>
  <div class="container verifyContainer mt-5" style="display: none;">
   <div class="row justify-content-center">
-      <div class="col-md-6">
-          <div class="card">
-              <div class="card-body">
-                  <h1 class="card-title">Hesabınızı Doğrulayın</h1>
-                  <p class="card-text">Lütfen hesabınızı tamamlamak için e-posta adresinize gönderilen doğrulama bağlantısını tıklayın veya aşağıdaki doğrulama kodunu girin:</p>
+      <div class="col-md-8">
+          <div class="card p-5">
+            <h1 class="card-title text-center fs-2">Hesabınızı Doğrulayın</h1>
+              <div class="card-body p-5">
+                  <hr>
+                    <h1 class="card-text text-primary-emphasis mb-4">
+                      <span class="fs-4">Aramıza Hoş Geldin <b class="text-capitalize" style="color: #FD3412;"><%=messages.success || user.username%></b> </span><br/> <br/>
+                      <span class="fs-5">E-Mail'ine gönderdiğimiz postadaki onaylama kodunu aşağıya girdiğinde tamamiyle hazır olacaksın.</span> <br/>  <br/>
+                      <span class="fw-light fs-5" style="color: #FD3412;">Keyifli etkinlikler! </span>
+                    </h1>
+              
                   <!-- Doğrulama formu -->
-                  <form id="verificationForm">
-                    <label for="emailToken">Doğrulama Kodu:</label>
-                    <input type="text" id="emailToken" name="emailToken" required>
-                    <button type="submit">Doğrula</button>
+                  <form id="verificationForm" class="d-flex flex-column justify-content-center">
+                    <div id="errorContainer" class="text-danger fs-5 text-start my-2"></div>
+                      <div class="form-floating mb-5">
+                      <input type="text" class="form-control border border-2 border-secondary-subtle focus-ring focus-ring-secondary" id="emailToken" name="emailToken" placeholder="name@example.com" required>
+                      <label for="emailToken" class="text-secondary">Örnek: 4360F6</label>
+                    </div>
+                    <button type="submit" class="btn btn-dark">Doğrula</button>
                 </form>
-                <div id="errorContainer"></div>
                   <!-- E-postayı yeniden gönderme seçeneği -->
                   <p class="mt-3">Eğer doğrulama e-postasını almadıysanız, lütfen spam/junk klasörünü kontrol edin veya <a href="/resend-verification">buradan</a> yeniden gönderin.</p>
                   <!-- Yardım ve destek bilgileri -->
-                  <p>Yardıma ihtiyacınız varsa lütfen <a href="/contact">destek ekibimizle iletişime geçin</a>.</p>
+                  <p>Yardıma ihtiyacınız varsa lütfen <a href="/complaints">bize bildirin</a>.</p>
               </div>
           </div>
       </div>
   </div>
 </div>
   </section>
-
   <!----------------------------------------------------- VERIFY.JS SCRIPTS -------------------------------------------------------- -->
 
   <script>
       const getUserToken = JSON.parse('<%- JSON.stringify(userToken) %>')
-  
     const verificationForm = document.getElementById('verificationForm');
     const errorContainer = document.getElementById('errorContainer');
+    const getUser = JSON.parse('<%- JSON.stringify(user) %>')
+               
     
     verificationForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -131,7 +136,6 @@ async function loadSPAContent(page) {
 <script>
   const verifyContainer = document.querySelector(".verifyContainer");
     if (getUserToken.emailToken === null) {
-      console.log(getUserToken.emailToken, "ÇALIŞTI");
       loadSPAContent('interests').then(initializeDynamicSubmit);
     } else {
       verifyContainer.style.display = "block";

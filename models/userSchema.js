@@ -15,6 +15,10 @@ const userSchema = new Schema({
         require: true,
         unique: true,
     },
+    biografy: {
+        type: String,
+        default: ""
+    },
     emailToken: {
         type: String
     },
@@ -31,6 +35,11 @@ const userSchema = new Schema({
         type: String,
         require: false
     },
+    birthDate: {
+        type: Date,
+        require: false,
+        default: null
+      },
     signInDate: {
         type: Date,
         default: Date.now

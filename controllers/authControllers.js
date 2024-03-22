@@ -42,7 +42,7 @@ passport.use(strategy)
 
 passport.serializeUser(function(user, done) {
     process.nextTick(function() {
-    done(null, { id: user.id, username: user.username, email: user.email, membershipLevel: user.membershipLevel, location: user.location, profileImage: user.profileImage });
+    done(null, { id: user.id, username: user.username, email: user.email, membershipLevel: user.membershipLevel, location: user.location, profileImage: user.profileImage, emailToken: user.emailToken });
     });
   });
   
@@ -141,10 +141,10 @@ module.exports.register_post= async (req,res, next) => {
                 <div class="container">
                             <div class="email-content">
                                   <div class="badgeLogo">
-                                  <h2>etkinlikvar</h2>
+                                  <h2>etkinlikdolu</h2>
                                   </div>
                                   <h1 class="email-title">Merhaba <span>${userName}!</span></h1>
-                                  <p class="lead">Aşağıdaki kodu alarak, etkinlikvar.com üyeliğinizi onaylayabilirsiniz.</p>
+                                  <p class="lead">Aşağıdaki kodu alarak, etkinlikdolu.com üyeliğinizi onaylayabilirsiniz.</p>
                                   <p class="verification-code">${newUser.emailToken}</p>
                             </div>
                 </div>
@@ -165,7 +165,7 @@ module.exports.register_post= async (req,res, next) => {
             const info = await transporter.sendMail({
              from: "kadirramazan344@gmail.com",
              to: "kadirramazan344@gmail.com",
-             subject: "Doğrulama Kodu, Etkinlikvar.com",
+             subject: "Doğrulama Kodu, etkinlikdolu.com",
              html: html
             })
           
@@ -182,7 +182,7 @@ module.exports.register_post= async (req,res, next) => {
               return next(err);
             }
             // Giriş başarılı, ana sayfaya yönlendir
-            req.flash("success", `Aramıza Hoş Geldin ${userName}. Yeni maceralara atılman için tek bir adımın kaldı. E-Mail'ine gönderdiğimiz postadaki onaylama kodunu girdiğinde tamamiyle hazır olacaksın. Keyifli etkinlikler!`);
+            req.flash("success", `${userName}.`);
             return res.redirect('/user/verify');
           });
 

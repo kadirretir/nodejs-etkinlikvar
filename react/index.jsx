@@ -3,9 +3,10 @@ import { createRoot } from 'react-dom/client';
 import ProgressBar from './components/ProgressBar/ProgressBar.jsx';
 import Events from './components/Events/Events.jsx';
 import Login from './components/Login/Login.jsx';
-import UserProfile from './components/User/UserProfile.jsx';
+import Usermain from './components/User/Usermain.jsx';
 import Notification from './components/Notification/Notification.jsx';
 import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
+import GeneralSearch from './components/GeneralSearch/GeneralSearch.jsx';
 
 var pathname = window.location.pathname;
 
@@ -15,12 +16,10 @@ function checkValue (val) {
     case "/events/newevent/":
       const progressNode = document.getElementById('progress-root');
       const progressRoot = createRoot(progressNode);
-      const eventCategories = JSON.parse(progressNode.getAttribute("event-categories"))
       const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
       progressRoot.render(
         <StrictMode>
           <ProgressBar
-          eventCategories={eventCategories}
           userInfo={userInfo}
           />
         </StrictMode>
@@ -31,6 +30,8 @@ function checkValue (val) {
       const eventsNode = document.getElementById('myEvents');
       const eventsRoot = createRoot(eventsNode);
       const usersData = JSON.parse(eventsNode.getAttribute('data-user'));
+      const interestsearch = JSON.parse(eventsNode.getAttribute('interest-search'));
+      const generalSearchResults = JSON.parse(eventsNode.getAttribute("general-search"));
       const searchresults = JSON.parse(eventsNode.getAttribute('search-results'));
       const categoryData = JSON.parse(eventsNode.getAttribute("category-data"));
       const createdEventMessage = JSON.parse(eventsNode.getAttribute("created-event-message"))
@@ -42,6 +43,8 @@ function checkValue (val) {
           <Events 
           userEvents={userEvents}
           createdEventMessage={createdEventMessage}
+          generalSearchResults={generalSearchResults}
+          interestsearch={interestsearch}
           searchresults={searchresults} 
           categoryData={categoryData}
           trendingEvents={trendingEvents}
@@ -65,6 +68,16 @@ function checkValue (val) {
       break;
     case "/user/profile":
     case "/user/profile/":
+    case "/user/information":
+    case "/user/information/":
+    case "/user/privacy":
+    case "/user/privacy/":
+    case "/user/interest":
+    case "/user/interest/":
+    case "/user/subscription":
+    case "/user/subscription/":
+    case "/user/paymentmethod":
+    case "/user/paymentmethod/":
       const userNode = document.getElementById('userProfile');
       const userRoot = createRoot(userNode);
       const userData = JSON.parse(userNode.getAttribute("user-data"));
@@ -72,7 +85,7 @@ function checkValue (val) {
       const cancelledMessage = JSON.parse(userNode.getAttribute("cancelled-event-message"))
       userRoot.render(
         <StrictMode>
-          <UserProfile 
+          <Usermain 
           userData={userData}
           eventsData={eventsData}
           cancelledMessage={cancelledMessage}
@@ -99,6 +112,8 @@ function checkValue (val) {
 
 if (checkValue(pathname)) {
           // Diğer durumlar için işlemler
+
+          // NOTIFICATION KOMPONENT
           const notificationNode = document.getElementById("notificationNode");
               if(notificationNode !== null) {
                 const notificationRoot = createRoot(notificationNode);
@@ -112,4 +127,22 @@ if (checkValue(pathname)) {
                     </StrictMode>
                   );
               }
+
+        
+          // GENERAL SEARCH KOMPONENT
+          const searchNode = document.getElementById("searchRoot");
+          if(searchNode !== null) {
+            const searchRoot = createRoot(searchNode);
+            const searchData = JSON.parse(searchNode.getAttribute("search-value"));
+
+            searchRoot.render(
+              <StrictMode>
+                <GeneralSearch
+                searchData={searchData}
+                />
+              </StrictMode>
+            )
+          }
+
+
 }

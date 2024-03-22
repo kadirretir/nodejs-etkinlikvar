@@ -1,9 +1,36 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 
 const Notification = ({notificationData}) => {
     const [unSeenNotifications, setUnSeenNotifications] = useState()
     const [unSeenLength, setUnSeenLength] = useState()
- 
+  const [notifButton, setNotifButton] = useState(false)
+
+  const dropdownRef = useRef(null);
+  const dropdownMenu = useRef(null);
+
+  const bounceGrowAnimation = {
+    animationName: 'bounce-grow',
+    animationDuration: '0.2s',
+    animationIterationCount: '1',
+    animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)',
+    transform: 'scale(1)'
+  };
+
+  // @keyframes tanımlamasını global stylesheet'e ekle
+  const styleSheet = document.styleSheets[0];
+  styleSheet.insertRule(`
+    @keyframes bounce-grow {
+      0%, 100% {
+        transform: scale(1);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+      }
+      50% {
+        transform: scale(1.1);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+      }
+    }
+  `, styleSheet.cssRules.length);
+
     const handleClicked = async () => {
         const getNotifId = unSeenNotifications.map(notif => {
             return notif[2]
@@ -46,35 +73,74 @@ const Notification = ({notificationData}) => {
          setUnSeenLength(getUnseenNumber.length)
          
       }
+
+  // Dropdown dışına tıklama olayını dinle
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !dropdownMenu.current.contains(event.target)) {
+        setNotifButton(false); // Dropdown'ı kapat
+      }
+    };
+
+    // Event listener'ı ekle
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Cleanup fonksiyonu
+    return () => {
+      // Event listener'ı kaldır
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [notifButton]);
+
+  const toggleNotificationSvg = () => {
+    setNotifButton(!notifButton);
+  }
+
     return (
         <div className="dropdown dropdown-center mt-2 me-3" onClick={handleClicked}>
-          <button type="button" className="btn border-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-            {unSeenLength > 0 ? (
+          <button type="button" 
+          ref={dropdownRef}
+          style={notifButton ? bounceGrowAnimation : null}
+           onClick={toggleNotificationSvg} 
+           className="btn border-0" 
+           data-bs-toggle="dropdown" 
+           aria-expanded={notifButton}  
+           data-bs-auto-close="outside">
+
+          {notifButton ? (
+          // Dropdown açıkken doldurulmuş zil ikonu
+          <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" className="bi bi-bell-fill" viewBox="0 0 16 16">
+          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>
+        </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" className="bi bi-bell" viewBox="0 0 16 16">
+          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
+        </svg>
+        )}
+            {unSeenLength > 0 && (
               <>
-                <i className="fa-solid fa-bell fa-xl"></i>
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                <span className="text-white position-absolute top-25 start-75 w-50 translate-middle rounded-pill bg-danger" 
+                style={{fontSize: "0.9rem"}}>
                   {unSeenLength}
                   <span className="visually-hidden">Okunmamış Mesajlar</span>
                 </span>
               </>
-            ) : (
-              <i  style={{color: "black"}} className="fa-regular fa-bell fa-xl"></i>
             )}
           </button>
-          <div className="dropdown-menu p-0" style={{ width: '300px' }}>
+          <div className="dropdown-menu p-0" ref={dropdownMenu} style={{ width: '300px' }}>
             <div className="list-group border-0">
             {typeof unSeenNotifications !== 'undefined' && unSeenNotifications.length > 0 ? (
                 <>
-                    {unSeenNotifications.slice(0, 7).map((notif, index) => (
+                    {unSeenNotifications.slice(0, 4).map((notif, index) => (
                     <a key={index} className="list-group-item list-group-item-action p-3" href="#">
                          {notif[0]}
                     </a>
                     ))}
-                    {unSeenNotifications.length > 7 && (
-                    <a href="#" className='text-center fs-5 py-2'>Tümünü Gör</a>
+                    {unSeenNotifications.length > 4 && (
+                    <a href="#" className='text-center py-2'>Tümünü Gör</a>
                     )}
                 </>
-                ) : <h1 className='fs-5 text-center py-3'>Henüz bildiriminiz yok</h1>
+                ) : <h2 className='text-center py-3'>Henüz bildiriminiz yok</h2>
                 
                 }
             </div>

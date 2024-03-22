@@ -1,10 +1,32 @@
 import React, {useState} from 'react';
-import IndexFilter from '../IndexFilterLocation/IndexFilter'
+
 
 const Profile = ({userData}) => {
     const [showPicSuccess, setShowPicSuccess] = useState(false)
+    const [results, setResults] = useState([]);
     const [imageFile, setImageFile] = useState("");
-    
+    const [inputAreas, setInputAreas] = useState({
+      biografy: userData.biografy,
+      username: userData.username,
+      locationedit: userData.location,
+    })
+  const [errors, setErrors] = useState({
+    usernameError: "",
+    locationError: ""
+  })
+
+  const data = [
+    'Elma',
+    'Armut',
+    'Muz',
+    'Çilek',
+    'Karpuz',
+    'Kavun',
+    'Ananas',
+    'Portakal'
+  ];
+
+      
       const checkFileSize = (event) => {
         const file = event.target.files[0];
         const maxSize = 2 * 1024 * 1024; // Maksimum 2MB (2 * 1024 * 1024 bayt)
@@ -31,12 +53,57 @@ const Profile = ({userData}) => {
         setImageFile("")
         setShowPicSuccess(false)
       }
-    
+
       const handleForm = (e) => {
-        if(imageFile === "") {
-          e.preventDefault()
-          
+  
+        // Kullanıcı adı, biyografi ve resim dosyası değişiklik kontrolü
+        const isUsernameChanged = inputAreas.username !== userData.username;
+        const isBiographyChanged = inputAreas.biografy !== userData.biografy;
+        const isImageChanged = imageFile !== ""; // Varsayalım ki imageFile, resim dosyasının varlığını kontrol ediyor
+      
+        // Kullanıcı adı boşsa hata mesajı ekle
+        if (!inputAreas.username) {
+          e.preventDefault();
+          setErrors({
+            usernameError: "Kullanıcı adı giriniz"
+          });
         }
+      
+        // Eğer kullanıcı adı boş değilse ve kullanıcı adı, biyografi veya resim dosyası değiştirildiyse, form gönderilecek
+        if (inputAreas.username && (isUsernameChanged || isBiographyChanged || isImageChanged)) {
+          // Form gönderilebilir
+        } else {
+          // Form gönderimi engellenir ve hatalar gösterilir
+          e.preventDefault();
+        }
+      }
+      
+      
+
+      const handleInputChange = (e) => {
+  
+
+
+
+        if (inputAreas.locationedit) {
+          // Basit bir filtreleme işlemi ile arama sonuçlarını güncelle
+          const filteredResults = data.filter(item =>
+            item.toLowerCase().includes(inputAreas.locationedit.toLowerCase())
+          );
+          setResults(filteredResults);
+        } else {
+          // Eğer arama sorgusu boşsa, sonuçları temizle
+          setResults([]);
+        }
+
+
+         // Yeni bir obje oluşturup, içine mevcut formData'nın kopyasını alıyoruz
+    const newData = { ...inputAreas };
+    // Değişen input'un değerini güncelliyoruz
+    newData[e.target.name] = e.target.value;
+    // setState ile yeni formData'yı ayarlıyoruz
+    setInputAreas(newData);
+    console.log(newData)
       }
     
         return (
@@ -45,7 +112,7 @@ const Profile = ({userData}) => {
               <div className="row py-2">
                 <div className="col-12 col-lg-6 text-center">
                   <h1 className='fs-3 text-dark mb-4 text-start'>Profilim</h1>
-                  <form onSubmit={handleForm} action='/user/changeprofilePicture' method="post" encType="multipart/form-data">
+                  <form onSubmit={handleForm} action='/user/editprofile' method="post" encType="multipart/form-data">
                   <h3 className='text-start fs-5'>Profil Resmini Değiştir</h3>
 
                   <div className='row py-2 my-4'>
@@ -83,22 +150,68 @@ const Profile = ({userData}) => {
               
     
                   <div className="d-flex flex-column ps-3">
+                  <div className="mb-5 mt-2">
+                      <p className='text-start'>
+                      <label className='form-label fs-4 text-left text-dark' htmlFor='locationedit'>
+                      Konumunuz
+                      </label>
+                      </p>
+
+                      <input
+                       type="text"
+                        className='form-control border border-1 border-secondary-subtle focus-ring focus-ring-dark py-2'
+                         id='locationedit'
+                          name='locationedit'
+                          value={inputAreas.locationedit}
+                          onChange={handleInputChange}
+                          />
+                              <ul>
+                               {results.map((item, index) => (
+                                 <li key={index}>{item}</li>
+                                  ))}
+                              </ul>
+                        {errors.locationError !== "" && (
+                       <p className='text-danger text-start mt-2'>{errors.locationError}</p>
+                      )}
+                    </div>
+
+
+
                     <div className="mb-5 mt-2">
                       <p className='text-start'>
                       <label className='form-label fs-4 text-left text-dark' htmlFor='username'>
-                      İsim
+                      İsim <span className='fs-5'>(Gerekli)</span>
                       </label>
                       </p>
-                      <input type="text" className='form-control' id='username' name='username' value={userData.username} />
+
+                      <input
+                       type="text"
+                        className='form-control border border-1 border-secondary-subtle focus-ring focus-ring-dark py-2'
+                         id='username'
+                          name='username'
+                          onChange={handleInputChange}
+                           value={inputAreas.username} />
+
+                        {errors.usernameError !== "" && (
+                       <p className='text-danger text-start mt-2'>{errors.usernameError}</p>
+                      )}
                     </div>
     
-                    <div className="">
-                    <p className='text-start'>
-                      <label className='form-label text-left text-dark fs-4' htmlFor="myemail">
-                        E-Posta Adresi
-                      </label>
-                      </p>
-                      <input type="email" className='form-control' id="myemail" name="myemail"  />
+                    <div className="my-2">
+                        <p className='form-label text-start fs-4 text-dark'>
+                      Biyografi
+                          </p>
+                      <div className="form-floating mb-3">
+                        <textarea 
+                        className="form-control border border-1 border-secondary-subtle  focus-ring focus-ring-dark " 
+                        onChange={handleInputChange}
+                        value={inputAreas.biografy}
+                        name='biografy'
+                        id="biografy"
+                          placeholder="Kendiniz hakkında paylaşmak istedikleriniz" style={{height: "100px"}}></textarea>
+                        <label className='text-secondary' htmlFor="biografy">Kendiniz hakkında paylaşmak istedikleriniz</label>
+                    </div>
+
                     </div>
 {/*     
                     <div className="">

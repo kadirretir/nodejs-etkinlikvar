@@ -76,6 +76,16 @@ a {
 }
 
 
+
+#notfound {
+	background: linear-gradient(to bottom, #f7f7f7, #e6e6e6);
+    min-height: 60vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
 /* WELCOME BUTTON STYLES */
 #dropdown-menu-align-end {
 	background: linear-gradient(rgba(253, 52, 18, 0.7), rgba(253, 52, 18, 1));
@@ -108,3 +118,4 @@ a {
   .rounded-right-bottom {
 	border-bottom-right-radius: 1rem !important;
   }
+

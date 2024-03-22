@@ -54,8 +54,10 @@
                   <div class="gray-background w-100 my-3">
                      <% findAttendeeUsers.map((attendee) => { %>
                         <div class="d-flex flex-column justify-content-center align-items-center">
+                           <a href="../members/<%=attendee.id%>">
                            <img src="<%=attendee.profileImage%>" class="rounded-circle" width="70%" alt="attendee image">
                            <h1 class="fs-5 text-center"><%=(user && user.username === attendee.username) ? 'Siz' : attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1) + (attendee._id.equals(findEvent.organizer) ? ' (Kurucu)' : '')%></h1>
+                        </a>
                         </div>
                      <% }) %>
                   </div>

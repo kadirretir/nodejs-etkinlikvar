@@ -5,7 +5,9 @@ const PaymentMethod = () => {
     <div className="container">
     <div className="row">
         <div className="col-12">
-            <h1>Ödeme Yöntemleri</h1>
+          <h1 className='fs-3'>Ödeme Yöntemleri</h1>
+          <hr />
+            <h1 className='fs-5 mt-4'>etkinlikdolu+ aboneliğiniz için henüz bir ödeme yöntemi eklemediniz</h1>
         </div>
     </div>
 </div>

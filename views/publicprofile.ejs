@@ -38,7 +38,7 @@
                       </div>
 
                       <div class="about-me-pubprofile">
-                        Etkinlikleri
+                        
                       </div>
 
                       <div class="beneathImage">
@@ -55,12 +55,33 @@
                                 
                                 if (commonInterests.length > 0) {
                                 %>
-                                <h1 class="fs-4 text-center my-2">Ortak ilgileriniz var! <%= commonInterests.join(', ') %></h1>
+                                <div class="rounded-3 p-3 my-3" style="background-color: #d9d9d9;">
+                                    <p class="fs-5 py-2">Ortak ilgileriniz var!</p><br/>
+                                     <% commonInterests.forEach((single) => { %>
+                                        <button type="button" class="btn btn-info"><%=single%></button>
+                                   <%  })%>
+                                </div>
                                 <% } %>
                             <% } %>
-                  
-              
                     </div>
+
+                    <% if(findUser.biografy) { %>
+                        <div class="rounded-3 p-3 my-3" style="background-color: #d9d9d9;">
+                            <p class="fs-5">Biyografi</p> <hr/>
+                            <h4><%=findUser.biografy%></h4>
+                        </div>
+                  <%  } %>
+
+                    <% if(findUser.id === user.id) { %>
+                        <div class="rounded-3 p-2 my-3 d-flex align-items-center" style="background-color: #d9d9d9;">
+                            <img src="../<%=user.profileImage%>" class="img-fluid rounded-circle" style="width: 17% !important;" alt="">
+                            <div class="d-flex flex-column ps-3">
+                                <b><%=user.username%></b>
+                                <a href="/user/profile">Profili Düzenle</a>
+                           
+                            </div>
+                        </div>
+                 <%   } %>
                 </div>
             </div>
          
@@ -69,7 +90,7 @@
                     <div class="marketingBackground mb-5">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p class="text-start p-3 text-light directPremium"><span class="">Etkinlikvar+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
+                                        <p class="text-start p-3 text-light directPremium"><span class="">etkinlikdolu+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
                                         <h5 class="text-light ps-3 light-text-marketing">e+ Üyeleri etkinliklerden ve yeniliklerden haberdan olan ilk kişiler. Sen de aralarına katılmak ister misin?</h5>
                                     </div>
 
@@ -81,11 +102,43 @@
               <%  } %>
 
               <% if(findUser.interests.length > 0) { %>      
-                <h1 class="fs-3  mb-4">İlgi Alanları(<%=findUser.interests.length%>)</h1>
-                <% findUser.interests.map((interest) => { %>
-                    <button type="button" class="btn btn-info me-1 my-2"><a class="text-dark" href="/events?<%=interest%>"><%=interest%></a></h>
-                <% }) %>
+                <div class="bg-white ps-2 rounded-3">
+                    <h1 class="fs-4 mb-4">İlgi Alanları(<%=findUser.interests.length%>)</h1>
+                    <form action="/events/" method="get">
+                        <% findUser.interests.map((interest) => { %>
+                          <button type="submit" class="btn btn-info me-1 my-2 text-dark" name="searchquery" value="<%= interest %>"><%= interest %></button>
+                        <% }) %>
+                      </form>
+                      
+                </div>
              <% } %> 
+
+            <% if(events.length > 0) { %>
+
+                    <div class="row gy-2  bg-white ps-2 pb-3 rounded-3 ">
+                            <h1 class="fs-4 my-4">Yaklaşan Etkinlikleri(<%=events.length%>)</h1>
+                <% events.forEach((event) => { %>  
+                    <div class="col-lg-12">           
+                        <div class="card mb-3" style="max-width: 75%">
+                            <div class="row g-0">
+                              <div class="col-md-4">
+                                <img src="../<%=event.eventImage%>"  class="img-fluid rounded-start" alt="...">
+                              </div>
+                              <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%=event.title%></h5>
+                                    <p class="card-text"><%=event.description%></p>
+                                  <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                    </div>
+                 <%  }) %>
+         </div>
+         
+          <% } %>
+
             </div>
         </div>
     </div>

@@ -4,21 +4,20 @@ import SingleEvents from "./SingleEvents";
 import TrendingEvents from "./TrendingEvents";
 import TrendingCategories from "./TrendingCategories";
 
-const Events = ({ userEvents, userData, searchresults, categoryData, createdEventMessage, trendingEvents, popularCategories }) => {
+
+const Events = ({ userEvents, userData, generalSearchResults, interestsearch, searchresults, categoryData, createdEventMessage, trendingEvents, popularCategories }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
 
   const [loading, setLoading] = useState(false);
   const [loadingFilter, setLoadingFilter] = useState(false)
   const [selectedDate, setSelectedDate] = useState("Bugün")
   // GET SEARCHED STRING FROM URL
-  const queryString = window.location.search;
-  const queryParams = queryString.substring(1);
-  const decodedParams = decodeURIComponent(queryParams);
-  const [selectedCategory, setSelectedCategory] = useState(window.location.search ? decodedParams : "Kategori")
+  const interestCategory = interestsearch.interest ? interestsearch.interest : "Kategori";
+  const [selectedCategory, setSelectedCategory] = useState(interestCategory)
 
   const getIndexSearchData = typeof searchresults === "object" && typeof searchresults.searchforeventlocation === "string" ?  searchresults.searchforeventlocation : ""
-  const [selectedProvince, setSelectedProvince] = useState(getIndexSearchData)
 
+  const [selectedProvince, setSelectedProvince] = useState(getIndexSearchData)
   const [searchAPI, setSearchAPI] = useState([])
 
   const [search, setSearch] = useState("")
@@ -27,11 +26,10 @@ const Events = ({ userEvents, userData, searchresults, categoryData, createdEven
   const searchRef = useRef()
   const searchResultsRef = useRef()
 
+
+  console.log(generalSearchResults)
 // get dates
 // const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
-
-
-
 
   const handleClickDate = (e) => {
     setSelectedDate(e.target.innerHTML)
@@ -77,9 +75,11 @@ const Events = ({ userEvents, userData, searchresults, categoryData, createdEven
   useEffect(() => {
     if (isTyping) {
       const districtsWithCity = searchAPI.slice(81, 1053).map((district) => `${district.name}, ${district.city}`);
+
       const provinceNames = searchAPI.filter((names) => {return names}).slice(0,81)
 
       const combinedArray = provinceNames.concat(districtsWithCity);
+
       const filterResults = combinedArray.filter((names) => names.toLocaleUpperCase('TR').includes(search.toLocaleUpperCase('TR')));
   
       setSearchResults(filterResults);
@@ -91,9 +91,14 @@ const Events = ({ userEvents, userData, searchresults, categoryData, createdEven
 
   const fetchDataByDate = async (date) => {
     try {
+      if(generalSearchResults.length > 0) {
+        
+      } else {
         const fetchMyData = await fetch(`/events/requestedevents?date=${date}`);
         const data = await fetchMyData.json();
         return data;
+      }
+     
     } catch (error) {
         throw new Error(error);
     }
@@ -138,10 +143,14 @@ const handleCategoryLeft = (event) => {
             // Kategoriye göre filtreleme
             const categoryMatches = event.eventCategory === selectedCategory;
             // Province'e göre filtreleme
-             const provinceMatches = event.cityName.toLocaleUpperCase('TR').includes(selectedProvince.toLocaleUpperCase('TR'));
-             const districtMatches = event.districtName.toLocaleUpperCase('TR').includes(selectedProvince.split(",")[0].trim().toLocaleUpperCase('TR'));
+            const selectedParts = selectedProvince.split(",").map(s => s.trim());
+            const selectedCity = selectedParts.length === 2 ? selectedParts[1].toLocaleUpperCase('TR') : selectedParts[0].toLocaleUpperCase('TR');
+            const selectedDistrict = selectedParts.length === 2 ? selectedParts[0].toLocaleUpperCase('TR') : "";
         
-            return categoryMatches && (provinceMatches || districtMatches)
+            const provinceMatches = event.cityName && event.cityName.toLocaleUpperCase('TR') === selectedCity;
+            const districtMatches = event.districtName && event.districtName.toLocaleUpperCase('TR').includes(selectedDistrict);
+        
+            return categoryMatches && provinceMatches && (selectedDistrict ? districtMatches : true);
           });
         
           setFilteredEvents(getNewFilteredArray);
@@ -149,17 +158,26 @@ const handleCategoryLeft = (event) => {
           // Sadece kategoriye göre filtreleme yapılacak
           const filterByCategory = filteredData.filter((event) => event.eventCategory === selectedCategory);
           setFilteredEvents(filterByCategory);
-        } else if (selectedProvince !== "") {
-          // Sadece province'e göre filtreleme yapılacak
-          const getNewFilteredArray = filteredData.filter((event) => {
-            const cityNameMatches = event.cityName && event.cityName.toLocaleUpperCase('TR').includes(selectedProvince.toLocaleUpperCase('TR'));
-            const districtNameMatches = event.districtName && event.districtName.split(",")[0].trim().toLocaleUpperCase('TR').includes(selectedProvince.split(",")[0].trim().toLocaleUpperCase('TR'));
+        }
+         else if (selectedProvince !== "") {
+          // Seçilen değerin şehir ve ilçe adını içerip içermediğini kontrol et
+          const selectedParts = selectedProvince.split(",").map(s => s.trim());
+          const selectedCity = selectedParts.length === 2 ? selectedParts[1].toLocaleUpperCase('TR') : selectedParts[0].toLocaleUpperCase('TR');
+          const selectedDistrict = selectedParts.length === 2 ? selectedParts[0].toLocaleUpperCase('TR') : null;
         
-            return cityNameMatches || districtNameMatches
+          // Filtreleme koşullarını ayarla
+          const getNewFilteredArray = filteredData.filter((event) => {
+            const cityNameMatches = event.cityName && event.cityName.toLocaleUpperCase('TR').includes(selectedCity);
+            const districtNameMatches = selectedDistrict ? event.districtName && event.districtName.toLocaleUpperCase('TR').includes(selectedDistrict) : true;
+        
+            // Şehir ve ilçe adına göre filtreleme yap
+            return cityNameMatches && (selectedDistrict ? districtNameMatches : true);
           });
         
           setFilteredEvents(getNewFilteredArray);
-        } else {
+        }
+        
+        else {
           // Hiçbir filtreleme yapılmayacak
           setFilteredEvents(filteredData);
         }
@@ -216,6 +234,7 @@ const handleCategoryLeft = (event) => {
   }, [selectedCategory]);
 
 
+
   useEffect(() => {
 // SET SEARCH INPUT IF USER SEARCHED FROM MAIN PAGE 
 if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
@@ -244,10 +263,21 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
     setSelectedProvince("")
   }
   
-  const handleProvinceClick =  (e) => {
-    searchRef.current.value = e.target.innerHTML;
+  const handleProvinceClick = (e) => {
+    // Tıklanan elemanın içindeki 'areaName' id'sine sahip elemanı bul
+    const areaNameElement = e.currentTarget.querySelector('#areaName');
+    // 'areaName' id'sine sahip elemanın metin içeriğini al
+    const areaName = areaNameElement ? areaNameElement.textContent : '';
+  
+    // Eğer bir 'areaName' bulunamazsa, fonksiyonu sonlandır
+    if (!areaName) return;
+  
+    // Arama kutusunun değerini güncelle
+    searchRef.current.value = areaName;
+    // Arama sonuçlarını temizle
     setSearchResults("");
-     setSelectedProvince(searchRef.current.value)
+    // Seçilen bölgeyi güncelle
+    setSelectedProvince(areaName);
   }
 
  const handleAnimationEnd  = (e) => {
@@ -256,11 +286,21 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
 // KULLANICI VAR MI YOK MU TESPIT ET
  const isUserRegistered = Object.keys(userData).length !== 0;
 
+ // ARAMA ISMINI AL
+// URL'deki sorgu dizesini al
+const queryString = window.location.search;
+
+// URLSearchParams nesnesi ile sorgu parametrelerini işle
+const urlParams = new URLSearchParams(queryString);
+
+// 'searchquery' parametresinin değerini al
+const searchQuery = urlParams.get('searchquery');
+
   return (
     <>
       <section id={styles.eventsId}  >
       <div className="container">
-          <div className="mb-5">
+          <div className="d-flex flex-column mb-5">
               
               {Object.keys(userData).length !== 0 ? (
                     <h1 className={`fs-2 text-primary-emphasis text-capitalize ${styles.eventsTitle}`}>Hoş Geldin {userData.username} &nbsp;
@@ -275,9 +315,14 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
                 <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
               </svg></h1>
               )}
+
+              {searchQuery && (
+                  <div className="d-flex justify-content-center">
+                    <h1 className="fs-4 align-self-center mb-2">{searchQuery} Sonuçları Görüntüleniyor</h1>
+                  </div>
+                )}
               </div>
           <div className="row rounded-right-top rounded-right-bottom">
-
              {/* Kullanıcı girişi yaptıysa */}
             {isUserRegistered && (
                <>
@@ -341,7 +386,7 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
                             <div className="row">
                             <div className="col-12">
                             <div className={styles.marketingBackground}>
-                                <p className={`text-start p-3 text-light ${styles.directPremium}`}><span className={styles.badge}>Etkinlikvar+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
+                                <p className={`text-start p-3 text-light ${styles.directPremium}`}><span className={styles.badge}>etkinlikdolu+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
                                 <a href="/pricing" type="button" className="btn btn-warning ms-3">Ücretsiz Denemeni Başlat</a>
                             </div>
                             </div>
@@ -356,7 +401,6 @@ if(typeof getIndexSearchData === "string" && getIndexSearchData !== "") {
 {/* 
 className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
             <div className="pb-5 col-lg-8" >
-      
             {Object.keys(createdEventMessage).length !== 0 ? (
             <h1 
             onAnimationEnd={handleAnimationEnd} 
@@ -367,7 +411,7 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
           
               <div className="d-flex flex-column flex-md-row justify-content-start gap-2 mb-5">
                 <div className={styles.searchContainer}>
-                  <input type="search" className={`form-control ${styles.searchElements}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." autoComplete="off" />
+                  <input type="search" className={` ${styles.searchInput}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." autoComplete="off" />
                     <span className={styles.searchIcon}><i className="fas fa-search"></i></span>
                   {isTyping && typeof searchResults !== "string" && (
                       <div className={styles.searchResults} ref={searchResultsRef}> 
@@ -377,11 +421,19 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                           <>
                             <div>Lütfen Seçiniz...</div>
                             <hr />
-                            {searchResults.map((provinces, index) => (
-                              <div onClick={handleProvinceClick} className={styles.searchResultsItems} key={index}>
-                                {provinces}
+                     
+                            {searchResults.slice(0,10).map((provinces, index) => (
+                                    <div className={`d-flex flex-row align-items-center ${styles.searchResultsItems}`} onClick={handleProvinceClick} key={index} style={{paddingTop: "1.1rem", paddingBottom:"1.1rem"}}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--first-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                  </svg>
+                              <div id='areaName'>
+                               {provinces}
                               </div>
+                              </div>  
+                            
                             ))}
+                          
                           </>
                         ) : null}
                      </div>
@@ -403,7 +455,7 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                     )}
                   </div>
                 <div className={`dropdown-center ${styles.searchElements}`}>
-                    <button className="btn btn-outline-secondary px-5 w-100 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button className="btn btn-outline-secondary  px-5 w-100 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedDate}
                     </button>
                     <ul className="dropdown-menu">
@@ -416,7 +468,7 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                 </div>
 
                 <div className={`dropdown-center ${styles.searchElements}`}>
-                    <button className="btn btn-outline-secondary w-100 px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button className="btn btn-outline-secondary  w-100 px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedCategory}
                     </button>
                     <ul className={`dropdown-menu ${styles.scrollableMenu}`}>
@@ -428,7 +480,9 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                     </ul>
                 </div>
 
-                <button onClick={handleReset} className="btn btn-light">Sıfırla</button>
+                {(selectedCategory !== "Kategori" || selectedDate !== "Bugün" || selectedProvince !== "" ) && (
+                  <button onClick={handleReset} className="btn btn-light">Sıfırla</button>
+                )}
               </div>
               {(selectedDate !== "Bugün" || selectedCategory !== "Kategori" || selectedProvince !== "") && (
                   <h1 className="fs-5 my-2">Filtreleriniz:</h1>

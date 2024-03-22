@@ -63,8 +63,6 @@ app.use("/user", checkIfAuthed, userRoutes)
 app.use("/members", memberRoutes)
 
 
-
-
 app.get("/", async (req,res) => {
     try {
       await connectToDb()
@@ -158,5 +156,11 @@ app.post("/complaint", async (req,res) => {
     throw new Error(error)
   }
 })
+
+
+app.use(function (req,res,next) {
+  res.status(404).render('404.ejs')
+  })
+  
 
 app.listen(3000)

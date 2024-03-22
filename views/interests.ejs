@@ -7,13 +7,12 @@
 
       <div class="container">
         <div class="row">
-            <h1 class="fs-1 text-center my-5">İlgi Alanlarınızı Seçiniz</h1>
-            <p class="text-secondary text-center fst-italic fw-bold"><em>İlgi alanlarınız size en uygun etkinlikleri göstermemizi sağlayacak.</em></p>
-            <p id="errorMessageInterests"></p>
+            <h1 class="fs-1 text-center mt-5">İlgi Alanlarınız</h1>
+
             <div class="col-lg-4 d-flex flex-column justify-content-start align-items-center">
                     <h4 class="my-5 fs-4">İlgi alanınızı bulamadınız mı? Arayın.</h4>
 
-                    <label class="fs-5" for="searchinterests">İlgi alanlarını ara</label>
+                    <label class="fs-4 mb-2" for="searchinterests">İlgi alanlarını ara</label>
                 <input type="text" class=" form-control" id="searchinterests" />
                 <div id="interestsResults"></div>
 
@@ -32,19 +31,14 @@
                 
             </div>
 
-            <div class="col-lg-7 d-flex flex-column justify-content-center align-items-center">
+            <div id="categoryContainerParent" style="padding-top:4.5rem;" class="col-lg-7 d-flex flex-column justify-content-start align-items-center">
                 <div id="selectedCategoriesContainer">
                 </div>
             </div>
             <div class="col-lg-1 d-flex">
                 <div class="row d-flex">
-                    <div class="col">
-                        <button type="button" id="saveButton" class="saveLink text-primary-emphasis px-2 py-2 fs-5">Kaydet</>
-                
-                    </div>
-
-                    <div class="col align-self-end">
-                        <a  class="saveLink text-primary-emphasis px-2 py-2 fs-5">Sonraki sayfaya geç</a>
+                    <div class="col align-self-start d-flex">
+                        <button type="button" id="saveButton" class="btn d-flex align-items-center justify-content-center btn-secondary px-3 py-2">Kaydet</button>
                     </div>
                 </div>
                 
@@ -120,7 +114,7 @@ function synchronizeButtonsWithSearch() {
 
     if (!checkIfExists) {
         const createButton = document.createElement("button");
-        createButton.className = "btn cancelFilterButtons";
+        createButton.className = "btn cancelFilterButtons me-2 mb-2";
         createButton.textContent = buttonContext;
         selectedCategoriesContainer.appendChild(createButton);
 
@@ -128,13 +122,29 @@ function synchronizeButtonsWithSearch() {
         createButton.remove(); // Butonu kaldır
         updateSubCategoryButtons(); // subCategoryContainer içindeki butonları güncelle
 
+        
+        const selectedItemsCount = selectedCategoriesContainer.querySelectorAll('button').length;
+        let selectionsParagraph = categoryContainerParent.querySelector('p');
+    if (!selectionsParagraph) {
+        // Yoksa yeni bir p etiketi oluştur ve categoryContainerParent'a ekle
+        selectionsParagraph = document.createElement('p');
+        selectionsParagraph.className = "fs-3 mb-5";
+        selectionsParagraph.textContent = `Seçimleriniz(${selectedItemsCount})`
+        categoryContainerParent.prepend(selectionsParagraph);
+    } else {
+        // Eğer p etiketi varsa, içeriğini güncelle
+        selectionsParagraph.textContent = `Seçimleriniz(${selectedItemsCount})`
+    }
+
         // İçinde eleman yoksa "Seçimleriniz" etiketini kaldır
-        // if (selectedCategoriesContainer.querySelectorAll('button').length === 0) {
-        //     const selectionsParagraph = selectedCategoriesContainer.querySelector('p');
-        //     if (selectionsParagraph) {
-        //         selectionsParagraph.remove();
-        //     }
-        // }
+            
+        // SAĞ KATEGORI CONTAINER BUTON İÇERİĞİNE TIKLAYARAK SİLME İŞLEMİNDE P ETIKETINI KALDIR
+        if (selectedCategoriesContainer.querySelectorAll('button').length === 0) {
+            const selectionsParagraph = categoryContainerParent.querySelector('p');
+            if (selectionsParagraph) {
+                selectionsParagraph.remove();
+            }
+        }
     });
        
     } else {
@@ -142,28 +152,32 @@ function synchronizeButtonsWithSearch() {
         updateSubCategoryButtons(); // subCategoryContainer içindeki butonları güncelle
     }
 
-    // if (selectedCategoriesContainer.querySelectorAll('button').length > 0) {
-    // // Eğer p etiketi zaten varsa, içeriğini güncelle
-    // const selectionsParagraph = selectedCategoriesContainer.querySelector('p');
-    // if (selectionsParagraph) {
-    //     selectionsParagraph.textContent = "Seçimleriniz: ";
-    // } else {
-    //     // Yoksa yeni bir p etiketi oluştur
-    //     const paragraph = document.createElement('p');
-    //     paragraph.className = "fs-3 mb-5";
-    //     paragraph.textContent = "Seçimleriniz: ";
-    //     const container = document.createElement('div');
-    //     container.className = "d-flex align-items-center justify-content-center";
-    //     container.appendChild(paragraph);
-    //     selectedCategoriesContainer.prepend(container);
-    // }
-// } else {
-//     // İçinde eleman yoksa "Seçimleriniz" etiketini kaldır
-//     const selectionsParagraph = selectedCategoriesContainer.querySelector('p');
-//     if (selectionsParagraph) {
-//         selectionsParagraph.remove();
-//     }
-// }
+    const categoryContainerParent = document.querySelector("#categoryContainerParent");
+
+
+if (selectedCategoriesContainer.querySelectorAll('button').length > 0) {
+   const selectedItemsCount = selectedCategoriesContainer.querySelectorAll('button').length;
+    // Eğer p etiketi zaten varsa, içeriğini güncelle
+    let selectionsParagraph = categoryContainerParent.querySelector('p');
+    if (!selectionsParagraph) {
+        // Yoksa yeni bir p etiketi oluştur ve categoryContainerParent'a ekle
+        selectionsParagraph = document.createElement('p');
+        selectionsParagraph.className = "fs-3 mb-5";
+        selectionsParagraph.textContent = `Seçimleriniz(${selectedItemsCount})`
+        categoryContainerParent.prepend(selectionsParagraph);
+    } else {
+        // Eğer p etiketi varsa, içeriğini güncelle
+        selectionsParagraph.textContent = `Seçimleriniz(${selectedItemsCount})`
+    }
+} else {
+    // İçinde eleman yoksa "Seçimleriniz" etiketini kaldır
+           // SOL KATEGORI CONTAINER BUTON İÇERİĞİNE TIKLAYARAK SİLME İŞLEMİNDE P ETIKETINI KALDIR
+    const selectionsParagraph = categoryContainerParent.querySelector('p');
+    if (selectionsParagraph) {
+        selectionsParagraph.remove();
+    }
+}
+
 }
 
 // subCategoryContainer içindeki butonların durumunu güncelle
@@ -194,7 +208,6 @@ function addClickListenersToButtons() {
 
 const showMoreBtn = document.getElementById('showMoreBtn');
 showMoreBtn.addEventListener('click', () => {
-    console.log("çalıştı")
     addClickListenersToButtons();
 });
 

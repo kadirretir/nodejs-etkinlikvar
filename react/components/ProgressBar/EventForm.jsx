@@ -3,7 +3,12 @@ import styles from "./progress.module.css";
 
 
 const EventForm = ({
-    eventCategoryState,
+    category,
+    setCategory,
+    subCategory,
+    setSubCategory,
+    subCategoryOptions,
+    eventSubCategories,
     titleInput,
     districtInput,
     cityInput,
@@ -253,14 +258,33 @@ const EventForm = ({
             <p className="form-label fs-5">
               Kategori<i className="fs-6 text-secondary">(Gerekli)</i>
             </p>
-          <select className="form-select" name="getEventCategory" aria-label="select">
-            <option className="fs-5" defaultValue disabled>Etkinliğiniz ne ile alakalı?</option>
-              {eventCategoryState.map((category,index) => {
-                return (
-                    <option className="fs-5" key={index} defaultValue={index}>{category}</option>
-                )
-              })}
-          </select>
+            <label htmlFor="eventCategory">Kategori:</label>
+      <select
+        id="eventCategory"
+        value={category}
+        name='eventCategory'
+        onChange={(e) => setCategory(e.target.value)}
+        required
+      >
+        <option value="">Seçiniz...</option>
+        {Object.keys(eventSubCategories).map((key) => (
+          <option key={key} value={key}>{key}</option>
+        ))}
+      </select>
+
+      <label htmlFor="eventSubCategory">Alt Kategori:</label>
+      <select
+        id="eventSubCategory"
+        name='eventSubCategory'
+        value={subCategory}
+        onChange={(e) => setSubCategory(e.target.value)}
+        required
+      >
+        <option value="">Seçiniz...</option>
+        {subCategoryOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+      </select>
         </div>
 
         <div style={{width: "50%"}}>

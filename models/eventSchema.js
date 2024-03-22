@@ -6,36 +6,32 @@ const { Schema } = mongoose;
 const eventsSchema  = new Schema({
     title: {
       type: String,
-      require: true,
+      required: true,
     },
     description: {
       type: String,
-      require: true,
+      required: true,
     },
     cityName: {
       type: String,
-      require: true,
+      required: true,
     },
     districtName: {
       type: String,
-      require: true
+      required: true
     },
     fullAddress: {
       type: String,
-      require: true
+      required: true
     },
     date: {
       type: Date,
-      require: true,
-    },
-    premium: {
-      type: Boolean,
-      require: true,
+      required: true,
     },
     organizer: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      require: true,
+      required: true,
     },
     attendees: [
        { 
@@ -45,20 +41,27 @@ const eventsSchema  = new Schema({
     ],
     eventImage: {
       type: String,
-      require: true
+      required: true
     },
     eventCategory: {
       type: String,
-      require: true,
-      enum: ["Sanat ve Kültür", "Spor", "Eğitim ve Gelişim", "Toplum ve Yardım", "İş ve Kariyer", "Teknoloji ve İnovasyon", "Eğlence ve Gezi", "Müzik", "Dans ve Tiyatro", "Film ve Sinema", "Görsel Sanatlar", "Edebiyat ve Yazarlık", "Bilim ve Teknoloji", "Doğa ve Çevre", "Sağlık ve Fitness", "Moda ve Güzellik", "Yiyecek ve İçecek", "Seyahat ve Turizm", "Ev ve Bahçe", "Evcil Hayvanlar", "Oyunlar ve Eğlence", "Konferanslar ve Seminerler", "Müzik festivalleri", "Sanat sergileri", "Yardım kampanyaları", "Sosyal sorumluluk projeleri", "Yaz kampı etkinlikleri", "Online etkinlikler"]
+      required: true,
+      enum: Object.keys(eventSubCategories)
     },
     eventSubCategory: {
-      type: [[String]],
-      default: eventSubCategories,
-  },
+      type: String,
+      required: true,
+      validate: {
+        validator: function(subCategory) {
+          const categories = eventSubCategories[this.eventCategory];
+          return categories && categories.includes(subCategory);
+        },
+        message: props => `${props.value} seçilmiş kategori için uygun alt ilgi alanı değil`
+      }
+    },
    participantLimit: {
       type: Number,
-      default: null, // Varsayılan olarak sınırsız
+      default: null, 
    },
     status: {
       type: String,
@@ -69,20 +72,21 @@ const eventsSchema  = new Schema({
   
   });
 
-  eventsSchema.pre('save', async function(next) {
-    try {
-        const organizer = await User.findById(this.organizer);
-        if (organizer) {
-            this.premium = organizer.membershipLevel === 'premium'; // Etkinliğin premium alanını organizatörün membershipLevel'ına göre ayarlayın
-        }
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
-
 
 
   const Event = mongoose.model("Event", eventsSchema)
+
+
+  //  Event.collection.dropIndexes();
+
+
+  Event.schema.index({
+    title: 'text',
+    eventCategory: 'text',
+    eventSubCategory: 'text',
+    description: 'text',
+    cityName: 'text',
+    districtName: 'text'
+  });
 
 module.exports = Event

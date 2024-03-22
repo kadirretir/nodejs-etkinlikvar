@@ -3,6 +3,7 @@
   min-height: 40vh;
   display: flex;
   flex-direction: column; 
+  font-family: var(--second-font);
 }
 
 .footer .container {
@@ -15,6 +16,25 @@
 .footer .container .rowAfterContainer {
   flex: 1;
 }
+
+.btnStyles {
+  background-color: #FD3412;
+  border: 1px solid #FD3412;
+  color: white;
+  padding: 0.7rem 1rem;
+  border-radius: 0.3rem;
+}
+
+.btnStyles:hover,
+.btnStyles:focus {
+  background-color: #E52E10;
+  border-color: #C5260E;
+}
+
+.btnStyles:focus {
+  box-shadow: 0 0 0 0.2rem rgba(253, 52, 18, 0.5);
+}
+
 
 
 
@@ -29,8 +49,7 @@
 }
 
 @media screen and (max-width: 768px) {
-  .joinButton {
-    margin-top: 2rem;
-    margin-bottom: 1.5rem;
+  .footerButton {
+    margin-top: 1rem;
   }
 }
