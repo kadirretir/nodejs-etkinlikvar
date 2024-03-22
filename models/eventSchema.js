@@ -87,6 +87,6 @@ const eventsSchema  = new Schema({
     description: 'text',
     cityName: 'text',
     districtName: 'text'
-  });
+  }, { default_language: "turkish" });
 
 module.exports = Event

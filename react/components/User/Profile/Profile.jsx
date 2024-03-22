@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
-
+import React, {useState, useRef, useEffect} from 'react';
+import styles from './profile.module.css';
 
 const Profile = ({userData}) => {
     const [showPicSuccess, setShowPicSuccess] = useState(false)
-    const [results, setResults] = useState([]);
     const [imageFile, setImageFile] = useState("");
     const [inputAreas, setInputAreas] = useState({
       biografy: userData.biografy,
@@ -14,19 +13,88 @@ const Profile = ({userData}) => {
     usernameError: "",
     locationError: ""
   })
+  const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [searchResults, setSearchResults] = useState([])
+  const [searchAPI, setSearchAPI] = useState([])
 
-  const data = [
-    'Elma',
-    'Armut',
-    'Muz',
-    'Çilek',
-    'Karpuz',
-    'Kavun',
-    'Ananas',
-    'Portakal'
-  ];
+  const searchRef = useRef()
+  const searchResultsRef = useRef()
 
+  const isTyping = search.replace(/\s+/, '').length > 0;
+  useEffect(() => {
+      const getProvinces = async () => {
+        setLoading(true);
+        try {
+          const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,districts");
+          const data = await response.json();
+          const getProvincesToArray = data.data.map((names) => names.name);
+          const districts = data.data.map((data) =>
+                data.districts.map((names) => ({
+                  name: names.name,
+                  city: data.name
+                }))
+              );
+         
+          const districtsArray = districts.flat();
+          getProvincesToArray.push(districtsArray);
+         
+          const flattenedProvincesDistricts = [...getProvincesToArray.flat()];
+         setSearchAPI(flattenedProvincesDistricts);
+        } catch (error) {
+          throw new Error(error);
+        } finally {
+          setLoading(false);
+        }
       
+      }
+    
+      if(isTyping) {
+          getProvinces();
+      } 
+  
+    }, [search]);
+
+    useEffect(() => {
+      if (isTyping) {
+    
+        const districtsWithCity = searchAPI.slice(81, 1053).map((district) => `${district.name}, ${district.city}`);
+        const provinceNames = searchAPI.filter((names) => {return names}).slice(0,81)
+  
+        const combinedArray = provinceNames.concat(districtsWithCity);
+        const filterResults = combinedArray.filter((names) => names.toLocaleUpperCase('TR').includes(search.toLocaleUpperCase('TR')));
+        setSearchResults(filterResults);
+      } else {
+        setSearchResults([]);
+      }
+    }, [search, searchAPI]);
+
+    useEffect(() => {
+      document.addEventListener("mousedown", handleClickOutside)
+
+      return () => {
+          document.removeEventListener("mousedown", handleClickOutside)
+      }
+}, [])
+
+const handleClickOutside = (e) => {
+  if(searchRef.current && searchResultsRef.current && !(searchRef.current.contains(e.target) || searchResultsRef.current.contains(e.target))) {
+    setSearchResults("");
+
+  }
+}
+
+const handleProvinceClick = (e) => {
+  const areaName = e.currentTarget.querySelector("#areaName").textContent;
+  searchRef.current.value = areaName
+  setSearchResults("");
+
+
+}
+
+
+
+    /// ---------------------------- FILE SIZE OPTIONS --------------------------------------------------
       const checkFileSize = (event) => {
         const file = event.target.files[0];
         const maxSize = 2 * 1024 * 1024; // Maksimum 2MB (2 * 1024 * 1024 bayt)
@@ -55,22 +123,28 @@ const Profile = ({userData}) => {
       }
 
       const handleForm = (e) => {
-  
         // Kullanıcı adı, biyografi ve resim dosyası değişiklik kontrolü
         const isUsernameChanged = inputAreas.username !== userData.username;
+        const isLocationChanged = searchRef.current.value !== "" && searchRef.current.value !== userData.location
         const isBiographyChanged = inputAreas.biografy !== userData.biografy;
         const isImageChanged = imageFile !== ""; // Varsayalım ki imageFile, resim dosyasının varlığını kontrol ediyor
-      
-        // Kullanıcı adı boşsa hata mesajı ekle
+        console.log(searchRef.current.value)
         if (!inputAreas.username) {
           e.preventDefault();
           setErrors({
             usernameError: "Kullanıcı adı giriniz"
           });
         }
+
+        if (!inputAreas.locationedit) {
+          e.preventDefault();
+          setErrors({
+            usernameError: "Şehir seçiniz"
+          });
+        }
       
         // Eğer kullanıcı adı boş değilse ve kullanıcı adı, biyografi veya resim dosyası değiştirildiyse, form gönderilecek
-        if (inputAreas.username && (isUsernameChanged || isBiographyChanged || isImageChanged)) {
+        if (inputAreas.username && (isUsernameChanged || isBiographyChanged || isImageChanged || isLocationChanged)) {
           // Form gönderilebilir
         } else {
           // Form gönderimi engellenir ve hatalar gösterilir
@@ -81,30 +155,21 @@ const Profile = ({userData}) => {
       
 
       const handleInputChange = (e) => {
-  
-
-
-
-        if (inputAreas.locationedit) {
-          // Basit bir filtreleme işlemi ile arama sonuçlarını güncelle
-          const filteredResults = data.filter(item =>
-            item.toLowerCase().includes(inputAreas.locationedit.toLowerCase())
-          );
-          setResults(filteredResults);
-        } else {
-          // Eğer arama sorgusu boşsa, sonuçları temizle
-          setResults([]);
+        // Mevcut inputAreas'ın kopyasını alıyoruz
+        const newData = { ...inputAreas };
+        // Değişen input'un değerini güncelliyoruz
+        newData[e.target.name] = e.target.value;
+        // Yeni verileri state'e kaydediyoruz
+        setInputAreas(newData);
+      
+        if (search) {
+          setInputAreas(prevState => ({
+            ...prevState,
+            locationedit: search
+          }));
         }
-
-
-         // Yeni bir obje oluşturup, içine mevcut formData'nın kopyasını alıyoruz
-    const newData = { ...inputAreas };
-    // Değişen input'un değerini güncelliyoruz
-    newData[e.target.name] = e.target.value;
-    // setState ile yeni formData'yı ayarlıyoruz
-    setInputAreas(newData);
-    console.log(newData)
-      }
+      };
+      
     
         return (
             <>
@@ -150,26 +215,61 @@ const Profile = ({userData}) => {
               
     
                   <div className="d-flex flex-column ps-3">
-                  <div className="mb-5 mt-2">
+                  <div className="mb-3 mt-2 position-relative">
                       <p className='text-start'>
                       <label className='form-label fs-4 text-left text-dark' htmlFor='locationedit'>
                       Konumunuz
                       </label>
                       </p>
 
+                     <div className={styles.InputContainer}>
                       <input
-                       type="text"
-                        className='form-control border border-1 border-secondary-subtle focus-ring focus-ring-dark py-2'
-                         id='locationedit'
-                          name='locationedit'
-                          value={inputAreas.locationedit}
-                          onChange={handleInputChange}
-                          />
-                              <ul>
-                               {results.map((item, index) => (
-                                 <li key={index}>{item}</li>
-                                  ))}
-                              </ul>
+                        type="search"
+                          className={`form-control border border-1 border-secondary-subtle focus-ring focus-ring-dark py-2 ${styles.inputItself} ${isTyping ? styles.typing : null}`}
+                          id='locationedit'
+                            name='locationedit'
+                            ref={searchRef}
+                            autoComplete='off'
+                            placeholder={inputAreas.locationedit}
+                            onChange={(e) => setSearch(e.target.value)}
+                            />
+                     </div>
+                            {isTyping && typeof searchResults !== "string" && (
+                      <div ref={searchResultsRef} className={styles.searchResults}> 
+                    
+                    <div className="fs-5 text-left py-3">
+                        {searchResults.length > 0 && isTyping && loading === false ? (
+                          <>
+                            {searchResults.slice(0,10).map((provinces, index) => (
+                                <div className={`d-flex flex-row align-items-center ${styles.searchResultsItems}`} onClick={handleProvinceClick} key={index}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--first-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                  </svg>
+                              <div id='areaName'>
+                               {provinces}
+                              </div>
+                              </div>
+                            ))}
+                          </>
+                        ) : null}
+                     </div>
+                     
+                        {searchResults && loading && (
+                          <div className={styles.resultNotFound}>
+                            <div className="spinner-border" role="status">
+                            <span className="visually-hidden">Yükleniyor...</span>
+                        </div>
+                        </div>
+                         
+                        )}
+                        {searchResults.length <= 0 && typeof searchResults !== "string" && loading === false && (
+                          <div className={styles.resultNotFound}>
+                            "{search}" ile bağlantılı bir bölge bulamadık
+                          </div>
+                        )}
+                      </div>
+                    )}
+                             
                         {errors.locationError !== "" && (
                        <p className='text-danger text-start mt-2'>{errors.locationError}</p>
                       )}
@@ -177,7 +277,7 @@ const Profile = ({userData}) => {
 
 
 
-                    <div className="mb-5 mt-2">
+                    <div className="mb-3 mt-2">
                       <p className='text-start'>
                       <label className='form-label fs-4 text-left text-dark' htmlFor='username'>
                       İsim <span className='fs-5'>(Gerekli)</span>

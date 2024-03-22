@@ -12,7 +12,7 @@ router.post("/newevent", upload.single('eventPhoto'), eventsController.newevent_
 router.get("/notifications", eventsController.notifications_get);
 router.get("/notifications/:id", eventsController.getNotificationById);
 router.get("/requestedevents/category/:category", eventsController.getEventsByCategory);
-router.get("/requestedevents", eventsController.getEventsByDate);
+router.post("/requestedevents", eventsController.getEventsByDate);
 router.get("/:id", eventsController.singular_event_get);
 router.post("/:id/join", eventsController.add_attendees_post);
 router.post("/:id/remove", eventsController.remove_attendee_post);

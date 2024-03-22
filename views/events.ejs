@@ -1,5 +1,6 @@
 <%- include('./partials/_header.ejs') -%>
     <div id="myEvents"
+    user-city="<%=(typeof usercity !== 'undefined') ? JSON.stringify(usercity) : '{}' %>"
     general-search="<%=(typeof generalSearchResults !== 'undefined') ? JSON.stringify(generalSearchResults) : '{}' %>"
     interest-search="<%=(typeof interestsearch !== 'undefined') ? JSON.stringify(interestsearch) : '{}' %>"
     created-event-message="<%=(typeof successMessage !== 'undefined') ? JSON.stringify(successMessage) : '{}' %>"

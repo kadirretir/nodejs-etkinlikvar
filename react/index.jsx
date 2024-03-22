@@ -30,6 +30,7 @@ function checkValue (val) {
       const eventsNode = document.getElementById('myEvents');
       const eventsRoot = createRoot(eventsNode);
       const usersData = JSON.parse(eventsNode.getAttribute('data-user'));
+      const usercity = JSON.parse(eventsNode.getAttribute("user-city"))
       const interestsearch = JSON.parse(eventsNode.getAttribute('interest-search'));
       const generalSearchResults = JSON.parse(eventsNode.getAttribute("general-search"));
       const searchresults = JSON.parse(eventsNode.getAttribute('search-results'));
@@ -41,6 +42,7 @@ function checkValue (val) {
       eventsRoot.render(
         <StrictMode>
           <Events 
+          usercity={usercity}
           userEvents={userEvents}
           createdEventMessage={createdEventMessage}
           generalSearchResults={generalSearchResults}

@@ -5,8 +5,12 @@ const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
 const fs = require("fs")
 const WebSocket = require("ws");
-const getDates = require("./getDates");
-const mongoose = require("mongoose")
+const {getTodaysEvents,
+   getTomorrowsEvents, 
+   getThisWeeksEvents, 
+   getThisWeekendEvents,
+    getNextWeekEvents} = require("./eventsDateFuncs")
+
 
 // WebSocket sunucusunu oluşturun
 const wss = new WebSocket.Server({ port: 8080 });
@@ -122,7 +126,7 @@ module.exports.home_get = async (req,res) => {
                  } else {
                    const searchQuery = {
                      $text: {
-                       $search: req.query.searchquery
+                       $search: req.query.searchquery.toLocaleUpperCase('TR'),
                      }
                    };
                    generalSearchResults = await Event.find({
@@ -137,6 +141,7 @@ module.exports.home_get = async (req,res) => {
                  }
                }
 
+
         const eventCategories = Event.schema.path('eventCategory').enumValues;
         res.locals.categories = eventCategories
         const successMessage = req.flash('success'); // Flash mesajını al
@@ -144,12 +149,13 @@ module.exports.home_get = async (req,res) => {
 
         const searchresults = req.flash('searchresults');
         const interestsearch = req.flash('interestsearch');
-
+        const usercity = req.app.locals.usercity ? req.app.locals.usercity : '';
 
         res.render("events.ejs",
          { searchresults: searchresults[0] || {},
           interestsearch: interestsearch[0] || {},
-          generalSearchResults: generalSearchResults
+          generalSearchResults: generalSearchResults,
+          usercity:usercity
         });
     } catch (error) {
         res.status(404).render("404.ejs")
@@ -337,116 +343,31 @@ module.exports.cancel_event_post = async (req,res) => {
     }
 }
 
-// DATE SETTINGS
-const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
 
 module.exports.getEventsByDate = async (req, res) => {
   try {
-    const { date } = req.query;
-    if(date === "Bugün") {
-      const formattedDate = getDate();
-      const dateObjFormat = new Date(formattedDate);
-      const currentHour = formattedDate.substring(11, 16);
-
-      const events = await Event.find({ 
-        date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
-        status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
-    }).limit(40); // Belirtilen tarihten sonraki etkinlikleri getirir
-  
-     const filteredData = events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-        const eventSaat = String(turkiyeZamanDilimi.getHours()).padStart(2, '0');
-        const eventDakika = String(turkiyeZamanDilimi.getMinutes()).padStart(2, '0');
-    
-        const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
-        const isLaterTime = `${eventSaat}:${eventDakika}` > currentHour;
-    
-        return isSameDay && isLaterTime;
-      });
-  
-      res.json(filteredData);
-    }  else if (date === "Yarın") {
-      const formattedDate = getTomorrowDate();
-      const dateObjFormat = new Date(formattedDate);
-
-      const events = await Event.find({ 
-        date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
-        status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
-    }).limit(40);
-
-
-      const filteredData = events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-        const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
-        return isSameDay 
-      });
-
-      res.json(filteredData);
-    } else if (date === "Bu Hafta") {
-      const { startOfWeek, endOfWeek } = getWeekRange();
-
-      const events = await Event.find({ 
-        date: { 
-          $gte: startOfWeek, // Bu hafta başlangıç tarihinden büyük veya eşit olan
-          $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
-        },
-        status: { $ne: "cancelled" }
-      }).limit(40);
-    
-      const filteredData = events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-    
-        const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
-        const isLaterTime = turkiyeZamanDilimi > new Date();
-    
-        return isWithinWeek && isLaterTime;
-      });
-
-      res.json(filteredData);
-    } else if (date === "Bu Haftasonu") {
-      const { startOfWeekend, endOfWeekend } = getWeekendRange();
-
-      const events = await Event.find({ 
-        date: { 
-          $gte: startOfWeekend, // Bu hafta başlangıç tarihinden büyük veya eşit olan
-          $lte: endOfWeekend     // Bu hafta bitiş tarihinden küçük veya eşit olan
-        },
-        status: { $ne: "cancelled" }
-      }).limit(40);
-
-      const filteredData = events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-
-        const isWithinWeek = turkiyeZamanDilimi >= startOfWeekend && turkiyeZamanDilimi <= endOfWeekend;
-        const isLaterTime = turkiyeZamanDilimi > new Date();
-
-         return isWithinWeek && isLaterTime;
-      });
-      res.json(filteredData);
-    } else if (date === "Önümüzdeki Hafta") {
-      const {startOfWeek, endOfWeek} = getNextWeekRange();
-
-      const events = await Event.find({ 
-        date: { 
-          $gte: startOfWeek, // Bu hafta başlangıç tarihinden büyük veya eşit olan
-          $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
-        },
-        status: { $ne: "cancelled" }
-      }).limit(40);
-
-      const filteredData = events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-
-        const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
-        const isLaterTime = turkiyeZamanDilimi > new Date();
-
-        return isWithinWeek && isLaterTime;
-      });
-      res.json(filteredData);
-    }
+    const { eventsIds, date } = req.body; // Front-end'den gelen veriler
+      let filteredEvents = [];
+        // Front-end'den gelen verileri kullanarak filtreleme yap
+        if(date === "Bugün") {
+          filteredEvents = await getTodaysEvents(eventsIds);
+          res.json(filteredEvents);
+        } else if (date === "Yarın") {
+          filteredEvents = await getTomorrowsEvents(eventsIds)
+          res.json(filteredEvents);
+        } else if (date === "Bu Hafta") {
+          filteredEvents = await getThisWeeksEvents(eventsIds)
+          res.json(filteredEvents);
+        } else if (date === "Bu Haftasonu") {
+          filteredEvents = await getThisWeekendEvents(eventsIds)
+          res.json(filteredEvents);
+        } else if (date === "Önümüzdeki Hafta") {
+         filteredEvents = await getNextWeekEvents(eventsIds)
+         res.json(filteredEvents);
+        }
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log(error)
   }
 };
 

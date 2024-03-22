@@ -5,7 +5,16 @@ import TrendingEvents from "./TrendingEvents";
 import TrendingCategories from "./TrendingCategories";
 
 
-const Events = ({ userEvents, userData, generalSearchResults, interestsearch, searchresults, categoryData, createdEventMessage, trendingEvents, popularCategories }) => {
+const Events = ({ userEvents,
+   userData,
+    generalSearchResults, 
+    usercity, 
+    interestsearch,
+     searchresults, 
+     categoryData, 
+     createdEventMessage,
+      trendingEvents, 
+      popularCategories }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
 
   const [loading, setLoading] = useState(false);
@@ -16,8 +25,10 @@ const Events = ({ userEvents, userData, generalSearchResults, interestsearch, se
   const [selectedCategory, setSelectedCategory] = useState(interestCategory)
 
   const getIndexSearchData = typeof searchresults === "object" && typeof searchresults.searchforeventlocation === "string" ?  searchresults.searchforeventlocation : ""
+  const selectProvinceIf = getIndexSearchData === "" && usercity !== "Not found" ? usercity : getIndexSearchData;
 
-  const [selectedProvince, setSelectedProvince] = useState(getIndexSearchData)
+
+  const [selectedProvince, setSelectedProvince] = useState(selectProvinceIf)
   const [searchAPI, setSearchAPI] = useState([])
 
   const [search, setSearch] = useState("")
@@ -26,8 +37,6 @@ const Events = ({ userEvents, userData, generalSearchResults, interestsearch, se
   const searchRef = useRef()
   const searchResultsRef = useRef()
 
-
-  console.log(generalSearchResults)
 // get dates
 // const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
 
@@ -89,16 +98,22 @@ const Events = ({ userEvents, userData, generalSearchResults, interestsearch, se
   }, [search, searchAPI]);
 
 
-  const fetchDataByDate = async (date) => {
+  const fetchDataByDate = async (eventsIds, date) => {
     try {
-      if(generalSearchResults.length > 0) {
-        
-      } else {
-        const fetchMyData = await fetch(`/events/requestedevents?date=${date}`);
-        const data = await fetchMyData.json();
-        return data;
-      }
-     
+        const response = await fetch('/events/requestedevents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ eventsIds, date })
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
+        const filteredEvents = await response.json();
+        return filteredEvents;
     } catch (error) {
         throw new Error(error);
     }
@@ -123,18 +138,24 @@ const handleCategoryLeft = (event) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoadingFilter(true); // Filtreleme işlemi başladığında loadingFilter'ı true olarak ayarla
-      try {   
+      try { 
+        let resultsIds = [];
+        if(generalSearchResults.length > 0) {
+          resultsIds = generalSearchResults.map((result) => {
+            return result._id;
+          });
+        }
         let filteredData = []
         if (selectedDate === "Bugün") {
-          filteredData = await fetchDataByDate("Bugün");
+          filteredData = await fetchDataByDate(resultsIds, "Bugün");
         } else if (selectedDate === "Yarın") {
-          filteredData = await fetchDataByDate("Yarın");
+          filteredData = await fetchDataByDate(resultsIds, "Yarın");
         } else if (selectedDate === "Bu Hafta") {
-          filteredData = await fetchDataByDate("Bu Hafta");
+          filteredData = await fetchDataByDate(resultsIds, "Bu Hafta");
         }else if (selectedDate === "Bu Haftasonu") {
-          filteredData = await fetchDataByDate("Bu Haftasonu");
+          filteredData = await fetchDataByDate(resultsIds, "Bu Haftasonu");
         } else if (selectedDate === "Önümüzdeki Hafta") {
-          filteredData = await fetchDataByDate("Önümüzdeki Hafta");
+          filteredData = await fetchDataByDate(resultsIds, "Önümüzdeki Hafta");
         }
   
         if (selectedCategory !== "Kategori" && selectedProvince !== "") {
@@ -191,7 +212,7 @@ const handleCategoryLeft = (event) => {
   
     fetchData();
   }, [selectedDate, selectedCategory, selectedProvince]);
-  
+    
   // FILTER BY CATEGORY
   useEffect(() => {
     const fetchData = async () => {
@@ -318,7 +339,7 @@ const searchQuery = urlParams.get('searchquery');
 
               {searchQuery && (
                   <div className="d-flex justify-content-center">
-                    <h1 className="fs-4 align-self-center mb-2">{searchQuery} Sonuçları Görüntüleniyor</h1>
+                    <h1 className="fs-4 align-self-center mb-2 text-secondary"><span className="text-dark">{searchQuery}</span> ile Alakalı Sonuçlar Görüntüleniyor</h1>
                   </div>
                 )}
               </div>
@@ -500,7 +521,6 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
 
              </div>
          
-             
                  <SingleEvents
                  loadingFilter={loadingFilter}
                filteredEvents={filteredEvents} />

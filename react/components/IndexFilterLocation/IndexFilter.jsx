@@ -87,7 +87,6 @@ const IndexFilter = () => {
         if (form) {
           form.submit()
         }
-
       }
 
 

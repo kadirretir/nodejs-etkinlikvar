@@ -6,6 +6,7 @@ const LocalStrategy = require('passport-local');
 const axios = require("axios");
 const crypto = require("crypto");
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 
 function generateVerificationCode() {
@@ -203,7 +204,7 @@ module.exports.register_post= async (req,res, next) => {
 
 module.exports.login_post = async (req, res, next) => {
   const token = req.body['g-recaptcha-response']
-  const SECRET_KEY_v2 = '6LfSOIMpAAAAALIQhxkrl6k2j_PCHNJkD037EQKK';   
+  const SECRET_KEY_v2 = process.env.RECAPTCHA_KEY;
   const recaptchaResponse = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY_v2}&response=${token}`);
   let backUrl = req.session.returnTo ? req.session.returnTo : '/events'
   if(recaptchaResponse.data.success) {

@@ -16,8 +16,7 @@ const Event = require("./models/eventSchema")
 const User = require("./models/userSchema")
 const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
-
-
+require('dotenv').config();
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
@@ -61,6 +60,22 @@ app.use("/auth", authRoutes)
 app.use("/events", eventRoutes)
 app.use("/user", checkIfAuthed, userRoutes)
 app.use("/members", memberRoutes)
+
+// FIND IP ADDRESS
+app.use(async (req, res, next) => {
+  const ip = 
+    req.headers['cf-connecting-ip'] ||
+    req.headers['x-real-ip'] || 
+    req.headers['x-forwarded-for'] ||
+    req.socket.remoteAddress || '';
+
+  const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
+  const response = await findLocation.json();
+
+  req.app.locals.usercity = response.city
+  next();
+});
+
 
 
 app.get("/", async (req,res) => {

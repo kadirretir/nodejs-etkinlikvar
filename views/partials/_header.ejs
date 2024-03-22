@@ -119,34 +119,37 @@
                 </div>
 
                 <% } else { %>
-                    <button class="btn" id="hamburgerBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                    <button class="btn push" id="hamburgerBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                           <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                       </button>
                       
 
-                    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-                    <div class="offcanvas-header">
-                        <h5 class="offcanvas-title fs-3 text-center flex-grow-1" id="offcanvasRightLabel">Üyelik İşlemleri</h5>
-                        <button type="button" class="btn-close flex-grow-0" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                    </div>
-                    <div class="offcanvas-body text-center">
-                        <nav>
-                            <a href="/login" class="link-styles">
-                            <button type="button"  class="btn border-1 p-2 px-2">
-                               Giriş Yap
-                              </button>
-                            </a>
-                            <a href="/login" class="link-styles">
-                            <button type="button"  class="btn ms-2 border-1 p-2 px-2">
-                              Ücretsiz Üye Ol
-                              </button>
-                            </a>
-                        </nav>
-                    </div>
-                    </div>
-                    <nav id="navbarUnregistered">
+                        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+
+                            <div class="offcanvas-header">
+                                <h5 class="offcanvas-title fs-3 text-center flex-grow-1" id="offcanvasRightLabel">Üyelik İşlemleri</h5>
+                                <button type="button" class="btn-close flex-grow-0" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
+
+                            <div class="offcanvas-body text-center">
+                                <nav>
+                                    <a href="/login" class="link-styles">
+                                    <button type="button"  class="btn border-1 p-2 px-2">
+                                    Giriş Yap
+                                    </button>
+                                    </a>
+                                    <a href="/login" class="link-styles">
+                                    <button type="button"  class="btn ms-2 border-1 p-2 px-2">
+                                    Ücretsiz Üye Ol
+                                    </button>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+
+                    <nav id="navbarUnregistered" class="push">
                         <button type="button"  class="btn generalButton border-0" data-bs-toggle="modal" data-bs-target="#loginmodal">
                             Giriş Yap
                           </button>

@@ -1,0 +1,57 @@
+
+.searchContainer {
+    position: relative;
+  }
+  
+  .typing {
+    border-bottom-left-radius: 0 !important;
+  }
+  
+  .resultNotFound {
+    padding: 25px;
+    text-align: center;
+    font-size: 20px;
+    color: rgba(0,0,0,.5);
+  }
+  
+  .searchResults {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 20rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #fff;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+  }
+
+  .typing {
+    border-bottom-left-radius: 0 !important;
+  }
+  
+  .searchResultsItems {
+    padding: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .searchResultsItems:hover {
+    background-color: #f5f5f5;
+    color: #333; /* Metin rengi */
+    border-left: 3px solid var(--first-color); /* Vurgu çizgisi rengi */
+  }
+
+  .inputItself::placeholder {
+    color: black;
+    opacity: 1; /* Placeholder metni tam opaklıkta */
+  }
+
+  .inputItself:focus::placeholder {
+    opacity: 0; 
+  }
+
+
+  

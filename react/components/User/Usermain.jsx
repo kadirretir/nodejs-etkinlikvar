@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react'
 import { BrowserRouter as Router, Route, Routes, NavLink  } from 'react-router-dom';
 import styles from './userprofile.module.css';
 import ContentLoader from "react-content-loader"
-import Profile from './Profile';
+import Profile from './Profile/Profile'
 import PersonalInfo from './Personal';
 import Privacy from './Privacy';
 import Interests from './Interests';

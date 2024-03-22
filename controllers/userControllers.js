@@ -121,6 +121,10 @@ module.exports.profile_edit_post = async (req,res) => {
           user.biografy = req.body.biografy;
         }
 
+        if (req.body.locationedit) {
+          user.location = req.body.locationedit
+        }
+
         if (req.file && req.file.path) { 
           const resizedImageBuffer = await sharp(req.file.path)
           .resize(256, 256, {fit: "cover", background: { r: 255, b: 255, g: 255 } })
@@ -150,7 +154,7 @@ module.exports.profile_edit_post = async (req,res) => {
 
           user.profileImage = `../${profileImagePath}`;
         }
- 
+        req.flash("success", "Ayarlarınız başarıyla kayıt edildi.")
         await user.save();
         res.redirect("/user/profile")
     } catch (error) {
