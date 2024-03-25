@@ -98,7 +98,7 @@ async function getThisWeeksEvents (events) {
             },
             status: { $ne: "cancelled" }
           }).limit(40);
-        return filterEventsTomorrow(allEvents, startOfWeek, endOfWeek);
+        return filterEventsThisWeek(allEvents, startOfWeek, endOfWeek);
       }
 }  
 

@@ -184,7 +184,7 @@ module.exports.register_post= async (req,res, next) => {
             }
             // Giriş başarılı, ana sayfaya yönlendir
             req.flash("success", `${userName}.`);
-            return res.redirect('/user/verify');
+            return res.redirect('/user/registrationverify');
           });
 
         } else {

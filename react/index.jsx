@@ -1,12 +1,13 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import ProgressBar from './components/ProgressBar/ProgressBar.jsx';
+import NewEvent from './components/NewEvent/NewEvent.jsx';
 import Events from './components/Events/Events.jsx';
 import Login from './components/Login/Login.jsx';
 import Usermain from './components/User/Usermain.jsx';
 import Notification from './components/Notification/Notification.jsx';
 import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
 import GeneralSearch from './components/GeneralSearch/GeneralSearch.jsx';
+import App from './components/User/Registrationverify/App.jsx';
 
 var pathname = window.location.pathname;
 
@@ -19,7 +20,7 @@ function checkValue (val) {
       const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
       progressRoot.render(
         <StrictMode>
-          <ProgressBar
+          <NewEvent
           userInfo={userInfo}
           />
         </StrictMode>
@@ -68,6 +69,21 @@ function checkValue (val) {
         </StrictMode>
       );
       break;
+      case "/user/registrationverify":
+      case "/user/registrationverify/":
+      case "/user/registrationinterests":
+      case "/user/registrationinterests/":
+        const registrationverifyNode = document.getElementById('afterRegistration');
+        const registrationverifyRoot = createRoot(registrationverifyNode);
+        const userToken = JSON.parse(registrationverifyNode.getAttribute('user-token'));
+        registrationverifyRoot.render(
+            <StrictMode>
+              <App 
+              userToken={userToken}
+              />
+            </StrictMode>
+          );
+          break;
     case "/user/profile":
     case "/user/profile/":
     case "/user/information":

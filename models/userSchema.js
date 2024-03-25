@@ -31,6 +31,11 @@ const userSchema = new Schema({
         default: false,
         require: true
     },
+    gender: {
+        type: String,
+        enum: ['Kadın', 'Erkek', 'Söylememeyi tercih ederim', 'Listede Yok'], 
+        default: 'Söylememeyi tercih ederim'
+      },
     location: {
         type: String,
         require: false

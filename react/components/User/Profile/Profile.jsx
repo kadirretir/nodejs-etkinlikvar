@@ -128,7 +128,6 @@ const handleProvinceClick = (e) => {
         const isLocationChanged = searchRef.current.value !== "" && searchRef.current.value !== userData.location
         const isBiographyChanged = inputAreas.biografy !== userData.biografy;
         const isImageChanged = imageFile !== ""; // Varsayalım ki imageFile, resim dosyasının varlığını kontrol ediyor
-        console.log(searchRef.current.value)
         if (!inputAreas.username) {
           e.preventDefault();
           setErrors({

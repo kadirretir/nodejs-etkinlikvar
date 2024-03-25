@@ -1,0 +1,86 @@
+/* Select input için genel stil */
+.select {
+    font-family: 'Arial', sans-serif; /* Yazı tipi */
+    font-size: 16px; /* Yazı boyutu */
+    padding: 8px 12px; /* İç boşluk */
+    border: 1px solid #ccc; /* Kenarlık */
+    border-radius: 4px; /* Kenar yuvarlaklığı */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Gölge efekti */
+    outline: none; /* Odaklanma çerçevesini kaldır */
+    margin-bottom: 10px; /* Alt margi */
+    cursor: pointer; /* İmleç stilini değiştir */
+  }
+  
+  /* Select input için hover durumu */
+  .select:hover {
+    border-color: #888; /* Kenarlık rengini değiştir */
+  }
+  
+  /* Select input için odaklanma durumu */
+  .select:focus {
+    border-color: #555; /* Kenarlık rengini değiştir */
+  }
+  
+  /* Option etiketleri için stil */
+  .select option {
+    padding: 2rem 0; /* İç boşluk */
+    font-size: 1.3rem;
+    font-family: var(--third-font);
+    background-color: #fff; /* Arka plan rengi */
+    border-bottom: 1px solid #eee; /* Alt kenarlık */
+  }
+  
+  /* Option etiketleri için hover durumu */
+  .select option:hover {
+    background-color: #f9f9f9; /* Arka plan rengini değiştir */
+  }
+
+  .btnDeleteicon {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 1.1rem; /* X işaretinin boyutunu ayarla */
+  }
+
+  .notification {
+    position: absolute;
+    left: 50%;
+    top: 8%;
+    transform: translateX(-50%);
+    background-color: green;
+    color: white;
+    width: auto;
+    padding: 0.8rem 1.2rem;
+    border-radius: 5px;
+    z-index: 1000;
+    animation: slideDown 0.5s ease-out;
+    display: flex; /* Flexbox kullan */
+    justify-content: center; /* İçeriği yatay olarak ortala */
+    align-items: center; /* İçeriği dikey olarak ortala */
+  }
+  
+  .notificationMessage {
+    flex: 1; /* Mesajın genişliğini esnek yap */
+    text-align: center; /* Mesajı metin olarak ortala */
+  }
+  
+  .closeNotification {
+    float: right; /* Butonu sağa hizala */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: auto; /* Sol tarafındaki boşluğu otomatik ayarla */
+  }
+
+  @keyframes slideDown {
+    from {
+      top: 0;
+      opacity: 0;
+    }
+    to {
+      top: 8%;
+      opacity: 1;
+    }
+  }
+  

@@ -15,3 +15,13 @@
   .btnStyles:focus {
     box-shadow: 0 0 0 0.2rem rgba(253, 52, 18, 0.5);
   }
+
+.width {
+  width: 75% !important;
+}
+
+@media screen and (max-width: 968px) {
+  .width {
+    width: 100% !important;
+  }
+}

@@ -16,6 +16,8 @@ const Event = require("./models/eventSchema")
 const User = require("./models/userSchema")
 const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
+
+
 require('dotenv').config();
 
 app.set("view engine", "ejs")
@@ -37,6 +39,7 @@ app.use('/members', express.static('dist'))
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads_little', express.static(path.join(__dirname, 'uploads_little')));
+
 app.use(session({
     secret: "secret key",
     resave: false,

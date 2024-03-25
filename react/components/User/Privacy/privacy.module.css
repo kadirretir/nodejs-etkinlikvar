@@ -1,0 +1,9 @@
+.width {
+    width: 75% !important;
+  }
+  
+  @media screen and (max-width: 968px) {
+    .width {
+      width: 100% !important;
+    }
+  }

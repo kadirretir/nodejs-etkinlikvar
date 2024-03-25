@@ -1,21 +1,29 @@
 
 
  .mainHeader {
+  position: relative;
     margin: 0 auto;
     width: 95%;
-    height: 55px;
-    
-    display: flex;
+    padding: 0.5rem 0;
+    height: auto;
+    display: grid;
+    grid-template-columns: max-content 25% max-content;
+    align-items: flex-end;
+    grid-gap: 10px; /* Sütunlar arası boşluk */
     align-items: center;
 }
 
 .push {
-  margin-left: auto;
+  position: absolute;
+  right: 0;
+  top: 9%;
 }
 
-.mainHeader:nth-last-of-type() {
-  align-self: end;
+#navbarUnregistered {
+  top: 16%;
 }
+
+
 /* FOR LEFT SIDE OF THE HEADER (LOGO) */
 
 .logo a {
@@ -323,6 +331,24 @@ nav button:last-child:hover {
   display: none !important;
 }
 
+@media screen and (max-width: 968px) {
+  .mainHeader {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* İlk iki sütun için */
+    grid-template-rows: auto auto; /* İki satır oluştur */
+  }
+  
+  .mainHeader > :nth-child(2) {
+    order: 3; /* İkinci elemanı üçüncü sıraya taşı */
+    width: 100%;
+    grid-column: 1 / span 2; /* İlk sütundan başlayarak iki sütunu kapla */
+    grid-row: 2 / 3; /* İkinci satıra al */
+    margin: 2.3rem 0 0 0;
+  }
+  
+    }
+
+
 /* WORKS LARGER THAN 1200PX */
 @media screen and (min-width: 1200px) {
   /* FOR NON REGISTERED USERS */
@@ -351,7 +377,7 @@ nav button:last-child:hover {
 /* WORKS LOWER THAN 1200PX */
 @media screen and (max-width: 1200px) {
   .mainHeader {
-    height: 59px;
+    padding: 1rem 0;
     margin: 0.2rem 0;
 }
 
@@ -411,12 +437,26 @@ nav button:last-child:hover {
     #navDropdown {
       width: 20% !important;
     }
+
+    .userButtonDesktop {
+      width: 80%;
+    }
+
+    #notificationNode {
+      justify-content: flex-end;
+    }
   
   }
 
   @media screen and (max-width: 450px) { 
     #navDropdown {
       width: 25% !important;
+    }
+  }
+
+  @media screen and (max-width: 400px) { 
+    #navDropdown {
+      width: 30% !important;
     }
   }
 

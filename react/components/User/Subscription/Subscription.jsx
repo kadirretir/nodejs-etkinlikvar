@@ -9,7 +9,7 @@ const Subscription = () => {
         <div className="col-12">
             <h1 className='fs-2'>E+ Aboneliği</h1>
             <hr />
-           <div className='w-75 p-4 mt-5 border border-secondary-subtle rounded-3'>
+           <div className={`p-4 mt-5 border border-secondary-subtle rounded-3 ${styles.width}`}>
            <p className='text-dark' style={{fontSize: "1.5rem", fontWeight: "600", fontFamily: "var(--second-font)"}}>Henüz etkinlikdolu+ abonesi değilsiniz.</p>
            <p className='fs-5 my-3 lh-sm tracking-widest'>
            etkinlikdolu+ abonesi olarak, diğer tüm abonelerin erişebildiği istatistikler, organizatör olarak özgürce etkinlik kurabilme,

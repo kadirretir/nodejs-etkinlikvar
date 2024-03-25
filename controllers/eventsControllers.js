@@ -4,7 +4,9 @@ const User = require("../models/userSchema")
 const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
 const fs = require("fs")
+
 const WebSocket = require("ws");
+
 const {getTodaysEvents,
    getTomorrowsEvents, 
    getThisWeeksEvents, 
@@ -336,7 +338,7 @@ module.exports.cancel_event_post = async (req,res) => {
 
         // Başarılı bir yanıt döndürme
         req.flash("success", "Etkinliğiniz başarıyla iptal edildi!");
-        res.redirect("/user/profile?etkinliklerim");
+        res.redirect("/user/profile");
     } catch (error) {
         console.error("Etkinlik iptal edilirken bir hata oluştu:", error);
         return res.status(500).json({ error: "Etkinlik iptal edilirken bir hata oluştu." });

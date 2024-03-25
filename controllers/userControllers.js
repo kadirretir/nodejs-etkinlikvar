@@ -4,6 +4,7 @@ const User = require("../models/userSchema")
 const sharp = require('sharp');
 const fs = require("fs")
 const path = require('path');
+const eventSubCategories = require("../models/eventSubCategories")
 
 module.exports.profile_get = async (req,res) => {
     try {
@@ -21,7 +22,7 @@ module.exports.verify_post = async (req,res, next) => {
   try {
     await connectToDb();
     const emailToken = req.body.emailToken;
-
+    console.log(req.body)
     if (!emailToken) {
         return res.status(400).json({ error: "E-Mail onaylamada bir sorun oluştu. Lütfen yetkililere danışınız." });
     }
@@ -66,47 +67,49 @@ module.exports.verify_post = async (req,res, next) => {
 }
 
 
-module.exports.verify_get = async (req,res) => {
+module.exports.registrationverify_get = async (req,res) => {
   try {
     await connectToDb();
     const findToken = await User.findById(req.user.id).select("emailToken")
-    res.render("verify.ejs", { messages: req.flash(), userToken: findToken})
+    res.render("registrationverify.ejs", { messages: req.flash(), userToken: findToken})
   } catch (error) {
     throw new Error(error)
   }
 }
 
+
+module.exports.interests_post = async (req,res) => {
+  try {
+    await connectToDb();
+    const findUser = await User.findById(req.user.id);
+    findUser.interests = req.body.selectedContents;
+    await findUser.save();
+
+    // İstek gönderen URL'yi Referer header'ından al
+    const refererUrl = req.get('Referer');
+    console.log(req.body, "HEYYO")
+    // Eğer Referer URL /user/interest ise JSON yanıtı döndür
+    if (refererUrl && refererUrl.endsWith('/user/interest')) {
+      return res.json({ message: "Değişiklikleriniz başarıyla kayıt edildi." });
+    } else {
+      // Değilse kullanıcıyı /user/interest sayfasına yönlendir
+      return res.redirect("/user/interest");
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Sunucu hatası.');
+  }
+}
 
 module.exports.interests_get = async (req,res) => {
   try {
     await connectToDb();
-    
-    const eventSchema = Event.schema;
+    const newInterests = await User.findById(req.user.id).select("interests");
+    res.json(newInterests)
 
-      // Get Categories
-    const eventCategories = eventSchema.path('eventCategory').enumValues;
-
-    // Get SubCategories
-    const subCategories = eventSchema.path('eventSubCategory').defaultValue();
-
-    res.render("interests.ejs", {eventCategories:eventCategories, subCategories: subCategories} )
   } catch (error) {
     throw new Error(error)
   }
-
-}
-
-module.exports.interests_post = async (req,res) => {
-    try {
-      await connectToDb();
-      const findUser = await User.findById(req.user.id);
-
-      findUser.interests = req.body.selectedContents;
-      await findUser.save()
-      return res.redirect("/user/profile")
-    } catch (error) {
-      throw new Error(error)
-    }
 }
 
 module.exports.profile_edit_post = async (req,res) => {
@@ -160,6 +163,40 @@ module.exports.profile_edit_post = async (req,res) => {
     } catch (error) {
         throw new Error(error)
     }
+}
+
+
+module.exports.personal_info_post = async (req,res) => {
+  try {
+    await connectToDb();
+    const { day, month, year, gender } = req.body;
+  
+    // Kullanıcıyı ID'sine göre bul
+    const findUser = await User.findById(req.user.id);
+    
+    // Gelen tarih bilgilerini Date objesi olarak oluştur
+    const newBirthDate = new Date(year, month - 1, day);
+    // Veritabanındaki tarih ile yeni gelen tarih bilgisini karşılaştır
+    if (!findUser.birthDate || findUser.birthDate.getTime() !== newBirthDate.getTime()) {
+      // Farklıysa, yeni tarih bilgisini veritabanına kaydet
+      findUser.birthDate = newBirthDate;
+      await findUser.save();
+    }
+  
+    if(findUser.gender !== gender) {
+      findUser.gender = gender;
+      await findUser.save();
+    }
+    
+    // Bilgileri güncelleme başarılıysa, kullanıcıyı bilgilendir
+    req.flash("success", "Bilgileriniz başarıyla kaydedildi");
+    res.redirect("/user/information");
+  } catch (error) {
+    // Hata oluşursa, kullanıcıyı bilgilendir
+    req.flash("error", "Bir hata oluştu: " + error.message);
+    res.redirect("/user/information");
+  }
+  
 }
 
 module.exports.main_get = async (req,res) => {

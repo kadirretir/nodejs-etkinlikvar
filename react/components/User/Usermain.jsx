@@ -4,10 +4,12 @@ import styles from './userprofile.module.css';
 import ContentLoader from "react-content-loader"
 import Profile from './Profile/Profile'
 import PersonalInfo from './Personal';
-import Privacy from './Privacy';
-import Interests from './Interests';
+import Privacy from './Privacy/Privacy';
+import Interests from './Interests/Interests';
 import Subscription from './Subscription/Subscription';
 import PaymentMethod from './PaymentMethod';
+import { InterestsProvider } from './InterestsProvider';
+
 
 
 const Usermain = ({userData, eventsData, cancelledMessage}) => {
@@ -42,9 +44,9 @@ const Usermain = ({userData, eventsData, cancelledMessage}) => {
 
     return (
       <Router>
-      <div className={styles.containerFluid}>
+      <div className='container-fluid p-0 m-0'>
         {/* PROFILE BANNER */}
-        <div className="row">
+        <div className="row flex-nowrap ">
           <div className={`col-1 col-lg-2 w-auto ${styles.colWidth}`}>
               <aside className={styles.asideMenu}>
                 <h1 className='fs-4 mb-2 ms-4'>Ayarlar</h1>
@@ -121,22 +123,25 @@ const Usermain = ({userData, eventsData, cancelledMessage}) => {
               </aside>
           </div>
 
-          <div className="col-8 bg-light rounded-3">
-              <div className="container pt-5">
+          <div className="col-10 bg-light rounded-3">
+              <div className="container pt-5" style={{marginLeft: "0", paddingLeft: "0"}}>
                 {cancelledMessage.length > 0 ? 
                 <h1 onAnimationEnd={handleAnimationEnd} className={`fs-4 text-center ${styles.alertMessage}`}>{cancelledMessage}</h1> 
                 : null}
               <div className="row">    
                 <div className="col-12">
+                  <InterestsProvider userData={userData}>
                <Routes>
+            
                   <Route exact path="/user/profile" element={<Profile userData={userData}  />} />
-                  <Route path="/user/information" element={<PersonalInfo />}  />
+                  <Route path="/user/information" element={<PersonalInfo userData={userData} />}  />
                   <Route path="/user/privacy" element={<Privacy   />}  />
-                  <Route path="/user/interest" element={<Interests />}  />
+                  <Route path="/user/interest" element={<Interests userData={userData} />}  />
                   <Route path="/user/subscription" element={<Subscription  />} />
                   <Route path="/user/paymentmethod" element={<PaymentMethod   />}  />
+                
               </Routes>
-           
+                </InterestsProvider>
                 </div>
               </div>
             </div>
