@@ -4,45 +4,54 @@ const User = require("../models/userSchema")
 const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
 const fs = require("fs")
-
-const WebSocket = require("ws");
-
 const {getTodaysEvents,
    getTomorrowsEvents, 
    getThisWeeksEvents, 
    getThisWeekendEvents,
     getNextWeekEvents} = require("./eventsDateFuncs")
+    const WebSocket = require('ws');
+    const wss = new WebSocket.Server({ port: 8080 });
 
+    const authorizedUsers = [];
 
-// WebSocket sunucusunu oluşturun
-const wss = new WebSocket.Server({ port: 8080 });
-
-// WebSocket bağlantılarını depolamak için bir dizi tanımlayın
-const connections = [];
-
-// WebSocket bağlantılarını yönetmek için yardımcı işlevler
-function broadcastMessage(message) {
-  connections.forEach((connection) => {
-    connection.send(message);
-  });
-}
-
-function handleWebSocketConnection(socket) {
-  connections.push(socket);
-
-  socket.on("message", (message) => {
-    console.log("Received message:", message);
-  });
-
-  socket.on("close", () => {
-    const index = connections.indexOf(socket);
-    if (index !== -1) {
-      connections.splice(index, 1);
+    function createChatRoom(attendees) {
+      // Her katılımcı için WebSocket bağlantısını işleyin
+      authorizedUsers.push(...attendees);
     }
-  });
-}
 
-wss.on("connection", handleWebSocketConnection);
+    wss.on('connection', (ws, req) => {
+      const userId = req.url.split('?userId=')[1];
+
+      // Kullanıcı kimliğini doğrulayın ve yetkili olup olmadığını kontrol edin
+      if (!authorizedUsers.includes(userId)) {
+        ws.close(); // Yetkisiz kullanıcıysa bağlantıyı kapatın
+        return;
+      }
+      ws.userId = userId;
+      // Bağlantı olaylarını işleyin
+
+
+      ws.onmessage = (event) => {
+        const message = event.data;
+        console.log('Mesaj alındı:', message, 'Kullanıcı:', ws.userId);
+    
+    
+   
+        // Mesajı sohbet odasındaki diğer kullanıcılara yayınlayın
+        wss.clients.forEach(client => {
+      
+          if (client.readyState === WebSocket.OPEN && client.userId !== ws.userId) {
+        
+            client.send(message);
+          }
+        });
+      };
+      ws.onclose = () => {
+        console.log('WebSocket bağlantısı kapatıldı.');
+      };
+    });
+
+
 function validateSearchTerm(term) {
   // Türkçe karakterler, boşluklar ve noktalama işaretlerini de içeren genişletilmiş regex
   return /^[\p{L}0-9\s.,!?]*$/u.test(term);
@@ -201,7 +210,13 @@ module.exports.singular_event_get = async (req,res) => {
     const findEvent = await Event.findById(req.params.id)
     const findOrganizer = await User.findById(findEvent.organizer) 
   
-    const findAttendeeUsers = await User.find({ _id: { $in: findEvent.attendees } });
+    const findAttendeeUsers = await User.find({ _id: { $in: findEvent.attendees } }).select("-password")
+    const authorizedUsers = findAttendeeUsers.map(user => user.id.toString());
+
+  // Sohbet odası oluşturun (authorizedUsers dizisini kullanarak)
+  createChatRoom(authorizedUsers);
+
+    
     const eventCategory = findEvent.eventCategory;
     const eventCity = findEvent.cityName;
 
@@ -244,7 +259,7 @@ module.exports.add_attendees_post = async (req, res) => {
 
         // Bildirim mesajını oluştur
         const message = `${user.username} kurduğunuz etkinliğe katıldı!`;
-        broadcastMessage(JSON.stringify({ eventId, message }));
+       
     //  // ETKİNLİK SAHİBİNİ BUL
     //  const eventOwner = await Event.findById(eventId).populate("organizer");
     //   // Etkinliği bulun
@@ -352,7 +367,7 @@ module.exports.getEventsByDate = async (req, res) => {
       let filteredEvents = [];
         // Front-end'den gelen verileri kullanarak filtreleme yap
         if(date === "Bugün") {
-          filteredEvents = await getTodaysEvents(eventsIds);
+          filteredEvents = await getTodaysEvents(eventsIds)
           res.json(filteredEvents);
         } else if (date === "Yarın") {
           filteredEvents = await getTomorrowsEvents(eventsIds)

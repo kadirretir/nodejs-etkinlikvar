@@ -41,17 +41,22 @@ const VerifyRegistration = ({ userToken }) => {
       setIsLoading(false); 
       // CHECK IF REQUEST OK
       if (response.ok) {
-       setError("Girilen Kod Geçersiz")
-        // CHECK IF THE CODE HAS BEEN SEND CORRECT
+          
+        console.log(result)
         if(!result.error) {
           setTimeout(() => {
             navigate('/user/registrationinterests');
           }, 2000);
+        } 
+        if (result.error) {
+          setError(result.error)
+        } else {
+          setError(result.message)
         }
       
       } else {
         // Hata durumunda
-        setError("Hata ile karşılaşıldı.")
+        setError("Girilen Kod Geçersiz")
       }
     } catch (error) {
       setIsLoading(false)
@@ -84,8 +89,8 @@ const VerifyRegistration = ({ userToken }) => {
                 <button type="submit" className="btn btn-dark d-flex align-items-center justify-content-center" disabled={isLoading ? true : false}>
                   
                   {isLoading ? (
-                    <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <div className="spinner-border" role="status">
+                    <span className="visually-hidden">Loading...</span>
                   </div>
                   ): 'Doğrula'}
                   </button>

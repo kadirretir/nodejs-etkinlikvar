@@ -18,18 +18,22 @@ const Login = ({errorMessage}) => {
 }
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+
+    if(!showRegisterForm) {
+      const handleClickOutside = (event) => {
         if (!popoverContainerRef.current.contains(event.target) && !submitBtnRef.current.contains(event.target)) {
             setShowPopover(false);
         }
     };
-
     document.addEventListener('click', handleClickOutside);
 
     return () => {
-        document.removeEventListener('click', handleClickOutside);
-    };
-  }, []);
+      document.removeEventListener('click', handleClickOutside);
+  };
+    } 
+   
+
+  }, [showRegisterForm]);
 
 
 const handleSubmit = (event) => {

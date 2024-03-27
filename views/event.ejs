@@ -1,5 +1,7 @@
 <%- include('./partials/_header.ejs') -%>
-   <section id="singularEvent">
+
+
+<section id="singularEvent">
       <div class="container py-4">
          <div class="row py-5">
             <div class="col-lg-12">
@@ -138,6 +140,30 @@
 
              <h1 class="fs-5 fw-bold mt-5">Tam Adres</h1>
              <p class="fs-5 mt-2"><%=findEvent.fullAddress%></p>
+
+             <% if (user && checkUserAttend) { %>
+               <h2 class="fs-5 text-center mt-5 mb-2">Katılımcılara Özel Sohbet</h2>
+               <hr>
+               <div class="chat-container">
+                  <div id="chat-messages"></div>
+                  <form id="chatForm">
+                     <div class="input-wrapper">
+                        <div class="input-group mb-3">
+                              <input type="text" autocomplete="off" id="message-input" name="messageinput" class="form-control " placeholder="Mesajınızı Yazın..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                        
+                              <button class="btn btn-dark rounded-end-2" type="submit" id="button-addon2">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
+                                    <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z"/>
+                                  </svg>
+                              </button>
+                              <span id="counter">(142)</span>
+                           
+                        </div>
+                     </div>
+                  </form>
+               </div>
+   
+           <%  } %>
             </div>
          </div>
 
@@ -165,8 +191,255 @@
                </div>
              <% }) %>
          </div>
-        
+         <% if (user) { %>
+            <script>
+              const isCurrentInAttendee =" <%= JSON.stringify(findAttendeeUsers.some(attendee => attendee.id.toString() === user._id.toString())) %>";
+            </script>
+          <% } %>
+          
+          
+
       </div>
    </section>
+
+   <% if(user) { %>
+      <script>
+         if(typeof isCurrentInAttendee !== "undefined" && isCurrentInAttendee) {
+            const ws = new WebSocket('ws://localhost:8080/?userId=<%= user && user._id %>');
+   const chatForm = document.getElementById("chatForm");
+   const userProfileImage = (`<%=user.profileImage.replace(/\\/g, '\\\\')%>`)
+   const username = ('<%=user.username %>');
+   const membershipLevel = ("<%=user.membershipLevel%>")
+   const currentDate = new Date().toISOString().split('T')[0];
+   
+      // Mesaj gönderme işlevi
+      function sendMessage(message) {
+             if (ws.readyState === WebSocket.OPEN) {
+               ws.send(JSON.stringify({
+                  username: username,
+                  profileImage: userProfileImage,
+                  message: message,
+                  membershipLevel: membershipLevel,
+                  date: currentDate
+               }));
+             } else {
+                console.error('WebSocket bağlantısı açık değil.');
+                // Bağlantıyı yeniden kurmayı deneyin veya kullanıcıya bir hata mesajı gösterin
+             }
+             }
+             let userScrolled = false;
+
+// Kullanıcının kaydırma çubuğunu elle kontrol ettiğini algılamak için bir olay dinleyicisi ekleyin
+const chatMessages = document.getElementById('chat-messages');
+chatMessages.addEventListener('scroll', function() {
+  // Kullanıcının kaydırma çubuğunu en alttan uzaklaştırıp uzaklaştırmadığını kontrol edin
+  if (chatMessages.scrollTop < chatMessages.scrollHeight - chatMessages.clientHeight) {
+    userScrolled = true;
+  } else {
+    userScrolled = false;
+  }
+});
+
+// Otomatik kaydırma işlevi
+function scrollToBottom() {
+  if (!userScrolled) {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+}
+
+const blockedWords = ['orospu', 'çocuğu', 'piç', 'oç', 'kansız', 'lavuk', 'satılıktır', 'satılık', 'orospu evladı', 'yavşak', "ananı", "sikeyim", "sikiyorum", "göt", "meme", "taşşak", "daşşak", "yarrak", "kancık"];
+let lastMessageTime = 0;
+
+// Message SPAM HANDLER
+function handleMessage(messageData) {
+  const currentTime = Date.now();
+
+  // Eğer 1 saniyeden az ise mesajı gönderme
+  if (currentTime - lastMessageTime < 2000) {
+    console.log('Çok hızlı mesaj gönderiyorsunuz.');
+    return false;
+  }
+const message = messageData.message || messageData
+  // Engellenmiş kelimeleri kontrol et
+  const isBlocked = blockedWords.some(blockedWord => message.includes(blockedWord));
+  
+  if (isBlocked) {
+    console.log('Engellenmiş bir kelime içeriyor: ', messageData.message || messageData);
+    return false; // Eğer mesaj engellenmiş kelimeleri içeriyorsa gönderme
+  }
+
+  // Son mesaj zamanını güncelle
+  lastMessageTime = currentTime;
+  return true;
+}
+
+
+ws.onmessage = (event) => {
+  const messageData = JSON.parse(event.data);
+  if (handleMessage(messageData)) {
+    const username = messageData.username;
+    const profileImage = messageData.profileImage;
+    const message = messageData.message;
+    const membershipLevel = messageData.membershipLevel;
+    const date = messageData.date;
+    const chatMessages = document.getElementById('chat-messages');
+    addMessage(message, profileImage, username, membershipLevel, date);
+    scrollToBottom();
+  }
+};
+const messageInput = document.getElementById("message-input")
+const counter = document.getElementById("counter")
+messageInput.addEventListener("input", countChange);
+const maxLength = 142;
+
+function countChange(e) {
+  let remaining = maxLength - e.target.value.length;
+  
+  // Eğer kalan karakter sayısı negatifse, sıfıra eşitle
+  if (remaining < 0) {
+    remaining = 0;
+    counter.style.color = 'red';
+  } else {
+    counter.style.color = 'black';
+  }
+
+  counter.textContent = '(' + remaining + ')';
+}
+
+// Başlangıçta sayacı güncelle
+countChange({ target: { value: messageInput.value } });
+    
+    chatForm.addEventListener('submit', (event) => {
+      event.preventDefault(); // Formun varsayılan davranışını önleyin
+      const messageInput = event.target[0];
+      const message = messageInput.value;
+
+      if(handleMessage(message)) {
+         counter.innerHTML = "(142)"
+         if(message && message.length <= 142) {
+            sendMessage(message); // Mesajı gönderin
+             addMessage(message, userProfileImage, username, membershipLevel, currentDate)
+         } else {
+            console.log("180'DEN BÜYÜK")
+         }
+ 
+      }
+
+      scrollToBottom();
+
+      // Mesaj giriş alanını temizleyin
+      messageInput.value = '';
+    });
+   
+    function addMessage(message, profileImage, username, membershipLevel, date) {
+      const now = new Date();
+  let timeString = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+    // Tarih karşılaştırması için gerekli olan dün ve yarının tarihlerini al
+    const today = now.toDateString();
+  const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
+  const tomorrow = new Date(now.setDate(now.getDate() + 2)).toDateString();
+
+    // Tarih karşılaştırmasını yap ve zaman stringini ayarla
+    if (today === date) {
+    timeString += ' Bugün';
+  } else if (yesterday === date) {
+    timeString += ' Dün';
+  } else if (tomorrow === date) {
+    timeString += ' Yarın';
+  }
+
+
+     const chatMessages = document.getElementById('chat-messages');
+     const newMessage = document.createElement('ul');
+     // li öğesi oluşturun
+     const li = document.createElement('li');
+     li.className = 'd-flex align-items-center justify-content-start bg-white py-2 my-2 rounded-2 border border-1';
+      li.style.height = "75px";
+     // Row div'i oluşturun
+     const rowDiv = document.createElement('div');
+     rowDiv.className = 'row w-100 m-0 p-0 text-center';
+   
+     // Col-3 div'i oluşturun ve user-info div'ini ekleyin
+     const col3Div = document.createElement('div');
+     col3Div.className = 'col-3 p-0 m-0';
+
+     //********************IMAGE STYLES********************************
+
+
+     const userInfoDiv = document.createElement('div');
+
+      if(membershipLevel === "premium") {
+         const createOverlay = document.createElement("div")
+
+         createOverlay.className = "overlay";
+         createOverlay.id = "chat-premium-member"
+         createOverlay.textContent = "e+"
+         userInfoDiv.className = 'image-container w-100';
+         userInfoDiv.appendChild(createOverlay)
+      }  else {
+
+      }
+
+
+     col3Div.appendChild(userInfoDiv);
+   
+
+     //**************************USERINFODIV****************************************
+     // Resmi ekleyin
+     const img = document.createElement('img');
+     img.src = profileImage;
+     img.alt = 'Profile Image';
+     img.style.width = '40px'; // Sabit genişlik
+      img.style.height = '40px'; // Sabit yükseklik
+     img.className = " rounded-circle wm-25";
+     userInfoDiv.appendChild(img);
+
+
+   
+     // Kullanıcı adını ekleyin
+     const userPara = document.createElement('p');
+     userPara.textContent = username;
+     userInfoDiv.appendChild(userPara);
+   
+
+         //**************************COL-9 DIV****************************************
+     // Col-9 div'i oluşturun ve mesaj içeriğini ekleyin
+     const col9Div = document.createElement('div');
+     col9Div.className = 'col-9 text-wrap word-break text-start p-0 d-flex';
+     const messagePara = document.createElement('p');
+     messagePara.textContent = message;
+     messagePara.className = "text-wrap word-break overflow-wrap align-self-start"
+     messagePara.style.width = "88%";
+     messagePara.style.overflowWrap = 'break-word'; // overflow-wrap stilini ekleyin
+     col9Div.appendChild(messagePara);
+
+         // Saat bilgisini mesaja ekleyin
+   const timePara = document.createElement('p');
+   timePara.textContent = timeString;
+   timePara.className = 'text-muted small align-self-end flex-shrink-1';
+   col9Div.appendChild(timePara);
+
+   
+     // Col div'lerini row div'ine ekleyin
+     rowDiv.appendChild(col3Div);
+     rowDiv.appendChild(col9Div);
+   
+     // Row div'ini li öğesine ekleyin
+     li.appendChild(rowDiv);
+   
+     // li öğesini ul öğesine ekleyin
+     newMessage.appendChild(li);
+   
+     // ul öğesini sohbet mesajları div'ine ekleyin
+     chatMessages.appendChild(newMessage);
+   }
+   
+         }
+       
+   </script>
+ <%  } %>
+
+
 
 <%- include('./partials/_footer.ejs') -%>

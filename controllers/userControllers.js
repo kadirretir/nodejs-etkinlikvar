@@ -169,7 +169,7 @@ module.exports.profile_edit_post = async (req,res) => {
 module.exports.personal_info_post = async (req,res) => {
   try {
     await connectToDb();
-    const { day, month, year, gender } = req.body;
+    const { day, month, year, gender, twitter } = req.body;
   
     // Kullanıcıyı ID'sine göre bul
     const findUser = await User.findById(req.user.id);
@@ -185,6 +185,11 @@ module.exports.personal_info_post = async (req,res) => {
   
     if(findUser.gender !== gender) {
       findUser.gender = gender;
+      await findUser.save();
+    }
+
+    if(findUser.twitterLink !== twitter) {
+      findUser.twitterLink = twitter;
       await findUser.save();
     }
     

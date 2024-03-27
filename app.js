@@ -18,6 +18,7 @@ const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
 
 
+
 require('dotenv').config();
 
 app.set("view engine", "ejs")
@@ -59,6 +60,35 @@ app.use(flash());
 
 const {checkIfAuthed} = authMiddleware;
 
+const setDynamicMeta = (req, res, next) => {
+  // İstek yapılan URL'nin pathname'ini al
+  const pathname = req.path;
+  // Pathname'e göre dinamik başlık ve meta oluştur
+  let title, description;
+  // console.log(pathname)
+  if (pathname === '/') {
+      title = "Etkinlikdolu - Yerel Konumunuzda Yapılacak Etkinlikleri Keşfedin";
+      description = "Hayatınızı renklendirecek etkinlikler burada! En popüler konserlerden, yerel sanat sergilerine, eğitici seminerlerden eğlenceli festivallere kadar geniş bir yelpazede etkinlikleri keşfedin. Sizin için mükemmel olan etkinliği bulun ve yeni deneyimlere yelken açın."
+  } else if (pathname === '/events/') {
+ 
+      title = "Hayatınıza Renk Katacak Etkinlikler - Keşfet, Katıl, Yaşa!";
+      description = "Etkinliklerin ritmine kapılın! Sıradanlıktan sıyrılıp, müzikten sanata, bilimden spora her zevke hitap eden etkinliklerle dolu bir dünyaya adım atın. Hayalinizdeki etkinliği keşfedin, kaydınızı yapın, maceraya atılın!";
+  } else {
+      title = "Sayfa Bulunamadı";
+      description = "Üzgünüz, aradığınız sayfa bulunamadı.";
+  }
+
+  // response objesine dinamik başlık ve açıklamayı ekle
+  res.locals.metaTitle = title;
+  res.locals.metaDescription = description;
+
+  // Middleware'in sonraki adıma geçmesi için next() fonksiyonunu çağır
+  next();
+};
+
+// Middleware'i uygula
+app.use(setDynamicMeta);
+
 app.use("/auth", authRoutes)
 app.use("/events", eventRoutes)
 app.use("/user", checkIfAuthed, userRoutes)
@@ -72,12 +102,21 @@ app.use(async (req, res, next) => {
     req.headers['x-forwarded-for'] ||
     req.socket.remoteAddress || '';
 
-  const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
-  const response = await findLocation.json();
+  if(!req.app.locals.usercity) {
+    const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
+    if(!findLocation.ok) {
+      console.error("HATA: FINDLOCATION HAS PROBLEMS: ", findLocation.status)
+    } 
+    const response = await findLocation.json();
+    req.app.locals.usercity = response.city
+    next();
+  } else {
+    next();
+  }
 
-  req.app.locals.usercity = response.city
-  next();
 });
+
+
 
 
 

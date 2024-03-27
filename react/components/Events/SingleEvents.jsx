@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import ContentLoader from "react-content-loader"
+import styles from './events.module.css'
+
 
 const SingleEvents = ({ filteredEvents, loadingFilter }) => {
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
@@ -43,31 +45,41 @@ const SingleEvents = ({ filteredEvents, loadingFilter }) => {
       const displayDate = isToday ? "Bugün" : formattedDate;
 
         return !loadingFilter && (
-          <div className="card my-4 rounded-0 border-0" key={index}  style={{ maxWidth: "640px" }}
-          >
-            <a href={`/events/${event._id}`}>
+          <div className="card my-4 rounded-0 border-0" key={index}  style={{ maxWidth: "640px" }}>
+            <a className='link-opacity-100-hover' href={`/events/${event._id}`}>
               <div className="row g-0">
                 <div className="col-sm-4">
                   <img
+                
                     src={`../${(innerWidth >= 576) ? smallImagePath : imagePath}`}
                     className="img-fluid w-100 rounded-start"
                     alt="eventImage"
                   />
                 </div>
                 <div className="col-sm-8">
-                    <div className="card-body p-0 ps-3 py-1  d-flex flex-column" style={{ background: "linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))", height: "100%" }}>
-                    <small className='fw-bolder py-1 mt-1' style={{color: "var(--second-color)"}}>{displayDate}</small>
-                      <h5 className="card-title mt-3 py-1 fs-4 text-body">{event.title}</h5>
-                      <h5 className='fs-4'>{event.eventCategory}</h5>
-                      <div className="mt-auto mb-2 py-1 text-end pe-2 d-flex justify-content-between align-items-center">
-                      <p className="text-capitalize card-text fs-5 mt-auto fw-light text-body-secondary">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-geo-alt-fill text-secondary" viewBox="0 0 16 16">
-                      <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                    </svg>
-                        {event.cityName + ',' + ' ' + event.districtName}
-                      </p>
-                      <b className='card-text fs-6 fw-light text-secondary'>{event.attendees.length === 0 ? <b>Henüz katılımcı yok</b> : event.attendees.length + " Katılımcı"}</b>
+                    <div className="card-body p-0 ps-3 py-1 d-flex flex-column" style={{ background: "linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))" }}>
+                    <small className='fw-bolder py-1 mt-1 text-secondary'>{displayDate}</small>
+                      <h5 className="card-title mb-3 mt-3 fs-4 text-dark">{event.title}</h5>
+                      <small className='text-secondary'><i className="fa-solid fa-table me-1" style={{color: "var(--first-color)"}}></i>{event.eventCategory}</small>
+
+                      <div className="mt-auto text-end d-flex justify-content-between align-items-center">
+                          <p className="text-capitalize text-start fw-bold card-text fs-5 text-body-secondary">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"  fill="currentColor" style={{color: "var(--first-color)"}} className="bi bi-geo-alt-fill me-1" viewBox="0 0 16 16">
+                          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                        </svg>
+                            {event.cityName + ',' + ' ' + event.districtName}
+                          </p>
+                          <div className={` ${styles.attendeesContainer} d-flex flex-row align-items-center justify-content-end`}>
+                              <h5 className="text-secondary me-2">
+                                {event.attendees.length <= 1 ? `${event.attendees.length} Katılımcı` : 'Katılımcılar'}
+                              </h5>
+                              {console.log(event)}
+                              {event.attendees.slice(0, 3).map((attendee, index) => (
+                                <img key={index} className="rounded-circle img-fluid" style={{width: "35px", height: "35px"}} src={`../${attendee.profileImage}`} alt={attendee.username} />
+                              ))}
+                            </div>
                       </div>
+
                     </div>
                 </div>
               </div>

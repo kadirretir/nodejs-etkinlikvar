@@ -11,3 +11,65 @@
     width: 100%;
     min-height: 250px;
   }
+
+  #chat-messages {
+    height: 350px;
+    overflow-y: scroll;
+  max-width: 800px;
+  margin: 1rem auto 0 auto;
+  border: 1px solid #dedede;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+
+#chat-premium-member {
+  font-size: 0.8rem;
+  font-family: var(--first-font);
+  background: var(--first-color);
+  
+  border-radius: 50%;
+  color: #FFFFFF;
+  width: 1.4rem; /* Yükseklik ile aynı olmalı */
+  height: 1.4rem; /* Genişlik ile aynı olmalı */
+  font-weight: 400;
+  font-style: italic;
+}
+
+.image-container {
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  pointer-events: none;
+  right: 1rem;
+  bottom: 1rem;;
+  background: rgba(0, 0, 0, 0.5); /* Yarı saydam siyah renk */
+  color: white; /* Yazı rengi */
+  display: flex; /* İçeriği ortalamak için */
+  align-items: center; /* Dikey olarak ortala */
+  justify-content: center; /* Yatay olarak ortala */
+  z-index: 10; /* Overlay'i diğer içeriklerin üzerine çıkar */
+}
+
+#counter {
+  position: absolute;
+  right: 3rem; /* Sağ kenardan 10px uzaklıkta */
+  top: 5px;
+  bottom: 0;
+  z-index: 500;
+  height: 20px; /* Sayacın yüksekliği */
+  margin: auto; /* Dikey ortalamak için */
+  cursor:default;
+}
+.input-wrapper {
+  position: relative;
+
+}
+
+#message-input {
+  padding-right: 3rem;
+}
+

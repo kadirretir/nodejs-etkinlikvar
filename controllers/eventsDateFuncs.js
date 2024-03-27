@@ -32,7 +32,7 @@ async function getTodaysEvents(events) {
     const allEvents = await Event.find({ 
       date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
       status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
-    }).limit(40);
+    }).limit(40).populate("attendees")
     return filterEventsToday(allEvents, dateObjFormat, currentHour);
   }
 }
@@ -64,7 +64,7 @@ async function getTomorrowsEvents (events) {
         const allEvents = await Event.find({ 
             date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
             status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
-        }).limit(40);
+        }).limit(40).populate("attendees");
         return filterEventsTomorrow(allEvents, dateObjFormat);
       }
 }  
@@ -97,7 +97,7 @@ async function getThisWeeksEvents (events) {
               $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
             },
             status: { $ne: "cancelled" }
-          }).limit(40);
+          }).limit(40).populate("attendees");
         return filterEventsThisWeek(allEvents, startOfWeek, endOfWeek);
       }
 }  
@@ -130,7 +130,7 @@ async function getThisWeekendEvents (events) {
               $lte: endOfWeekend     // Bu hafta bitiş tarihinden küçük veya eşit olan
             },
             status: { $ne: "cancelled" }
-          }).limit(40);
+          }).limit(40).populate("attendees");
         return filterEventsTomorrow(allEvents, startOfWeekend, endOfWeekend);
       }
 }  
@@ -163,7 +163,7 @@ async function getNextWeekEvents (events) {
               $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
             },
             status: { $ne: "cancelled" }
-          }).limit(40);
+          }).limit(40).populate("attendees");
         return filterEventsTomorrow(allEvents, startOfWeek, endOfWeek);
       }
 } 

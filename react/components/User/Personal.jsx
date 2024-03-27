@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 const PersonalInfo = ({userData}) => {
 
@@ -39,6 +39,7 @@ const year = getYearFromDate(userData.birthDate);
         month: month,
         year: year
     });
+    const [twitter, setTwitter] = useState(userData.twitterLink)
 
     const handleChange = (e) => {
         if (e.target.name === "gender") {
@@ -68,16 +69,25 @@ const year = getYearFromDate(userData.birthDate);
                          birthDate.year !== userBirthYear;
         
         // Eğer doğum tarihi veya cinsiyet değiştiyse, formu gönder
-        if (isBirthChanged || isGenderChanged) {
+        if (isBirthChanged || isGenderChanged || twitter) {
           // Form gönderilecek
         } else {
           // Değişiklik yoksa, form gönderimini engelle
           e.preventDefault();
         }
       }
-      
-      
-      
+
+
+      useEffect(() => {
+        // Yalnızca url boş değilse ve http/https ile başlamıyorsa https:// ekleyin
+        if (twitter && !twitter.match(/^(http|https):\/\//)) {
+          setTwitter('https://' + twitter);
+        }
+      }, []); // useEffect'i yalnızca ilk render'da çalıştırın
+
+
+     
+
     return (
         <div className="container">
             <div className="row">
@@ -141,6 +151,17 @@ const year = getYearFromDate(userData.birthDate);
                                     <option value="Listede Yok">Listede Yok</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div className="row mt-4">
+                              <div className="col-lg-4 col-6">
+                               <label className='fs-5 my-2' htmlFor="facebook">
+                                X (İsteğe Bağlı):
+                                </label>
+                                <input type="url" value={twitter} id="twitter" onChange={(e) => setTwitter(e.target.value)} name='twitter' placeholder='https://www.twitter.com/profil-url-adresiniz/' className='form-control border border-1 border-secondary-subtle focus-ring focus-ring-dark' />
+                                <h5 className='text-secondary mt-2'>
+
+                                Profilinizde görünecektir.</h5>
+                              </div>
                             </div>
                             <button className='mt-5 ms-2 btn btn-dark' type='submit'>Kaydet</button>
                         </form>

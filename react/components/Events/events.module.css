@@ -106,6 +106,7 @@
 } */
 
 
+
 .searchResultsItems {
   padding: 10px;
   cursor: pointer;
@@ -117,6 +118,23 @@
   color: #333; /* Metin rengi */
   border-left: 3px solid var(--second-color); /* Vurgu çizgisi rengi */
 }
+
+
+/* ATTENDEE IMAGES  */
+.attendeesContainer img:nth-of-type(1) {
+  z-index: 2;
+  }
+
+.attendeesContainer img:nth-of-type(2) {
+z-index: 1;
+margin-left: -25px;
+}
+
+.attendeesContainer img:nth-of-type(3) {
+  z-index: 0;
+  margin-left: -25px;
+  filter: blur(1px);
+  }
 
 
 /* ALERT MESSAGE TRANSITION */

@@ -15,6 +15,10 @@ const userSchema = new Schema({
         require: true,
         unique: true,
     },
+    twitterLink: {
+         type: String, 
+         required: false 
+    },
     biografy: {
         type: String,
         default: ""
