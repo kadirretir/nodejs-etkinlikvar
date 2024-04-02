@@ -56,7 +56,7 @@ app.use(methodOverride('_method'))
 app.use(authMiddleware.getUserInfo)
 app.use(authMiddleware.getUserNotification)
 app.use(flash());
-// cloneDocument(9);
+//  cloneDocument(79);
 
 const {checkIfAuthed} = authMiddleware;
 
@@ -95,26 +95,26 @@ app.use("/user", checkIfAuthed, userRoutes)
 app.use("/members", memberRoutes)
 
 // FIND IP ADDRESS
-app.use(async (req, res, next) => {
-  const ip = 
-    req.headers['cf-connecting-ip'] ||
-    req.headers['x-real-ip'] || 
-    req.headers['x-forwarded-for'] ||
-    req.socket.remoteAddress || '';
+// app.use(async (req, res, next) => {
+//   const ip = 
+//     req.headers['cf-connecting-ip'] ||
+//     req.headers['x-real-ip'] || 
+//     req.headers['x-forwarded-for'] ||
+//     req.socket.remoteAddress || '';
 
-  if(!req.app.locals.usercity) {
-    const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
-    if(!findLocation.ok) {
-      console.error("HATA: FINDLOCATION HAS PROBLEMS: ", findLocation.status)
-    } 
-    const response = await findLocation.json();
-    req.app.locals.usercity = response.city
-    next();
-  } else {
-    next();
-  }
+//   if(!req.app.locals.usercity) {
+//     const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
+//     if(!findLocation.ok) {
+//       console.error("HATA: FINDLOCATION HAS PROBLEMS: ", findLocation.status)
+//     } 
+//     const response = await findLocation.json();
+//     req.app.locals.usercity = response.city
+//     next();
+//   } else {
+//     next();
+//   }
 
-});
+// });
 
 
 
@@ -212,6 +212,10 @@ app.post("/complaint", async (req,res) => {
     req.flash('error', 'Bir hata oluştu.');
     throw new Error(error)
   }
+})
+
+app.get("/help", (req,res) => {
+  res.render("help.ejs")
 })
 
 

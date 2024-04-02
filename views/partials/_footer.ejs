@@ -20,10 +20,10 @@
             <li class="mb-1"><a href="/login" class="footerElements">Giriş Yap</a></li>
             <li><a href="/login" class="footerElements">Kayıt Ol</a></li>
           <% } else if (user.membershipLevel === 'premium' || user.membership === 'premium') { %>
+            <li class="mb-1"><a href="/pricing" class="footerElements">e+ Üyeliği</a></li>
             <li class="mb-1"><a href="/user/profile" class="footerElements">Ayarlar</a></li>
-            <li><a href="/user/profile" class="footerElements">Profilim</a></li>
+            <li><a href="/members/<%=user.id%>"  class="footerElements">Profilim</a></li>
             <% } else { %>
-              <li class="mb-1"><a href="/pricing" class="footerElements">e+ Üyeliği</a></li>
               <li class="mb-1"><a href="/user/profile" class="footerElements">Ayarlar</a></li>
               <li><a href="/members/<%=user.id%>" class="footerElements">Profilim</a></li>
               <%  }%>
@@ -61,16 +61,16 @@
       </div>
     </div>
     <div class="row mt-3 justify-content-center align-items-end">
-      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+      <div class="col-md-5 col-lg-3 text-lg-start text-center">
         <h1 class="text-light fw-bold">© etkinlikdolu.com 2023</h1>
       </div>
-      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+      <div class="col-md-5 col-lg-3 text-lg-start text-center">
         <h1><a href="#" class="footerElements">Gizlilik Politikası</a></h1>
       </div>
-      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+      <div class="col-md-5 col-lg-3 text-lg-start text-center">
         <h1><a href="#" class="footerElements">Hizmet Şartları</a></h1>
       </div>
-      <div class="col-md-5 col-lg-3 text-lg-start text-center mb-3">
+      <div class="col-md-5 col-lg-3 text-lg-start text-center">
         <h1><a href="#" class="footerElements">Çerez Politikası</a></h1>
       </div>
     </div>

@@ -22,7 +22,6 @@ module.exports.verify_post = async (req,res, next) => {
   try {
     await connectToDb();
     const emailToken = req.body.emailToken;
-    console.log(req.body)
     if (!emailToken) {
         return res.status(400).json({ error: "E-Mail onaylamada bir sorun oluştu. Lütfen yetkililere danışınız." });
     }
@@ -42,10 +41,7 @@ module.exports.verify_post = async (req,res, next) => {
         req.logIn(updatedUser, function(err) {
           if (err) {
             res.json({error: "404"})
-            console.log(err, "  HATA")
-          } else {
-            console.log("HATA YOK")
-          }
+          } 
         });
         req.session.passport.user = updatedUser;
         req.session.save(function(err) {
@@ -87,7 +83,6 @@ module.exports.interests_post = async (req,res) => {
 
     // İstek gönderen URL'yi Referer header'ından al
     const refererUrl = req.get('Referer');
-    console.log(req.body, "HEYYO")
     // Eğer Referer URL /user/interest ise JSON yanıtı döndür
     if (refererUrl && refererUrl.endsWith('/user/interest')) {
       return res.json({ message: "Değişiklikleriniz başarıyla kayıt edildi." });
@@ -96,7 +91,6 @@ module.exports.interests_post = async (req,res) => {
       return res.redirect("/user/interest");
     }
   } catch (error) {
-    console.error(error);
     res.status(500).send('Sunucu hatası.');
   }
 }

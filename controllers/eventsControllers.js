@@ -361,46 +361,129 @@ module.exports.cancel_event_post = async (req,res) => {
 }
 
 
-module.exports.getEventsByDate = async (req, res) => {
-  try {
-    const { eventsIds, date } = req.body; // Front-end'den gelen veriler
-      let filteredEvents = [];
-        // Front-end'den gelen verileri kullanarak filtreleme yap
-        if(date === "Bugün") {
-          filteredEvents = await getTodaysEvents(eventsIds)
-          res.json(filteredEvents);
-        } else if (date === "Yarın") {
-          filteredEvents = await getTomorrowsEvents(eventsIds)
-          res.json(filteredEvents);
-        } else if (date === "Bu Hafta") {
-          filteredEvents = await getThisWeeksEvents(eventsIds)
-          res.json(filteredEvents);
-        } else if (date === "Bu Haftasonu") {
-          filteredEvents = await getThisWeekendEvents(eventsIds)
-          res.json(filteredEvents);
-        } else if (date === "Önümüzdeki Hafta") {
-         filteredEvents = await getNextWeekEvents(eventsIds)
-         res.json(filteredEvents);
-        }
+// module.exports.getEventsByDate = async (req, res) => {
+//   try {
+//     const { eventsIds, date, page } = req.body; // Front-end'den gelen veriler
+//       let filteredEvents = [];
+//         // Front-end'den gelen verileri kullanarak filtreleme yap
+//         if(date === "Bugün") {
+//           filteredEvents = await getTodaysEvents(page, eventsIds)
+//           res.json(filteredEvents);
+//         } else if (date === "Yarın") {
+//           filteredEvents = await getTomorrowsEvents(page, eventsIds)
+//           res.json(filteredEvents);
+//         } else if (date === "Bu Hafta") {
+//           filteredEvents = await getThisWeeksEvents(page, eventsIds)
+//           res.json(filteredEvents);
+//         } else if (date === "Bu Haftasonu") {
+//           filteredEvents = await getThisWeekendEvents(page, eventsIds)
+//           res.json(filteredEvents);
+//         } else if (date === "Önümüzdeki Hafta") {
+//          filteredEvents = await getNextWeekEvents(page, eventsIds)  
+//          res.json(filteredEvents);
+//         }
 
-  } catch (error) {
-    console.log(error)
-  }
-};
+//   } catch (error) {
+//     console.log(error)
+//   }
+// };
 
 // Belirli bir kategoriye göre etkinlikleri filtreleyen kontrolcü
-module.exports.getEventsByCategory = async (req, res) => {
-  try {
-    const { category } = req.params;
+// module.exports.getEventsByCategory = async (req, res) => {
+//   try {
+//     const { page, category, selectedDate} = req.body;
+//     let filteredEvents = [];
 
-    // Kategoriye göre etkinlikleri veritabanından sorgula
-    const events = await Event.find({ eventCategory: category });
+//         // Front-end'den gelen verileri kullanarak filtreleme yap
+//         if(selectedDate === "Bugün") {
+//           // 2. argüman, fetchbydate endpoint'inde kullanılan ve burada ihtiyacımız olmayan bir parametre olduğu için object girdik
+//           filteredEvents = await getTodaysEvents(page, {}, category)
+//           res.json(filteredEvents)
+//         } else if (selectedDate === "Yarın") {
+//           filteredEvents = await getTomorrowsEvents(page, {}, category)
+//           res.json(filteredEvents);
+//         } else if (selectedDate === "Bu Hafta") {
+//           filteredEvents = await getThisWeeksEvents(page, {}, category)
+//           res.json(filteredEvents);
+//         } else if (selectedDate === "Bu Haftasonu") {
+//           filteredEvents = await getThisWeekendEvents(page, {}, category)
+//           res.json(filteredEvents);
+//         } else if (selectedDate === "Önümüzdeki Hafta") {
+//          filteredEvents = await getNextWeekEvents(page, {}, category)
+//          res.json(filteredEvents);
+//         }
+  
+//     // res.status(200).json("events");
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
-    res.status(200).json(events);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// module.exports.getEventsByProvince = async (req, res) => {
+//   try {
+//     const { page, province, selectedDate} = req.body;
+//     let filteredEvents = [];
+
+//         // Front-end'den gelen verileri kullanarak filtreleme yap
+//         if(selectedDate === "Bugün") {
+//           // 2. argüman, fetchbydate endpoint'inde kullanılan ve burada ihtiyacımız olmayan bir parametre olduğu için object girdik
+//           filteredEvents = await getTodaysEvents(page, {}, undefined, province)
+//           res.json(filteredEvents)
+//         } else if (selectedDate === "Yarın") {
+//           filteredEvents = await getTomorrowsEvents(page, {}, undefined, province)
+//           res.json(filteredEvents);
+//         } else if (selectedDate === "Bu Hafta") {
+//           filteredEvents = await getThisWeeksEvents(page, {}, undefined, province)
+//           res.json(filteredEvents);
+//         } else if (selectedDate === "Bu Haftasonu") {
+//           filteredEvents = await getThisWeekendEvents(page, {}, undefined, province)
+//           res.json(filteredEvents);
+//         } else if (selectedDate === "Önümüzdeki Hafta") {
+//          filteredEvents = await getNextWeekEvents(page, {}, undefined, province)
+//          res.json(filteredEvents);
+//         }
+  
+//     // res.status(200).json("events");
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+module.exports.getFilteredEvents = async (req, res) => { 
+try {
+  const { page, province, category, eventsIds, specificDate} = req.body;
+
+  const dateOptions = {
+    "Bugün": getTodaysEvents,
+    "Yarın": getTomorrowsEvents,
+    "Bu Hafta": getThisWeeksEvents,
+    "Bu Haftasonu": getThisWeekendEvents,
+    "Önümüzdeki Hafta": getNextWeekEvents,
+  };
+
+  if(dateOptions[specificDate]) {
+    let filteredEvents = [];
+      if(province && category) {
+        filteredEvents = await dateOptions[specificDate](page, eventsIds, category, province)
+        res.json(filteredEvents);
+      } else if (category) {
+        filteredEvents = await dateOptions[specificDate](page, eventsIds, category)
+        res.json(filteredEvents);
+      } else if (province) {
+        filteredEvents = await dateOptions[specificDate](page, eventsIds, undefined, province)
+        res.json(filteredEvents);
+      } else {
+        filteredEvents = await dateOptions[specificDate](page, eventsIds)
+        res.json(filteredEvents);
+      }
+  } 
+
+} catch (error) {
+  console.log(error)
+  res.status(500).json({ message: error.message });
+}
+}
+
 
 module.exports.notifications_get = async (req,res) => {
   try {

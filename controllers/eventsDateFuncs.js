@@ -3,168 +3,234 @@ const getDates = require("./getDates");
 const mongoose = require('mongoose');
 
 const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates;
-// -------------------------FILTERING FOR TODAY EVENTS FUNCTION----------------------------
-function filterEventsToday(events, dateObjFormat, currentHour) {
-    return events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-        const eventSaat = String(turkiyeZamanDilimi.getHours()).padStart(2, '0');
-        const eventDakika = String(turkiyeZamanDilimi.getMinutes()).padStart(2, '0');
-    
-        const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
-        const isLaterTime = `${eventSaat}:${eventDakika}` > currentHour;
-    
-        return isSameDay && isLaterTime;
-      });
+
+// Sayfalama için gerekli fonksiyon
+let lastId = null;
+
+const getPaginatedEvents = async (dateFormats, page, category, province, currentHour) => {
+  if (page > 4) {
+    throw new Error("Maksimum 80 event gönderilebilir.");
+  }
+  let query = {
+    status: { $ne: "cancelled" }
+  };
+
+   // Eğer page 1 ise, lastId'yi sıfırla
+   if (page === 1) {
+    lastId = null;
+  } else if (lastId) {
+    query._id = { $gt: lastId };
+  }
+  if (category) {
+    // Eğer category varsa, eventCategory filtrelemesini yap
+    query.eventCategory = category;
+  }
+  if (province) {
+    // const [district, city] = province.split(",").map(part => part.trim());
+    const selectedParts = province.split(",").map(s => s.trim());
+    const selectedCity = selectedParts.length === 2 ? selectedParts[1]: selectedParts[0];
+    const selectedDistrict = selectedParts.length === 2 ? selectedParts[0] : null;
+    if (selectedDistrict) {
+      query.$or = [
+        { "cityName": selectedCity, "districtName": selectedDistrict },
+        { "districtName": selectedDistrict }
+      ];
+    } else {
+      query["cityName"] = selectedCity;
+    }
+  }
+  if (Object.values(dateFormats).some(Array.isArray)) {
+    const now = new Date(); // Şu anki tarih ve saat
+    query.date = {
+      $gte: dateFormats.week[0],
+      $lte: dateFormats.week[1],
+      $gt: now // Şu anki tarihten sonraki tarihleri getir
+    };
+  } 
+  else {
+    const today = new Date(dateFormats.toISOString().split('T')[0]); // 2024-04-02
+    query.date = {
+        $gte: today,
+        $lt: new Date(today.getTime() + 86400000) // Add one day to get the end of the day
+    }
+      if(currentHour) {
+        query.$expr = {
+          $gt: [
+              { $dateToString: { format: "%H:%M", date: "$date", timezone: "Europe/Istanbul" } },
+              currentHour
+          ]
+      };
+      }
+
   }
 
+    // Initialize an array to store combined events
+    let combinedEvents = [];
 
-async function getTodaysEvents(events) {
+    // Fetch events for each page iteratively
+    for (let i = 1; i <= page; i++) {
+        const currentPageEvents = await Event.find(query)
+            .limit(20)
+            .populate('attendees', 'profileImage username');
+
+        combinedEvents = [...combinedEvents, ...currentPageEvents]; // Append events
+
+        // Update query for the next page (if applicable)
+        if (currentPageEvents.length > 0 && i < page) {
+            query._id = { $gt: currentPageEvents[currentPageEvents.length - 1]._id };
+        }
+    }
+
+    return combinedEvents;
+};
+
+
+
+const getPaginatedGeneralSearched = async (eventsIds, page, limit = 20) => {
+  const skip = (page - 1) * limit;
+  return Event.find({ _id: { $in: eventsIds } })
+    .skip(skip)
+    .limit(limit)
+    .populate('attendees');
+};
+
+
+
+async function getTodaysEvents(page, events, category, province) {
   const formattedDate = getDate(); // Bugünün tarihi
   const dateObjFormat = new Date(formattedDate);
   const currentHour = formattedDate.substring(11, 16);
-
   if (events.length > 0) {
     // eventIds dizisi doluysa, ObjectId'lerle filtreleme fonksiyonunu kullan
-    const findGenerallySearchedEvents = await Event.find({_id: events})
+    const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)            
     return filterEventsToday(findGenerallySearchedEvents, dateObjFormat, currentHour);
   } else {
+    // category ile filtre gerçekleştirildiyse category ile gönder
+    let allEvents = [];
+    if(category && province) {
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, province)
+    } else if (category) {
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category)
+    } else if (province) {
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, province)
+    } else {
     // eventIds dizisi boşsa, veritabanından çek ve filtreleme fonksiyonunu kullan
-    const allEvents = await Event.find({ 
-      date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
-      status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
-    }).limit(40).populate("attendees")
-    return filterEventsToday(allEvents, dateObjFormat, currentHour);
+     allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, undefined, currentHour)
+  
+    }
+      return allEvents;
+      // return filterEventsToday(allEvents, dateObjFormat, currentHour);
   }
 }
 
 
 
 
-// ----------------------FILTERING FOR Tomorrow EVENTS FUNCTION----------------------------
-function filterEventsTomorrow(events, dateObjFormat) {
-    return events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-        const isSameDay = turkiyeZamanDilimi.toDateString() === dateObjFormat.toDateString();
-        return isSameDay 
-      });
-  }
 
 
-async function getTomorrowsEvents (events) {
+async function getTomorrowsEvents (page, events, category, province) {
     const formattedDate = getTomorrowDate();
     const dateObjFormat = new Date(formattedDate);
 
     if (events.length > 0) {
         // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await Event.find({_id: events})
+        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
         return filterEventsTomorrow(findGenerallySearchedEvents, dateObjFormat);
  
       } else {
-        // events dizisi boşsa, veritabanından çek ve filtreleme fonksiyonunu kullan
-        const allEvents = await Event.find({ 
-            date: { $gte: dateObjFormat }, // Belirtilen tarihten sonraki etkinlikleri getirir
-            status: { $ne: "cancelled" } // "cancelled" durumuna sahip olmayan etkinlikleri getirir
-        }).limit(40).populate("attendees");
-        return filterEventsTomorrow(allEvents, dateObjFormat);
-      }
+    // category ile filtre gerçekleştirildiyse category ile gönder
+    let allEvents = [];
+    if(category && province) {
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, province)
+    } else if (category) {
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category)
+    } else if (province) {
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, province)
+    } else {
+    // eventIds dizisi boşsa, veritabanından çek ve filtreleme fonksiyonunu kullan
+     allEvents =  await getPaginatedEvents(dateObjFormat, page)
+    }
+
+    return allEvents;
+  
+      // return filterEventsTomorrow(allEvents, dateObjFormat);
+  }
 }  
 
 
-//---------------------- FILTER EVENTS FOR THIS WEEK--------------------------------------
 
-function filterEventsThisWeek(events, startOfWeek, endOfWeek) {
-    return events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-    
-        const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
-        const isLaterTime = turkiyeZamanDilimi > new Date();
-    
-        return isWithinWeek && isLaterTime;
-      });
-  }
-
-async function getThisWeeksEvents (events) {
+async function getThisWeeksEvents (page, events, category, province) {
     const { startOfWeek, endOfWeek } = getWeekRange();
-
     if (events.length > 0) {
         // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await Event.find({_id: events})
+        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
         return filterEventsThisWeek(findGenerallySearchedEvents, startOfWeek, endOfWeek);
       } else {
-        const allEvents = await Event.find({ 
-            date: { 
-              $gte: startOfWeek, // Bu hafta başlangıç tarihinden büyük veya eşit olan
-              $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
-            },
-            status: { $ne: "cancelled" }
-          }).limit(40).populate("attendees");
-        return filterEventsThisWeek(allEvents, startOfWeek, endOfWeek);
+        let newEvents = [];
+        if(category && province) {
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, province)
+        } else if (category) {
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category)
+        } else if (province) {
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, province)
+        } else {
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page)
+        }
+        // return filterEventsThisWeek(newEvents, startOfWeek, endOfWeek);
+
+        return newEvents;
       }
 }  
 
 
-// ------------------------------ FILTER EVENTS THIS WEEKEND -------------------------
-function filterEventsThisWeekend(events, startOfWeekend, endOfWeekend) {
-    return events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-
-        const isWithinWeek = turkiyeZamanDilimi >= startOfWeekend && turkiyeZamanDilimi <= endOfWeekend;
-        const isLaterTime = turkiyeZamanDilimi > new Date();
-
-         return isWithinWeek && isLaterTime;
-      });
-  }
 
 
-async function getThisWeekendEvents (events) {
+
+async function getThisWeekendEvents (page, events, category, province) {
     const { startOfWeekend, endOfWeekend } = getWeekendRange();
 
     if (events.length > 0) {
         // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await Event.find({_id: events})
+        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
         return filterEventsThisWeekend(findGenerallySearchedEvents, startOfWeekend, endOfWeekend);
       } else {
-        const allEvents = await Event.find({ 
-            date: { 
-              $gte: startOfWeekend, // Bu hafta başlangıç tarihinden büyük veya eşit olan
-              $lte: endOfWeekend     // Bu hafta bitiş tarihinden küçük veya eşit olan
-            },
-            status: { $ne: "cancelled" }
-          }).limit(40).populate("attendees");
-        return filterEventsTomorrow(allEvents, startOfWeekend, endOfWeekend);
+        let AllEvents = [];
+        if(category && province) {
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, category, province)
+        } else if (category) {
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, category);
+        } else if (province) {
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, undefined, province);
+        } else {
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page);
+        }
+
+        return AllEvents;
+        // return filterEventsThisWeekend(AllEvents, startOfWeekend, endOfWeekend);
       }
 }  
 
-
-// ------------------------------ FILTER EVENTS NEXT WEEK -------------------------
-function filterEventsNextWeek (events, startOfWeek, endOfWeek) {
-    return events.filter((event) => {
-        const turkiyeZamanDilimi = new Date(event.date.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-
-        const isWithinWeek = turkiyeZamanDilimi >= startOfWeek && turkiyeZamanDilimi <= endOfWeek;
-        const isLaterTime = turkiyeZamanDilimi > new Date();
-
-        return isWithinWeek && isLaterTime;
-      });
-  }
-
-
-async function getNextWeekEvents (events) {
+async function getNextWeekEvents (page, events, category, province) {
     const {startOfWeek, endOfWeek} = getNextWeekRange();
 
     if (events.length > 0) {
         // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await Event.find({_id: events})
+        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
         return filterEventsNextWeek(findGenerallySearchedEvents, startOfWeek, endOfWeek);
       } else {
-        const allEvents = await Event.find({ 
-            date: { 
-              $gte: startOfWeek, // Bu hafta başlangıç tarihinden büyük veya eşit olan
-              $lte: endOfWeek     // Bu hafta bitiş tarihinden küçük veya eşit olan
-            },
-            status: { $ne: "cancelled" }
-          }).limit(40).populate("attendees");
-        return filterEventsTomorrow(allEvents, startOfWeek, endOfWeek);
+        let allEvents = [];
+        if(category && province) {
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, province)
+        } else if (category) {
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category)
+        } else if (province) {
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, province)
+        } else {
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page)
+        }
+        return allEvents;
+
+        // return filterEventsNextWeek(AllEvents, startOfWeek, endOfWeek);
       }
 } 
 

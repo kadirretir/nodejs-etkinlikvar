@@ -111,7 +111,7 @@
           <% eventCategories.forEach((category, index) => { %>
             <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 d-flex justify-content-center">
               <div class="btn-group">
-                <a href="/events?<%=category%>" style="width: 13rem; padding: 0.8rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
+                <a href="events/?searchquery=<%=category%>" style="width: 13rem; padding: 0.8rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
               </div>
             </div>
           <% }) %>

@@ -44,12 +44,14 @@
   
 }
 
-.mainListElements {
-  padding: 3px 0;
-}
+
 
 @media screen and (max-width: 768px) {
   .footerButton {
     margin-top: 1rem;
+  }
+
+  .btnStyles {
+    margin: 1rem 0;
   }
 }

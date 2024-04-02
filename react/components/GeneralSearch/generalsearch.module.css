@@ -6,6 +6,7 @@
     padding-left: 2rem;
     outline: none;
     width: 250px;
+    margin-right: 0.4%;
   }
   
   .searchInput:focus {

@@ -24,6 +24,24 @@
     overflow-x: hidden;
 }
 
+.stickyFilters {
+  position: -webkit-sticky; /* Safari için gerekli */
+  position: sticky !important;
+  top: 0;
+  z-index: 600;
+  transition: background-color 0.1s ease; /* Renk değişimi animasyonu */
+}
+
+.stickyFilters.sticky {
+  background-color: #495057;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Yükseltilmiş gölge efekti */
+  transform: translateY(-4px); /* Yükseltilme animasyonu */
+  padding: 0.5rem;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+
 
 
 .searchContainer {

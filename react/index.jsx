@@ -41,7 +41,7 @@ function checkValue (val) {
       const popularCategories = JSON.parse(eventsNode.getAttribute("trending-categories"))
       const userEvents = JSON.parse(eventsNode.getAttribute("user-events"))
       eventsRoot.render(
-        <StrictMode>
+   
           <Events 
           usercity={usercity}
           userEvents={userEvents}
@@ -53,7 +53,7 @@ function checkValue (val) {
           trendingEvents={trendingEvents}
           popularCategories={popularCategories}
           userData={usersData} />
-        </StrictMode>
+   
       );
       break;
     case "/login":

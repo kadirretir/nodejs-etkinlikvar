@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo, lazy } from "react";
 import styles from './events.module.css'
-import SingleEvents from "./SingleEvents";
-import TrendingEvents from "./TrendingEvents";
-import TrendingCategories from "./TrendingCategories";
+import useStickyOnTop from "./FiltersIntersection";
+const SingleEvents = lazy(() => import("./SingleEvents/SingleEvents"));
+const TrendingEvents = lazy(() => import("./TrendingEvents"));
+const TrendingCategories = lazy(() => import("./TrendingCategories"));
 
-
-const Events = ({ userEvents,
+const Events = memo(({ userEvents,
    userData,
     generalSearchResults, 
     usercity, 
@@ -16,13 +16,12 @@ const Events = ({ userEvents,
       trendingEvents, 
       popularCategories }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
-
   const [loading, setLoading] = useState(false);
   const [loadingFilter, setLoadingFilter] = useState(false)
   const [selectedDate, setSelectedDate] = useState("Bugün")
   // GET SEARCHED STRING FROM URL
-  const interestCategory = interestsearch.interest ? interestsearch.interest : "Kategori";
-  const [selectedCategory, setSelectedCategory] = useState(interestCategory)
+  // const interestCategory = interestsearch.interest ? interestsearch.interest : "Kategori";
+  const [selectedCategory, setSelectedCategory] = useState("Kategori")
 
   const getIndexSearchData = typeof searchresults === "object" && typeof searchresults.searchforeventlocation === "string" ?  searchresults.searchforeventlocation : ""
   const selectProvinceIf = getIndexSearchData === "" && usercity !== "Not found" ? usercity : getIndexSearchData;
@@ -34,9 +33,35 @@ const Events = ({ userEvents,
   const [search, setSearch] = useState("")
   const [searchResults, setSearchResults] = useState([])
 
-  const searchRef = useRef()
-  const searchResultsRef = useRef()
+// INFINITE SCROLL STATES
+ 
+  const [page, setPage] = useState(1);
+  const [hasMorePage, setHasMorePage] = useState(true);
+ 
 
+  // Search REFS
+  const searchRef = useRef()
+  const searchResultsRef = useRef() 
+
+  // INTERSECTION API FOR PAGES
+  const observer = useRef()
+  const lastEventElementRef = useCallback(node => {
+    if (loadingFilter) return 
+    if(observer.current) observer.current.disconnect()
+    observer.current = new IntersectionObserver(entries => {
+        if(entries[0].isIntersecting && hasMorePage && filteredEvents.length >= 20) {
+            setPage(prevPage => prevPage + 1)
+        }
+  })
+  if(node) observer.current.observe(node)
+  }, [hasMorePage, loadingFilter]);
+
+
+
+  // INTERSECTION API FOR FILTERS STICKY
+
+  const { elementRef, isSticky } = useStickyOnTop();
+ 
 // get dates
 // const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
 
@@ -96,164 +121,203 @@ const Events = ({ userEvents,
       setSearchResults([])
     }
   }, [search, searchAPI]);
+  const handleCategoryLeft = (event) => {
+    setSelectedCategory(event)
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-
-  const fetchDataByDate = async (eventsIds, date) => {
-    try {
-        const response = await fetch('/events/requestedevents', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ eventsIds, date })
-        });
-    
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    
-        const filteredEvents = await response.json();
-        return filteredEvents;
-    } catch (error) {
-        throw new Error(error);
-    }
-};
-
-const fetchDataByCategory = async (category) => {
+ 
+const fetchDataByFilterGeneral = async (page, eventsIds, specificDate, category, province) => {
   try {
-    const fetchMyData = await fetch(`/events/requestedevents/category/${category}`);
-    const data = await fetchMyData.json();
-    return data;
+      const response = await fetch('/events/requestedevents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ page, eventsIds, specificDate, category, province })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+
+      }
+  
+      const filteredEvents = await response.json();
+      return filteredEvents;
   } catch (error) {
-    throw new Error(error);
+      throw new Error(error);
   }
 };
 
-const handleCategoryLeft = (event) => {
-  setSelectedCategory(event)
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+const fetchCallBack = async (page, category, province) => {
+  try {
+    let resultsIds = [];
+    if(generalSearchResults.length > 0) {
+      resultsIds = generalSearchResults.map((result) => {
+        return result._id;
+      });
+    }
+
+    let filteredData = [];
+
+    switch (selectedDate) {
+      case "Bugün":
+         filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Bugün", category, province)
+         break;
+      case "Yarın":
+        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Yarın", category, province);
+        break;
+      case "Bu Hafta":
+        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Bu Hafta", category, province);
+        break;
+      case "Bu Haftasonu":
+        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Bu Haftasonu", category, province);
+        break;
+      case "Önümüzdeki Hafta":
+        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Önümüzdeki Hafta", category, province);
+        break;
+      default:
+        return []; // Varsayılan olarak boş bir dizi döndür
+    }
+    return filteredData;
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+const fetchDataFromMain = async () => {
+  setLoadingFilter(true)
+  try {
+    let filteredData = [];
+      if(selectedCategory !== "Kategori" && selectedProvince !== "") {
+        filteredData = await fetchCallBack(page, selectedCategory, selectedProvince);
+      } else if (selectedCategory !== "Kategori") {
+        filteredData = await fetchCallBack(page, selectedCategory, undefined);
+      } else if(selectedProvince !== "") {
+        filteredData = await fetchCallBack(page, undefined, selectedProvince)
+      } else {
+        filteredData = await fetchCallBack(page)
+      }
+      
+      console.log(filteredData)
+   
+        
+      setFilteredEvents(filteredData);
+
+
+ 
+  } catch (error) {
+    throw new Error(error)
+  } finally {
+      setLoadingFilter(false);
+  }
 }
 
-  // FILTER BY DATES
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoadingFilter(true); // Filtreleme işlemi başladığında loadingFilter'ı true olarak ayarla
-      try { 
-        let resultsIds = [];
-        if(generalSearchResults.length > 0) {
-          resultsIds = generalSearchResults.map((result) => {
-            return result._id;
-          });
-        }
-        let filteredData = []
-        if (selectedDate === "Bugün") {
-          filteredData = await fetchDataByDate(resultsIds, "Bugün");
-        } else if (selectedDate === "Yarın") {
-          filteredData = await fetchDataByDate(resultsIds, "Yarın");
-        } else if (selectedDate === "Bu Hafta") {
-          filteredData = await fetchDataByDate(resultsIds, "Bu Hafta");
-        }else if (selectedDate === "Bu Haftasonu") {
-          filteredData = await fetchDataByDate(resultsIds, "Bu Haftasonu");
-        } else if (selectedDate === "Önümüzdeki Hafta") {
-          filteredData = await fetchDataByDate(resultsIds, "Önümüzdeki Hafta");
-        }
-  
-        if (selectedCategory !== "Kategori" && selectedProvince !== "") {
-          // Hem kategoriye hem de province'e göre filtreleme yapılacak
-          const getNewFilteredArray = filteredData.filter((event) => {
-            // Kategoriye göre filtreleme
-            const categoryMatches = event.eventCategory === selectedCategory;
-            // Province'e göre filtreleme
-            const selectedParts = selectedProvince.split(",").map(s => s.trim());
-            const selectedCity = selectedParts.length === 2 ? selectedParts[1].toLocaleUpperCase('TR') : selectedParts[0].toLocaleUpperCase('TR');
-            const selectedDistrict = selectedParts.length === 2 ? selectedParts[0].toLocaleUpperCase('TR') : "";
-        
-            const provinceMatches = event.cityName && event.cityName.toLocaleUpperCase('TR') === selectedCity;
-            const districtMatches = event.districtName && event.districtName.toLocaleUpperCase('TR').includes(selectedDistrict);
-        
-            return categoryMatches && provinceMatches && (selectedDistrict ? districtMatches : true);
-          });
-        
-          setFilteredEvents(getNewFilteredArray);
-        } else if (selectedCategory !== "Kategori") {
-          // Sadece kategoriye göre filtreleme yapılacak
-          const filterByCategory = filteredData.filter((event) => event.eventCategory === selectedCategory);
-          setFilteredEvents(filterByCategory);
-        }
-         else if (selectedProvince !== "") {
-          // Seçilen değerin şehir ve ilçe adını içerip içermediğini kontrol et
-          const selectedParts = selectedProvince.split(",").map(s => s.trim());
-          const selectedCity = selectedParts.length === 2 ? selectedParts[1].toLocaleUpperCase('TR') : selectedParts[0].toLocaleUpperCase('TR');
-          const selectedDistrict = selectedParts.length === 2 ? selectedParts[0].toLocaleUpperCase('TR') : null;
-        
-          // Filtreleme koşullarını ayarla
-          const getNewFilteredArray = filteredData.filter((event) => {
-            const cityNameMatches = event.cityName && event.cityName.toLocaleUpperCase('TR').includes(selectedCity);
-            const districtNameMatches = selectedDistrict ? event.districtName && event.districtName.toLocaleUpperCase('TR').includes(selectedDistrict) : true;
-        
-            // Şehir ve ilçe adına göre filtreleme yap
-            return cityNameMatches && (selectedDistrict ? districtNameMatches : true);
-          });
-        
-          setFilteredEvents(getNewFilteredArray);
-        }
-        
-        else {
-          // Hiçbir filtreleme yapılmayacak
-          setFilteredEvents(filteredData);
-        }
-      } catch (error) {
-        // Hata durumunda gerekli işlemleri yapabilirsiniz
-        throw new Error(error)
-      } finally {
-        setLoadingFilter(false); // Filtreleme işlemi tamamlandığında loadingFilter'ı false olarak ayarla
-      }
-    };
-  
-    fetchData();
-  }, [selectedDate, selectedCategory, selectedProvince]);
-    
-  // FILTER BY CATEGORY
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoadingFilter(true); // Filtreleme işlemi başladığında loadingFilter'ı true olarak ayarla
-  
-      try {
-        const data = await fetchDataByCategory(selectedCategory);
-    
-        const filterByCategory = data.filter((event) => event.eventCategory === selectedCategory);
-  
-        // Yeni eşleşen etkinlikleri bul
-        const newMatchingEvents = filterByCategory.filter((event) => filteredEvents.some((filteredEvent) => filteredEvent._id === event._id));
-  
-        setFilteredEvents((prevFilteredEvents) => {
-          // Mevcut filteredEvents dizisini kopyala
-          const updatedFilteredEvents = [...prevFilteredEvents];
-  
-          // Yeni eşleşen etkinlikleri tek tek kontrol et
-          newMatchingEvents.forEach((newEvent) => {
-            // Yalnızca filteredEvents içinde olmayanları ekle
-            if (!updatedFilteredEvents.some((filteredEvent) => filteredEvent._id === newEvent._id)) {
-              updatedFilteredEvents.push(newEvent);
-            }
-          });
-  
-          return updatedFilteredEvents;
-        });
-        
-      } catch (error) {
-        // Hata durumunda gerekli işlemleri yapabilirsiniz
-        console.error(error);
-      } finally {
-        setLoadingFilter(false); // Filtreleme işlemi tamamlandığında loadingFilter'ı false olarak ayarla
-      }
-    };
-  
-    if (selectedCategory !== "Kategori") {
-      fetchData();
-    }
-  }, [selectedCategory]);
 
+useEffect(() => {
+  // selectedDate, selectedCategory veya selectedProvince değiştiğinde page'i 1'e ayarla
+  setHasMorePage(true);
+  setPage(1);
+  setFilteredEvents([]); // Etkinlikleri temizle
+}, [selectedDate, selectedCategory, selectedProvince]);
+
+
+useEffect(() => {
+  if (page === 4) {
+    setHasMorePage(false);
+  } else {
+    setHasMorePage(true)
+  }
+}, [page])
+
+useEffect(() => {
+  if ((page <= 4 && hasMorePage)) {
+    console.log("useeffect worked", page)
+    fetchDataFromMain();
+  } 
+}, [page, selectedCategory, selectedDate, selectedProvince])
+
+
+
+// useEffect(() => {
+//   // Page değiştiğinde sadece fetchDataFromMain'i çağır
+//   if (didMountRef.current) {
+//     fetchDataFromMain();
+//   } else {
+//     didMountRef.current = true;
+//   }
+// }, [page]);
+
+
+
+
+
+
+
+
+
+
+
+//   const filterData = (fetchedData) => {
+//       // if (selectedCategory !== "Kategori" && selectedProvince !== "") {
+//       //   // Hem kategoriye hem de province'e göre filtreleme yapılacak
+//       //   const getNewFilteredArray = fetchedData.filter((event) => {
+//       //     // Kategoriye göre filtreleme
+//       //     const categoryMatches = event.eventCategory === selectedCategory;
+//       //     // Province'e göre filtreleme
+//       //     const selectedParts = selectedProvince.split(",").map(s => s.trim());
+//       //     const selectedCity = selectedParts.length === 2 ? selectedParts[1].toLocaleUpperCase('TR') : selectedParts[0].toLocaleUpperCase('TR');
+//       //     const selectedDistrict = selectedParts.length === 2 ? selectedParts[0].toLocaleUpperCase('TR') : "";
+      
+//       //     const provinceMatches = event.cityName && event.cityName.toLocaleUpperCase('TR') === selectedCity;
+//       //     const districtMatches = event.districtName && event.districtName.toLocaleUpperCase('TR').includes(selectedDistrict);
+      
+//       //     return categoryMatches && provinceMatches && (selectedDistrict ? districtMatches : true);
+//       //   });
+//       //   setFilteredEvents(getNewFilteredArray);
+//       // } 
+//       // else if (selectedCategory !== "Kategori") {
+//       //   const filterByCategory = fetchedData.filter((event) => event.eventCategory === selectedCategory);
+//       //   setFilteredEvents(filterByCategory);
+//       // }
+     
+// }
+
+// useEffect(() => {
+//   if(selectedDate !== "Bugün" || selectedCategory !== "Kategori" || selectedProvince !== "") {
+//     setIsFiltersChanged(true)
+//   }
+// }, [selectedDate, selectedCategory, selectedProvince])
+
+
+
+// useEffect(() => { 
+//   // if(isFiltersChanded && page > 1) {
+//   //   setPage(1)
+//   //   setHasMorePage(true)
+//   //   console.log("PAGE 1'DEN BÜYÜK VE SELECTEDDATE BUGÜN DEĞİL")
+//   // }
+//   console.log("ortadaki main useEffecti. Page ve sethasmore ayarlanıyor")
+// }, [selectedDate, selectedProvince, selectedCategory, isFiltersChanded]);
+
+
+
+// FILTERING CATEGORY 
+// const fetchDataByOnlyCategory = async (category, data) => {
+//   try {
+
+//     const filterByCategory = data.filter((event) => event.eventCategory === selectedCategory);
+
+//         const newMatchingEvents = filterByCategory.filter(newEvent => 
+//           !category.some(filteredEvent => filteredEvent._id === newEvent._id)
+//         );
+
+//         return newMatchingEvents;
+     
+//   } catch (error) {
+//     // Hata durumunda gerekli işlemleri yapabilirsiniz
+//     console.error(error);
+//   } 
+// };
 
 
   useEffect(() => {
@@ -358,25 +422,59 @@ const searchQuery = urlParams.get('searchquery');
                                   <a className="fs-6 link-dark link-offset-2 link-underline-opacity-75 link-underline-opacity-100-hover" href="/user/profile?etkinliklerim">Hepsini Gör</a>
                                 </p>
                                 <div className={styles.yourEventsInside}>
+                                  
                                   {userEvents && userEvents.length > 0 ? (
+                                    
                                       <>
-                                      {userEvents.map((singular, id) => (
+                                      {userEvents.map((singular, id) => {
+                                        
+                                        const eventDate = new Date(singular.date).setHours(0, 0, 0, 0);
+                                        const today = new Date().setHours(0, 0, 0, 0);
+                                        const oneDay = 24 * 60 * 60 * 1000; // milisaniyeler cinsinden bir gün
+                                        
+                                        const dayDifference = (eventDate - today) / oneDay;
+                                        
+                                        let displayDate;
+                                        if (dayDifference === 0) {
+                                          displayDate = "Bugün";
+                                        } else if (dayDifference === 1) {
+                                          displayDate = "Yarın";
+                                        } else if (dayDifference === -1) {
+                                          displayDate = "Dün";
+                                        } else {
+                                          displayDate = new Date(singular.date).toLocaleDateString("tr-TR", {
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                          });
+                                        }
+                                        
+
+                                       return (
+                                        
                                         <div className="card mb-2" key={id} style={{maxWidth: "540px"}}>
+                                        <a className='link-opacity-100-hover' href={`/events/${singular._id}`}>
                                         <div className="row g-0">
                                           <div className="col-md-4">
                                             <img src={`../${singular.eventImage}`} className="img-fluid rounded-start" alt="eventImage" />
                                           </div>
                                           <div className="col-md-8">
                                             <div className="card-body">
-                                              <h5 className="card-title">{singular.title}</h5>
-                                              <p className="card-text">{singular.description}</p>
-                                              <p className="card-text"><small className="text-body-secondary">{singular.eventCategory}</small></p>
-                                              <p className="card-text"><small className="text-body-secondary">{singular.date}</small></p>
+                                            <p className="card-text"><small className="text-secondary" style={{fontSize: "1rem"}}>{displayDate}</small></p>
+                                              <h5 className="card-title mt-2 text-secondary-emphasis">Akşam sabah kahvaltısı yapacağız</h5>
+                                              <p className="card-text"><small className="text-body-secondary">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"  fill="currentColor" style={{color: "var(--first-color)"}} className="bi bi-geo-alt-fill me-1" viewBox="0 0 16 16">
+                                                <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                              </svg>
+                                                {singular.cityName + ',' + ' ' + singular.districtName}
+                                                </small></p>
                                             </div>
                                           </div>
                                         </div>
+                                        </a>
+
                                       </div>
-                                      ))}
+                                      )})}
                                       </>
                                   ) : (
                                     <>
@@ -421,6 +519,7 @@ const searchQuery = urlParams.get('searchquery');
             )}
 {/* 
 className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
+            
             <div className="pb-5 col-lg-8" >
             {Object.keys(createdEventMessage).length !== 0 ? (
             <h1 
@@ -429,8 +528,8 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                {createdEventMessage}
             </h1>
             ) : null }
-          
-              <div className="d-flex flex-column flex-md-row justify-content-start gap-2 mb-5">
+              <div ref={elementRef} 
+              className={`d-flex flex-column flex-md-row justify-content-start gap-2 mb-5 ${styles.stickyFilters} ${isSticky ? styles.sticky : ""}`}>
                 <div className={styles.searchContainer}>
                   <input type="search" className={` ${styles.searchInput}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." autoComplete="off" />
                     <span className={styles.searchIcon}><i className="fas fa-search"></i></span>
@@ -476,20 +575,20 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                     )}
                   </div>
                 <div className={`dropdown-center ${styles.searchElements}`}>
-                    <button className="btn btn-outline-secondary  px-5 w-100 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button className={`btn px-5 w-100 dropdown-toggle ${isSticky ? "btn-light" : "btn-outline-secondary"}`} style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedDate}
                     </button>
                     <ul className="dropdown-menu">
-                      <li onClick={handleClickDate}><a className="dropdown-item" href="#">Bugün</a></li>
-                      <li onClick={handleClickDate}><a className="dropdown-item" href="#">Yarın</a></li>
-                      <li onClick={handleClickDate}><a className="dropdown-item" href="#">Bu Hafta</a></li>
-                      <li onClick={handleClickDate}><a className="dropdown-item" href="#">Bu Haftasonu</a></li>
-                      <li onClick={handleClickDate}><a className="dropdown-item" href="#">Önümüzdeki Hafta</a></li>
+                      <li onClick={handleClickDate}><a className="dropdown-item"  style={{cursor: "pointer"}}>Bugün</a></li>
+                      <li onClick={handleClickDate}><a className="dropdown-item" style={{cursor: "pointer"}}>Yarın</a></li>
+                      <li onClick={handleClickDate}><a className="dropdown-item"  style={{cursor: "pointer"}}>Bu Hafta</a></li>
+                      <li onClick={handleClickDate}><a className="dropdown-item"  style={{cursor: "pointer"}}>Bu Haftasonu</a></li>
+                      <li onClick={handleClickDate}><a className="dropdown-item"  style={{cursor: "pointer"}}>Önümüzdeki Hafta</a></li>
                     </ul>
                 </div>
 
                 <div className={`dropdown-center ${styles.searchElements}`}>
-                    <button className="btn btn-outline-secondary  w-100 px-5 dropdown-toggle" style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button className={`btn w-100 px-5 dropdown-toggle ${isSticky ? "btn-light" : "btn-outline-secondary"}`} style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       {selectedCategory}
                     </button>
                     <ul className={`dropdown-menu ${styles.scrollableMenu}`}>
@@ -505,27 +604,31 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                   <button onClick={handleReset} className="btn btn-light">Sıfırla</button>
                 )}
               </div>
-              {(selectedDate !== "Bugün" || selectedCategory !== "Kategori" || selectedProvince !== "") && (
+              {(selectedDate !== "Bugün" || selectedCategory !== "Kategori" || selectedProvince !== "") && !loadingFilter && (
                   <h1 className="fs-5 my-2">Filtreleriniz:</h1>
               )}
              <div className="my-2 d-inline-flex align-items-center justify-content-start">
-              {selectedDate !== "Bugün" && (
+              {selectedDate !== "Bugün" && !loadingFilter && (
                     <button onClick={() => setSelectedDate("Bugün")} className={`${styles.cancelFilterButtons} me-1`} type="button">{selectedDate}</button>
               )}
-              {selectedCategory !== "Kategori" && (
+              {selectedCategory !== "Kategori" && !loadingFilter && (
                    <button onClick={() => setSelectedCategory("Kategori")} className={`${styles.cancelFilterButtons} me-1`} type="button">{selectedCategory}</button>
               )}
-              {selectedProvince !== "" && (
+              {selectedProvince !== "" && !loadingFilter && (
                   <button onClick={() => {setSelectedProvince(""); searchRef.current.value = ""}} className={`${styles.cancelFilterButtons} me-1`} type="button">{selectedProvince}</button>
               )}
 
              </div>
          
                  <SingleEvents
+                 lastEventElementRef={lastEventElementRef}
+                 selectedDate={selectedDate}
                  loadingFilter={loadingFilter}
                filteredEvents={filteredEvents} />
          
             </div>
+
+          
                 {/* KULLANICI GİRİŞİ YAPILMADI ISE TREND OLAN EVENTLERI VE KATEGORİLERİ SAYFANIN SAĞINDA GOSTER */}
             {!isUserRegistered && (
                   <div className="col-lg-4">
@@ -553,8 +656,7 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
         </div>
       </section>
     </>
-  );
-}
+  )});
 
 
 export default Events;
