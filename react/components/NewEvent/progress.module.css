@@ -13,6 +13,76 @@
    font-size: 20px;
    color: rgba(0,0,0,.5);
 }
+
+.newEventForm input, textarea {
+  width: 100%;
+  font-size: 16px; /* Yazı boyutu */
+  padding: 15px 20px; /* İç boşluk */
+  border: none; /* Kenarlık yok */
+  border-radius: 10px; /* Yuvarlatılmış köşeler */
+  background-color: white; /* Arka plan rengi */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Gölge */
+  transition: box-shadow 0.3s ease; /* Geçiş efekti */
+}
+
+.newEventForm input:focus, textarea:focus {
+  outline: none; /* Odaklandığında varsayılan çerçeveyi kaldır */
+  background-color: #fff; /* Odaklandığında arka plan rengi */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Odaklandığında gölge */
+}
+
+
+.cityInputIcon {
+ font-size: 1rem;
+}
+
+
+.newEventForm select {
+  font-size: 16px; /* Yazı boyutu */
+  padding: 15px 20px; /* İç boşluk */
+  border: 1px solid #ccc; /* Kenarlık */
+  border-radius: 5px; /* Yuvarlatılmış köşeler */
+  appearance: none; /* Varsayılan görünümü kaldır */
+  background-color: #fff; /* Arka plan rengi */
+  cursor: pointer; /* Tıklanabilir imleç */
+  margin-top: 0.6rem;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTYuNSAxNCAxMi41IDggOCAxNCAxLjUgOHptMy03djV6Ii8+PC9zdmc+"); /* Ok simgesi */
+  background-repeat: no-repeat; /* Simgeyi tekrarlama */
+  background-position: right 10px center; /* Simgenin konumu */
+  padding-right: 30px; /* Simge için boşluk */
+}
+
+.newEventForm select option {
+  padding: 1rem;
+  background-color: #f5f5f5; 
+}
+
+.newEventForm select option:hover {
+  background-color: #e0e0e0; /* Seçeneklerin üzerine gelindiğinde renk değişimi */
+}
+
+
+.newEventForm input[type="file"] {
+border: none;
+outline: none;
+}
+
+
+.wrapperTitle {
+  position: relative;
+  cursor: default;
+}
+
+.wrapperTitle input:first-of-type {
+  padding-right: 3rem;
+}
+
+.titleLength {
+  position: absolute;
+  top: 1.6rem;
+  right: 1rem;
+  z-index: 700;
+}
  
  /* .searchResults {
    position: absolute;
@@ -46,6 +116,16 @@
    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
    z-index: 999;
  }
+
+ .isTyping {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+ }
+ .isTypingResults {
+  border-top-left-radius: 0  !important;
+  border-top-right-radius: 0 !important;
+ }
+
  
  .searchResultsItems {
    padding: 16px;

@@ -8,7 +8,7 @@ async function cloneDocument(cloneCount) {
   try {
     await client.connect();
     const collection = client.db('etkinlikvar').collection('events');
-    const originalDocument = await collection.findOne({ _id: new ObjectId("660c009a6964bc6d52558e7c") });
+    const originalDocument = await collection.findOne({ _id: new ObjectId("66116d49df7c1095ba23b356") });
 
     if (!originalDocument) {
         console.error('Klonlama işlemi için belge bulunamadı.');

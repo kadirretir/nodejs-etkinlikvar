@@ -7,33 +7,53 @@
                 <div class="profileLeftBg">
                     <div class="card">
                         <img src="<%=findUser.profileImage%>" class="card-img"/>
-                        <div class="card-img-overlay text-white flex-column d-flex align-items-start justify-content-end">
+                        <div class="card-img-overlay text-white flex-column d-flex align-items-center justify-content-end">
+
+                         <div class="row w-100 g-0">
+                          <div class="col-10">
                             <% if(findUser.membershipLevel === "premium") { %>
-                                <h4 class="card-title memberBadge">e<span>+</span></h4>
-                            <% } %>
-                            
-                            <h5 class="card-title text-capitalize fs-3"><%=findUser.username%></h5>
-                            <p class="card-text text-capitalize my-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
-                                  <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
-                                </svg>
-                              <%=findUser.location%>
-                          </p>
-                          <%
-                              function formatDate(dateString) {
-                                  const options = { year: 'numeric', month: 'long', day: '2-digit' };
-                                  const date = new Date(dateString);
-                                  return date.toLocaleDateString('tr-TR', options);
-                              }
-  
-                      
-                              %>
-                            <p class="card-text"><small>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-minus-fill" viewBox="0 0 16 16">
-                                  <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1"/>
-                                </svg>
-                              <%=formatDate(findUser.signInDate)%> Tarihinde Katıldı
-                          </small></p>
+                              <h4 class="card-title memberBadge">e<span>+</span></h4>
+                          <% } %>
+                          
+                          <h5 class="card-title text-capitalize fs-3"><%=findUser.username%></h5>
+                          <p class="card-text text-capitalize my-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+                              </svg>
+                            <%=findUser.location%>
+                        </p>
+                        <%
+                            function formatDate(dateString) {
+                                const options = { year: 'numeric', month: 'long', day: '2-digit' };
+                                const date = new Date(dateString);
+                                return date.toLocaleDateString('tr-TR', options);
+                            }
+
+                    
+                            %>
+                          <p class="card-text">
+                            <small>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-minus-fill" viewBox="0 0 16 16">
+                                <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1 0-1"/>
+                              </svg>
+                            <%=formatDate(findUser.signInDate)%> Tarihinde Katıldı
+                           </small>
+                       </p>
+                          </div>
+
+                          <div class="col-2 d-flex align-items-end justify-content-end">
+                            <% if(findUser.twitterLink) { %>
+                             <a href="<%=findUser.twitterLink%>" target="_blank" style="color: inherit;">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-twitter-x align-self-end" viewBox="0 0 16 16">
+                                <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
+                              </svg>
+                             </a>
+                              <%  } %>
+                          </div>
+                         </div>
+
+
+                         
                           </div>
                       </div>
 
@@ -58,7 +78,7 @@
                                 <div class="rounded-3 p-3 my-3" style="background-color: #d9d9d9;">
                                     <p class="fs-5 py-2">Ortak ilgileriniz var!</p><br/>
                                      <% commonInterests.forEach((single) => { %>
-                                        <button type="button" class="btn btn-info"><%=single%></button>
+                                        <button type="button" class="btn btn-info my-1"><%=single%></button>
                                    <%  })%>
                                 </div>
                                 <% } %>
@@ -117,21 +137,60 @@
 
                     <div class="row gy-2  bg-white ps-2 pb-3 rounded-3 ">
                             <h1 class="fs-4 my-4">Yaklaşan Etkinlikleri(<%=events.length%>)</h1>
-                <% events.forEach((event) => { %>  
-                    <div class="col-lg-12">           
+                <% events.slice(0,10).forEach((event) => { %>  
+                    <div class="col-md-12">           
                         <div class="card mb-3" style="max-width: 75%">
-                            <div class="row g-0">
-                              <div class="col-md-4">
-                                <img src="../<%=event.eventImage%>"  class="img-fluid rounded-start" alt="...">
-                              </div>
-                              <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="card-title"><%=event.title%></h5>
-                                    <p class="card-text"><%=event.description%></p>
-                                  <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                            <a class="link-opacity-100-hover" href="/events/<%= event._id %>">
+                                <div class="row g-0">
+                           
+                                <div class="col-lg-4">
+                                  <img
+                                   
+                                    width="100%"
+                                    src="../<%=event.eventImage%>"
+                                    class="img-fluid rounded-start public-img"
+                                    alt="eventImage"
+                                  />
                                 </div>
-                              </div>
+                                <div class="col-lg-8">
+                                  <div
+                                    class="card-body p-0 ps-3 py-1 d-flex flex-column"
+                                    style="background: linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))"
+                                  >
+                                    <small class="fw-bolder py-1 mt-1 text-secondary"><%= formatDate(event.date) %></small>
+                                    <h5 class="card-title mb-3 mt-2 text-dark" style="font-size: 1.5rem;">
+                                      Kış akşamlarında sıcak çikolata eşliğinde kitap okumak, huzur verici bir etkinliktir
+                                    </h5>
+                                    <small class="text-secondary">
+                                      <i class="fa-solid fa-table me-1" style="color: var(--first-color)"></i>
+                                      <%= event.eventCategory %>
+                                    </small>
+                                    <div class="mt-auto text-end d-flex justify-content-between align-items-center">
+                                      <p class="text-capitalize text-start fw-bold card-text fs-5 text-body-secondary">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="16"
+                                          height="16"
+                                          fill="currentColor"
+                                          style="color: var(--first-color)"
+                                          class="bi bi-geo-alt-fill me-1"
+                                          viewBox="0 0 16 16"
+                                        >
+                                          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+                                        </svg>
+                                        <%= event.cityName + ', ' + event.districtName %>
+                                      </p>
+                                      <div class="attendeesContainer d-flex flex-row align-items-center justify-content-end">
+                                        <h5 class="text-secondary me-2">
+                                          <%= event.attendees.length <= 1 ? `${event.attendees.length} Katılımcı` : 'Katılımcılar' %>
+                                        </h5>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                         
                             </div>
+                              </a>
                           </div>
                     </div>
                  <%  }) %>
@@ -146,3 +205,8 @@
 </section>
 
 <%- include('./partials/_footer.ejs') -%>
+
+
+
+
+

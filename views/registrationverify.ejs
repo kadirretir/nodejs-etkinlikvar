@@ -1,7 +1,7 @@
 <%- include('./partials/_header.ejs') -%>
 
 <section
-user-token="<%=(typeof userToken !== 'undefined') ? JSON.stringify(userToken) : '{}' %>"
+isVerified="<%=(typeof isVerified !== 'undefined') ? JSON.stringify(isVerified) : '{}' %>"
 id="afterRegistration"></section>
 
 <%- include('./partials/_footer.ejs') -%>

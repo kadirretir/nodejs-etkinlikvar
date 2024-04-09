@@ -15,14 +15,23 @@
                </div>
             
                <hr />
-               <div class="row w-25 align-items-center">
-                  <div class="col-lg-7">
+               <div class="row align-items-center">
+                  <div class="col-lg-1">
                      <p class="fs-5 flex-grow-1">Etkinlik Kurucusu: </p> 
                   </div>
-                  <div class="col-lg-5">
+                  <div class="col-lg-1">
                      <div class="d-flex flex-column align-items-center">
                         <a class="text-center text-dark" href="../members/<%=findOrganizer.id%>">
-                        <img src="../<%=findOrganizer.profileImage%>" class="rounded-circle" width="60%" alt="profileimage" />
+                          <% if (user.membershipLevel === "premium") { %>
+                            <div class="image-container w-100">
+                              <div class="overlay" style="right: 0; bottom: 0;" id="chat-premium-member">e+</div>
+                              <img src="../<%=findOrganizer.profileImage%>" class="img-fluid rounded-circle" style="width: 50px; height: 50px;" alt="profileimage" />
+                           
+                            </div>
+                       <% } else { %>
+                        <img src="../<%=findOrganizer.profileImage%>" class="img-fluid rounded-circle" style="width: 50px; height: 50px;"  alt="profileimage" />
+                    <%   } %>
+                        
                         <h1 class="fs-5"><%= (user && user.username === findOrganizer.username) ? 'Siz' : findOrganizer.username.toUpperCase() %>
                         </h1>
                      </a>
@@ -45,7 +54,10 @@
                 <%  return str.charAt(0).toUpperCase() + str.slice(1); %>
                <% } %>
                 <b class="fw-bold fs-4 d-block mb-3">Detaylar</b> 
-                <p class="fs-5  text-dark"><%= findEvent.description %></p>
+                <hr />
+                <div class="fs-5 text-dark">
+                  <%= findEvent.description %>
+                </div>
             </div>
 
             <div class="col-lg-4 py-1">
@@ -84,7 +96,15 @@
                      <% findAttendeeUsers.map((attendee) => { %>
                         <div class="d-flex flex-column justify-content-center align-items-center">
                            <a class="text-center text-dark" href="../members/<%=attendee.id%>">
-                           <img src="<%=attendee.profileImage%>" class="rounded-circle" width="70%" alt="attendee image">
+                            <% if(attendee.membershipLevel === "premium") { %>
+                              <div class="image-container w-100">
+                                <div class="overlay" style="right: 0; bottom: 0;" id="chat-premium-member">e+</div>
+                                 <img src="<%=attendee.profileImage%>" class="rounded-circle img-fluid" style="width: 50px; height:50px;"  alt="attendee image">
+                              </div>
+                           <% } else { %>
+                            <img src="<%=attendee.profileImage%>" class="rounded-circle img-fluid" style="width: 50px; height:50px;"  alt="attendee image">
+                         <%  } %>
+                        
                            <h1 class="fs-5 text-center"><%=(user && user.username === attendee.username) ? 'Siz' : attendee.username.charAt(0).toUpperCase() + attendee.username.slice(1) + (attendee._id.equals(findEvent.organizer) ? ' (Kurucu)' : '')%></h1>
                            </a>
                         </div>
@@ -138,9 +158,11 @@
                </div>
              <% } %>
 
-             <h1 class="fs-5 fw-bold mt-5">Tam Adres</h1>
-             <p class="fs-5 mt-2"><%=findEvent.fullAddress%></p>
-
+              <div class="my-5">
+                <h1 class="fs-5 fw-bold">Tam Adres</h1>
+                <p class="fs-5 mt-2"><%=findEvent.fullAddress%></p>
+              </div>
+    
              <% if (user && checkUserAttend) { %>
                <h2 class="fs-5 text-center mt-5 mb-2">Katılımcılara Özel Sohbet</h2>
                <hr>
@@ -166,31 +188,14 @@
            <%  } %>
             </div>
          </div>
-
-         <div class="row gx-5 my-5">
-            <h1 class="fs-4 mt-5 mb-3 fw-bolder">Benzer Etkinlikler</h1>
-            <hr />
-            <% findSimilarEvents.forEach((event) => { %>
-               <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 my-2">
-                 <a href="<%=event._id%>" class="w-100 d-flex justify-content-center align-items-center">
-                   <div class="card" style="width: 20rem; height: 22rem;">
-                     <img src="../<%=event.eventImage%>" class="card-img-top img-fluid" alt="...">
-                     <div class="card-body d-flex flex-column">
-                       <h5 class="card-title">
-                         <% const options = { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "numeric" }; %>
-                         <%= new Date(event.date).toLocaleDateString("tr-TR", options) %><br/>
-                         <small class="fs-4 my-2 d-inline-block"><%= event.title %></small>
-                         <h4 class="text-secondary-emphasis my-2">Kurucu <%=event.organizer.username%></h4>
-                         <div class="mt-auto">
-                           <h5 class="text-secondary"><%=event.attendees.length%> Katılımcı</h5>
-                         </div>
-                       </h5>
-                     </div>
-                   </div>
-                 </a>
-               </div>
-             <% }) %>
+       
+          <div class="row gx-5 my-5">
+            <section class="p-0" 
+            similar-events="<%= (typeof findSimilarEvents !== 'undefined') ? JSON.stringify(findSimilarEvents) : '{}' %>"
+             id="similarEventsRoot">
+            </section>
          </div>
+
          <% if (user) { %>
             <script>
               const isCurrentInAttendee =" <%= JSON.stringify(findAttendeeUsers.some(attendee => attendee.id.toString() === user._id.toString())) %>";
@@ -202,16 +207,29 @@
       </div>
    </section>
 
-   <% if(user) { %>
+   <% if(user && checkUserAttend) { %>
       <script>
          if(typeof isCurrentInAttendee !== "undefined" && isCurrentInAttendee) {
+
+          // establish websocket connection
             const ws = new WebSocket('ws://localhost:8080/?userId=<%= user && user._id %>');
+
+    // GET CHAT FORM
    const chatForm = document.getElementById("chatForm");
+
+   // User infos
    const userProfileImage = (`<%=user.profileImage.replace(/\\/g, '\\\\')%>`)
    const username = ('<%=user.username %>');
    const membershipLevel = ("<%=user.membershipLevel%>")
    const currentDate = new Date().toISOString().split('T')[0];
-   
+   // EXISTING MESSAGES
+   const messagesBefore = ("<%= JSON.stringify(messages) %>")
+   const decodedMessages = messagesBefore.replace(/&#34;/g, '"')
+  .replace(/&quot;/g, '"')
+  .replace(/\\(.)/g, "$1");
+
+const parsedMessages = JSON.parse(decodedMessages);
+
       // Mesaj gönderme işlevi
       function sendMessage(message) {
              if (ws.readyState === WebSocket.OPEN) {
@@ -330,6 +348,15 @@ countChange({ target: { value: messageInput.value } });
       // Mesaj giriş alanını temizleyin
       messageInput.value = '';
     });
+
+    // check if messages exists before
+    if(parsedMessages && parsedMessages.length > 0) {
+        parsedMessages.map((message) => {
+  const profileImageModified =  message.profileImage.replace(/(?<=uploads)(?!\/)|(?<!\/)(?=profile)/g, "/");
+          addMessage(message.content, profileImageModified, message.user, message.membershipLevel, message.date)
+        })
+    }
+
    
     function addMessage(message, profileImage, username, membershipLevel, date) {
       const now = new Date();
@@ -348,7 +375,6 @@ countChange({ target: { value: messageInput.value } });
   } else if (tomorrow === date) {
     timeString += ' Yarın';
   }
-
 
      const chatMessages = document.getElementById('chat-messages');
      const newMessage = document.createElement('ul');
@@ -371,7 +397,6 @@ countChange({ target: { value: messageInput.value } });
 
       if(membershipLevel === "premium") {
          const createOverlay = document.createElement("div")
-
          createOverlay.className = "overlay";
          createOverlay.id = "chat-premium-member"
          createOverlay.textContent = "e+"

@@ -18,7 +18,6 @@ const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
 
 
-
 require('dotenv').config();
 
 app.set("view engine", "ejs")
@@ -39,7 +38,7 @@ app.use('/members', express.static('public'))
 app.use('/members', express.static('dist'))
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/uploads_little', express.static(path.join(__dirname, 'uploads_little')));
+// // app.use('/uploads_little', express.static(path.join(__dirname, 'uploads_little')));
 
 app.use(session({
     secret: "secret key",
@@ -56,25 +55,68 @@ app.use(methodOverride('_method'))
 app.use(authMiddleware.getUserInfo)
 app.use(authMiddleware.getUserNotification)
 app.use(flash());
-//  cloneDocument(79);
+//  cloneDocument(8);
 
 const {checkIfAuthed} = authMiddleware;
 
-const setDynamicMeta = (req, res, next) => {
+const setDynamicMeta = async (req, res, next) => {
   // İstek yapılan URL'nin pathname'ini al
   const pathname = req.path;
   // Pathname'e göre dinamik başlık ve meta oluştur
   let title, description;
-  // console.log(pathname)
+
+
+
+  function sonrakiKisim (pathname)  {
+    var sonrakiKisim = pathname.split('/events/')[1];
+
+    return sonrakiKisim;
+  }
+  // check if individual event page has open
+  function kontrolEt (pathname) {
+      var kisim = sonrakiKisim(pathname)
+    if (kisim && kisim.length === 24) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+async function findCity (pathname) {
+  var kisim = sonrakiKisim(pathname)
+  try {
+    await connectToDb()
+    const cityName = await Event.findById({_id: kisim}).select("cityName districtName title")
+    return cityName
+  } catch (error) {
+   console.log(error)
+  }
+}
+
   if (pathname === '/') {
       title = "Etkinlikdolu - Yerel Konumunuzda Yapılacak Etkinlikleri Keşfedin";
       description = "Hayatınızı renklendirecek etkinlikler burada! En popüler konserlerden, yerel sanat sergilerine, eğitici seminerlerden eğlenceli festivallere kadar geniş bir yelpazede etkinlikleri keşfedin. Sizin için mükemmel olan etkinliği bulun ve yeni deneyimlere yelken açın."
-  } else if (pathname === '/events/') {
- 
-      title = "Hayatınıza Renk Katacak Etkinlikler - Keşfet, Katıl, Yaşa!";
-      description = "Etkinliklerin ritmine kapılın! Sıradanlıktan sıyrılıp, müzikten sanata, bilimden spora her zevke hitap eden etkinliklerle dolu bir dünyaya adım atın. Hayalinizdeki etkinliği keşfedin, kaydınızı yapın, maceraya atılın!";
+    } else if (pathname === '/events/') {
+        title = "Yerel Bölgenizdeki Etkinlikleri Keşfedin - Konser, Atölye, Buluşma";
+        description = "Etkinliklerin ritmine kapılın! Sıradanlıktan sıyrılıp, müzikten sanata, bilimden spora her zevke hitap eden etkinliklerle dolu bir dünyaya adım atın. Hayalinizdeki etkinliği keşfedin, kaydınızı yapın, maceraya atılın!";
+    } else if (pathname.includes("/events/") && kontrolEt(pathname)) {
+      const city = await findCity(pathname)
+      title = `Etkinlikdolu - ${city.cityName}, ${city.districtName} - ${city.title}`
+      description = `Bölgenizdeki heyecan verici etkinlikleri keşfedin! ${city.cityName} şehrinde ${city.districtName} bölgesinde ${city.title} etkinliği sizleri bekliyor. Detaylar için hemen göz atın!`;
+  }  else if (pathname === '/user/profile') { 
+    title = "Profilim";
+    description = "Profil";
+  } else if (pathname.includes("/members")) { 
+    title = "Profil Sayfası";
+    description = "Profil";
+  } else if (pathname === '/help') { 
+    title = "Etkinlikdolu - Yardım";
+    description = "Profil";
+  } else if (pathname === "/complaints") {
+    title = "Etkinlikdolu - Öneri ve Şikayet";
+    description = "Profil";
   } else {
-      title = "Sayfa Bulunamadı";
+      title = "Etkinlikdolu";
       description = "Üzgünüz, aradığınız sayfa bulunamadı.";
   }
 
@@ -95,26 +137,29 @@ app.use("/user", checkIfAuthed, userRoutes)
 app.use("/members", memberRoutes)
 
 // FIND IP ADDRESS
-// app.use(async (req, res, next) => {
-//   const ip = 
-//     req.headers['cf-connecting-ip'] ||
-//     req.headers['x-real-ip'] || 
-//     req.headers['x-forwarded-for'] ||
-//     req.socket.remoteAddress || '';
+app.use(async (req, res, next) => {
+  const ip = 
+    req.headers['cf-connecting-ip'] ||
+    req.headers['x-real-ip'] || 
+    req.headers['x-forwarded-for'] ||
+    req.socket.remoteAddress || '';
 
-//   if(!req.app.locals.usercity) {
-//     const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
-//     if(!findLocation.ok) {
-//       console.error("HATA: FINDLOCATION HAS PROBLEMS: ", findLocation.status)
-//     } 
-//     const response = await findLocation.json();
-//     req.app.locals.usercity = response.city
-//     next();
-//   } else {
-//     next();
-//   }
+  if(!req.app.locals.usercity) {
+    const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
+    if(!findLocation.ok) {
+      console.error("HATA: FINDLOCATION HAS PROBLEMS: ", findLocation.status)
+      next();   
+    } else {
+      const response = await findLocation.json();
+      req.app.locals.usercity = response.city
+      next();   
+    }
+  
+  } else {
+    next();
+  }
 
-// });
+});
 
 
 

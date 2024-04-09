@@ -2,6 +2,7 @@
 
     <section id="neweventsection">
         <div id="progress-root"
+        messages="<%=(typeof messages.error !== 'undefined' || typeof messages.success !== 'undefined' ) ? JSON.stringify(messages) : '{}' %>"
         user-info="<%=(typeof usermembership !== 'undefined') ? JSON.stringify(usermembership) : '{}' %>"
         ></div>
     </section>

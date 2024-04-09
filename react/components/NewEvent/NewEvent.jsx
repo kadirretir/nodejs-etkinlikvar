@@ -1,12 +1,10 @@
 import React, { useState, useEffect} from "react";
-import styles from "./progress.module.css";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import "@reach/combobox/styles.css";
 import EventForm from "./EventForm";
 import eventSubCategories from './eventSubCategories'
 
 
-const NewEvent = ({userInfo}) => {
+const NewEvent = ({userInfo, messages}) => {
 
   const [titleInput, setTitleInput] = useState("")
   const [districtInput, setDistrictInput] = useState("")
@@ -14,6 +12,7 @@ const NewEvent = ({userInfo}) => {
   const [fullAddressInput, setFullAddressInput] = useState("")
   const [descriptionInput, setDescriptionInput] = useState("")
   const [imageInput, setImageInput] = useState("")
+
 
   const [inputErrors, setInputErrors] = useState({
     titleError: "",
@@ -52,12 +51,12 @@ const NewEvent = ({userInfo}) => {
 
   // TITLE ERROR HANDLER
   useEffect(() => {
-    const titleRegex = /^[A-Za-z0-9ğüşıöçĞÜŞİÖÇ\s]{1,50}$/;
-    const isTitleValid = titleInput.length < 50 && titleRegex.test(titleInput.trim());
+    const titleRegex = /^[A-Za-z0-9ğüşıöçĞÜŞİÖÇ\s]{1,100}$/;
+    const isTitleValid = titleInput.length < 100 && titleRegex.test(titleInput.trim());
     if(titleInput.trim() !== "" && !isTitleValid) {
         setInputErrors((prevErrors) => ({
           ...prevErrors,
-          titleError: "*Lütfen başlığı sadece harf, rakam ve boşluk içerecek, 50 karakterden kısa olacak şekilde yazınız",
+          titleError: "*Lütfen başlığı sadece harf, rakam ve boşluk içerecek, 100 karakterden kısa olacak şekilde yazınız",
         }))
     } else {
       setInputErrors((prevErrors) => ({
@@ -241,9 +240,14 @@ const NewEvent = ({userInfo}) => {
           <div className="col-xl-7 my-5">
             <h1 className="fs-1 mb-5 text-center text-lg-start">
               Etkinlik Oluştur
-              <hr className="border border-1 opacity-75"></hr>
-            </h1>
+                </h1>
+                {Object.keys(messages).length > 0 && (
+    <div className="alert alert-danger">{messages.error}</div>
+)}
 
+              <hr className="border border-1 opacity-75" />
+         
+          
             <EventForm 
             titleInput={titleInput}
             districtInput={districtInput}
@@ -267,8 +271,8 @@ const NewEvent = ({userInfo}) => {
             />
            
           </div>
-          <div className={`col-xl-5 my-5 ${styles.googleMapsContainer}`}>
-          </div>
+          {/* <div className={`col-xl-5 my-5 ${styles.googleMapsContainer}`}>
+          </div> */}
         </div>
       </div>
     </>

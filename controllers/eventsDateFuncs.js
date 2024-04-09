@@ -7,7 +7,7 @@ const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange
 // Sayfalama için gerekli fonksiyon
 let lastId = null;
 
-const getPaginatedEvents = async (dateFormats, page, category, province, currentHour) => {
+const getPaginatedEvents = async (dateFormats, page, category, province, currentHour, events) => {
   if (page > 4) {
     throw new Error("Maksimum 80 event gönderilebilir.");
   }
@@ -21,10 +21,12 @@ const getPaginatedEvents = async (dateFormats, page, category, province, current
   } else if (lastId) {
     query._id = { $gt: lastId };
   }
+
   if (category) {
     // Eğer category varsa, eventCategory filtrelemesini yap
     query.eventCategory = category;
   }
+
   if (province) {
     // const [district, city] = province.split(",").map(part => part.trim());
     const selectedParts = province.split(",").map(s => s.trim());
@@ -39,6 +41,7 @@ const getPaginatedEvents = async (dateFormats, page, category, province, current
       query["cityName"] = selectedCity;
     }
   }
+
   if (Object.values(dateFormats).some(Array.isArray)) {
     const now = new Date(); // Şu anki tarih ve saat
     query.date = {
@@ -48,11 +51,16 @@ const getPaginatedEvents = async (dateFormats, page, category, province, current
     };
   } 
   else {
-    const today = new Date(dateFormats.toISOString().split('T')[0]); // 2024-04-02
+    const today = new Date(); // Şu anın tarihini alır
+    today.setHours(0, 0, 0, 0); // Saat kısmını sıfırlar (00:00:00)
+
+    // İlgili tarihi al
+    const targetDate = dateFormats instanceof Date ? dateFormats : new Date(today.getTime() + 86400000);
+
     query.date = {
-        $gte: today,
-        $lt: new Date(today.getTime() + 86400000) // Add one day to get the end of the day
-    }
+        $gte: targetDate,
+        $lt: new Date(targetDate.getTime() + 86400000) // Bir sonraki günün başlangıcı
+    };
       if(currentHour) {
         query.$expr = {
           $gt: [
@@ -63,7 +71,11 @@ const getPaginatedEvents = async (dateFormats, page, category, province, current
       }
 
   }
-
+// GENERALSEARCH İLE EVENT ARATILDIYSA, O EVENTLERİ GÖNDER
+  if (events && events.length > 0) {
+    // Eğer events dizisi doluysa, sorguya bu eventIds'i ekle
+    query._id = { $in: events };  
+}
     // Initialize an array to store combined events
     let combinedEvents = [];
 
@@ -73,7 +85,38 @@ const getPaginatedEvents = async (dateFormats, page, category, province, current
             .limit(20)
             .populate('attendees', 'profileImage username');
 
-        combinedEvents = [...combinedEvents, ...currentPageEvents]; // Append events
+              // Check for week-based filtering and limit events
+    if (currentPageEvents.length > 0 && Object.values(dateFormats).some(Array.isArray)) {
+      const startOfWeek = dateFormats.week[0];
+      const endOfWeek = dateFormats.week[1];
+
+      const limitedEvents = [];
+      const remainingEvents = []; // Array to store events outside the grouping
+
+      for (let currentDate = new Date(startOfWeek); currentDate <= endOfWeek; currentDate.setDate(currentDate.getDate() + 1)) {
+        const eventsForDay = currentPageEvents.filter(event => {
+          const eventDate = new Date(event.date);
+          return eventDate.getFullYear() === currentDate.getFullYear() &&
+                 eventDate.getMonth() === currentDate.getMonth() &&
+                 eventDate.getDate() === currentDate.getDate();
+        });
+
+        // Determine the number of events to take based on total count
+        const eventsToTake = currentPageEvents.length > 70 ? 10 : 7;
+
+        // Sort events for the day by date (ascending) and take the required number
+        eventsForDay.sort((a, b) => a.date - b.date);
+        limitedEvents.push(...eventsForDay.slice(0, Math.min(eventsToTake, eventsForDay.length)));
+
+        // Add remaining events for the day to the 'remainingEvents' array
+        remainingEvents.push(...eventsForDay.slice(eventsToTake));
+      }
+
+      combinedEvents = [...combinedEvents, ...limitedEvents, ...remainingEvents]; // Append limited and remaining events
+    } else {
+      combinedEvents = [...combinedEvents, ...currentPageEvents]; // Append as usual
+    }
+
 
         // Update query for the next page (if applicable)
         if (currentPageEvents.length > 0 && i < page) {
@@ -84,154 +127,110 @@ const getPaginatedEvents = async (dateFormats, page, category, province, current
     return combinedEvents;
 };
 
-
-
-const getPaginatedGeneralSearched = async (eventsIds, page, limit = 20) => {
-  const skip = (page - 1) * limit;
-  return Event.find({ _id: { $in: eventsIds } })
-    .skip(skip)
-    .limit(limit)
-    .populate('attendees');
-};
-
+function groupEventsByDate(events) {
+  const dateGroups = {};
+  for (const event of events) {
+    const dateString = event.date.toISOString().slice(0, 7); // Extract date part
+    if (!dateGroups[dateString]) {
+      dateGroups[dateString] = [];
+    }
+    dateGroups[dateString].push(event);
+  }
+  return dateGroups;
+}
 
 
 async function getTodaysEvents(page, events, category, province) {
   const formattedDate = getDate(); // Bugünün tarihi
   const dateObjFormat = new Date(formattedDate);
   const currentHour = formattedDate.substring(11, 16);
-  if (events.length > 0) {
-    // eventIds dizisi doluysa, ObjectId'lerle filtreleme fonksiyonunu kullan
-    const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)            
-    return filterEventsToday(findGenerallySearchedEvents, dateObjFormat, currentHour);
-  } else {
     // category ile filtre gerçekleştirildiyse category ile gönder
     let allEvents = [];
     if(category && province) {
-      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, province)
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, province, undefined, events)
     } else if (category) {
-      allEvents =  await getPaginatedEvents(dateObjFormat, page, category)
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, undefined, undefined, events)
     } else if (province) {
-      allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, province)
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, province, undefined, events)
     } else {
     // eventIds dizisi boşsa, veritabanından çek ve filtreleme fonksiyonunu kullan
-     allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, undefined, currentHour)
+     allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, undefined, currentHour, events)
   
     }
       return allEvents;
       // return filterEventsToday(allEvents, dateObjFormat, currentHour);
-  }
 }
-
-
-
-
 
 
 async function getTomorrowsEvents (page, events, category, province) {
     const formattedDate = getTomorrowDate();
     const dateObjFormat = new Date(formattedDate);
 
-    if (events.length > 0) {
-        // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
-        return filterEventsTomorrow(findGenerallySearchedEvents, dateObjFormat);
- 
-      } else {
     // category ile filtre gerçekleştirildiyse category ile gönder
     let allEvents = [];
     if(category && province) {
-      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, province)
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, province, undefined, events)
     } else if (category) {
-      allEvents =  await getPaginatedEvents(dateObjFormat, page, category)
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, category, undefined, undefined, events)
     } else if (province) {
-      allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, province)
+      allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, province, undefined, events)
     } else {
     // eventIds dizisi boşsa, veritabanından çek ve filtreleme fonksiyonunu kullan
-     allEvents =  await getPaginatedEvents(dateObjFormat, page)
+     allEvents =  await getPaginatedEvents(dateObjFormat, page, undefined, undefined, undefined, events)
     }
 
     return allEvents;
   
-      // return filterEventsTomorrow(allEvents, dateObjFormat);
-  }
 }  
-
 
 
 async function getThisWeeksEvents (page, events, category, province) {
     const { startOfWeek, endOfWeek } = getWeekRange();
-    if (events.length > 0) {
-        // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
-        return filterEventsThisWeek(findGenerallySearchedEvents, startOfWeek, endOfWeek);
-      } else {
         let newEvents = [];
         if(category && province) {
-          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, province)
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, province, undefined, events)
         } else if (category) {
-          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category)
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, undefined, undefined, events)
         } else if (province) {
-          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, province)
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, province, undefined, events)
         } else {
-          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page)
+          newEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, undefined, undefined, events)
         }
-        // return filterEventsThisWeek(newEvents, startOfWeek, endOfWeek);
-
         return newEvents;
-      }
 }  
-
-
 
 
 
 async function getThisWeekendEvents (page, events, category, province) {
     const { startOfWeekend, endOfWeekend } = getWeekendRange();
-
-    if (events.length > 0) {
-        // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
-        return filterEventsThisWeekend(findGenerallySearchedEvents, startOfWeekend, endOfWeekend);
-      } else {
         let AllEvents = [];
         if(category && province) {
-          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, category, province)
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, category, province, undefined, events)
         } else if (category) {
-          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, category);
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, category, undefined, undefined, events);
         } else if (province) {
-          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, undefined, province);
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, undefined, province, undefined, events);
         } else {
-          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page);
+          AllEvents = await getPaginatedEvents({week: [startOfWeekend, endOfWeekend]}, page, undefined, undefined, undefined, events);
         }
-
         return AllEvents;
-        // return filterEventsThisWeekend(AllEvents, startOfWeekend, endOfWeekend);
-      }
+
 }  
 
 async function getNextWeekEvents (page, events, category, province) {
     const {startOfWeek, endOfWeek} = getNextWeekRange();
 
-    if (events.length > 0) {
-        // events dizisi doluysa, filtreleme fonksiyonunu kullan
-        const findGenerallySearchedEvents = await getPaginatedGeneralSearched(events, page)
-        return filterEventsNextWeek(findGenerallySearchedEvents, startOfWeek, endOfWeek);
-      } else {
         let allEvents = [];
         if(category && province) {
-          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, province)
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, province, undefined, events)
         } else if (category) {
-          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category)
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, category, undefined, undefined, events)
         } else if (province) {
-          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, province)
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, province, undefined, events)
         } else {
-          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page)
+          allEvents = await getPaginatedEvents({week: [startOfWeek, endOfWeek]}, page, undefined, undefined, undefined, events)
         }
         return allEvents;
-
-        // return filterEventsNextWeek(AllEvents, startOfWeek, endOfWeek);
-      }
 } 
 
 

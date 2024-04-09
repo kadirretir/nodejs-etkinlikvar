@@ -66,8 +66,8 @@ module.exports.verify_post = async (req,res, next) => {
 module.exports.registrationverify_get = async (req,res) => {
   try {
     await connectToDb();
-    const findToken = await User.findById(req.user.id).select("emailToken")
-    res.render("registrationverify.ejs", { messages: req.flash(), userToken: findToken})
+    const isVerified = await User.findById(req.user.id).select("isVerified username")
+    res.render("registrationverify.ejs", { messages: req.flash(), isVerified: isVerified})
   } catch (error) {
     throw new Error(error)
   }

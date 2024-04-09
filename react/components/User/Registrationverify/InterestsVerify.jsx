@@ -2,12 +2,12 @@ import React, {useState, useEffect,} from 'react'
 import eventSubCategories from '../../NewEvent/eventSubCategories';
 
 
-const Interests = ({userToken}) => {
+const Interests = ({isVerified}) => {
     const [activeCategory, setActiveCategory] = useState(Object.keys(eventSubCategories)[0]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSubCategories, setSelectedSubCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState("")
+    const [hasSent, setHasSent] = useState(false)
 
     const handleShowMore = () => {
       const categories = Object.keys(eventSubCategories);
@@ -37,7 +37,7 @@ const Interests = ({userToken}) => {
       };
 
       const handleForm = () => {
-        const dynamicUserId = userToken._id;
+        const dynamicUserId = isVerified._id;
         setIsLoading(true)
         fetch("/user/interests", {
             method: 'POST',
@@ -51,16 +51,17 @@ const Interests = ({userToken}) => {
         })
         .then(response => {
             if (response.ok) {
-                console.log("BAŞARILI", response)
-                setError(response.message)
+              setHasSent(true)
                 setIsLoading(false)
                     window.location.href = `/members/${dynamicUserId}`
             } else {
+              setHasSent(false)
                 console.error('İstek gönderilirken bir hata oluştu.');
                 // İstek başarısız ise burada yapılacak işlemleri ekleyebilirsiniz
             }
         })
         .catch(error => {
+          setHasSent(false)
             setIsLoading(false)
             console.error('Bir hata oluştu:', error);
         });
@@ -122,7 +123,7 @@ const Interests = ({userToken}) => {
                 <div className="col align-self-end d-flex">
                     <button type="button" 
                     onClick={handleForm} id="saveButton"
-                    disabled={isLoading ? true : false}
+                    disabled={isLoading || hasSent ? true : false}
                     className="btn d-flex align-items-center justify-content-center btn-dark px-3 py-2">
                         {isLoading ? <div className="spinner-border" role="status">
   <span className="visually-hidden">Loading...</span>

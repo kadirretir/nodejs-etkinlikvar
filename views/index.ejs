@@ -42,20 +42,20 @@
             <div class="col-lg-4">
               <div class="imageContainer">
                 <img class="img-fluid" src="./meet-new-people.jpg" width="100%" alt="photo-nature" />
-                <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="#">Yeni İnsanlarla Tanış</a>
+                <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="/events">Yeni İnsanlarla Tanış</a>
               </div>
             </div>
 
             <div class="col-lg-4">
               <div class="imageContainer">
                 <img class="img-fluid" src="./photo-nature.jpg" width="100%" alt="photo-nature" />
-                <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="#">Doğa Yürüyüşüne Katıl</a>
+                <a class="text-underline-hover fs-4 text-center imageText fw-bold"  href="/events/?searchquery=Doğa Yürüyüşleri">Doğa Yürüyüşüne Katıl</a>
               </div>
             </div>
             <div class="col-lg-4">
               <div class="imageContainer">
                 <img src="./yeni-deneyimler.jpg" width="104%" alt="photo-nature" />
-                <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="#">Grupça Hobini Paylaş</a>
+                <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="/events">Grupça Hobini Paylaş</a>
               </div>
             </div>
           </div>
@@ -75,29 +75,34 @@
           <% events.forEach((event) => { %>
             <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 my-2">
               <a href="events/<%=event._id%>" class="w-100 d-flex justify-content-center align-items-center">
-                <div class="card" style="width: 20rem; height: 23rem;">
+                <div class="card" style="width: 20rem; min-height: 23rem;">
                   <img src="<%= event.eventImage %>" class="card-img-top img-fluid" alt="...">
                   <div class="card-body d-flex flex-column flex-wrap">
+
                     <h5 class="card-title">
                       <% const options = { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "numeric" }; %>
-                      <%= new Date(event.date).toLocaleDateString("tr-TR", options) %><br/>
-                      <small class="fs-4 my-2 d-inline-block text-capitalize"><%= event.title %></small>
-                      <h4 class="text-secondary-emphasis location-span my-2 text-capitalize">
+
+                      <p class="text-secondary"><%= new Date(event.date).toLocaleDateString("tr-TR", options) %></p>
+
+                      <small style="font-family: var(--second-font);" class="fs-5 fw-bold my-2 d-inline-block text-capitalize text-dark"><%= event.title %></small>
+
+                      <h4 class="text-body-secondary location-span mt-2 mb-1 text-capitalize">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo" viewBox="0 0 16 16">
                           <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6M4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.3 1.3 0 0 0-.37.265.3.3 0 0 0-.057.09V14l.002.008.016.033a.6.6 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.6.6 0 0 0 .146-.15l.015-.033L12 14v-.004a.3.3 0 0 0-.057-.09 1.3 1.3 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465s-2.462-.172-3.34-.465c-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411"/>
                         </svg>
                         <%=event.cityName%>
                       </h4>
-                      <h4 class="text-secondary-emphasis location-span my-2"><%=event.eventCategory%></h4>
+
+                      <h4 class="text-secondary location-span my-1"><%=event.eventCategory%></h4>
+
                       <div class="w-50 attendees-container d-flex flex-row align-items-center justify-content-start align-self-end">
                         <h5 class="text-secondary me-2 "><%= (event.attendees.length <= 1) ? event.attendees.length + ' Katılımcı' : 'Katılımcılar' %></h5>
                         <% for (let i = 0; i < Math.min(3, event.attendees.length); i++) { %>
                           <% let attendee = event.attendees[i]; %>
                           <img class="rounded-circle w-25" src="../<%=attendee.profileImage %>" alt="<%= attendee.username %>">
                       <% } %>
-                      
-                      
                       </div>
+
                     </h5>
                   </div>
                 </div>
@@ -111,7 +116,7 @@
           <% eventCategories.forEach((category, index) => { %>
             <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 d-flex justify-content-center">
               <div class="btn-group">
-                <a href="events/?searchquery=<%=category%>" style="width: 13rem; padding: 0.8rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
+                <a href="/events/?searchquery=<%=category%>" style="width: 13rem; padding: 0.8rem 0; margin: 0.3rem 0; background-color: var(--first-color); color: white;" class="btn border-0"><%=category%></a>
               </div>
             </div>
           <% }) %>

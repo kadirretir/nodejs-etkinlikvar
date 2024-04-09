@@ -8,56 +8,72 @@ import Notification from './components/Notification/Notification.jsx';
 import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
 import GeneralSearch from './components/GeneralSearch/GeneralSearch.jsx';
 import App from './components/User/Registrationverify/App.jsx';
+import SimilarEvents from './components/SimilarEvents/SimilarEvents.jsx';
 
 var pathname = window.location.pathname;
 
 function checkValue (val) {
-  switch (pathname) {
-    case "/events/newevent":
-    case "/events/newevent/":
+
+  switch (true) {
+    case pathname.startsWith("/events/") && pathname.slice(8).length >= 24:
+
+  
+    const similarEventsNode = document.getElementById('similarEventsRoot');
+    const similarEventsRoot = createRoot(similarEventsNode);
+    const similarEventsInfo = JSON.parse(similarEventsNode.getAttribute("similar-events"))
+    similarEventsRoot.render(
+        <SimilarEvents
+        similarEventsInfo={similarEventsInfo}
+        />
+    );
+    break;
+    case pathname === "/events/newevent":
+    case pathname === "/events/newevent/":
       const progressNode = document.getElementById('progress-root');
       const progressRoot = createRoot(progressNode);
       const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
+      const messages = JSON.parse(progressNode.getAttribute("messages"))
       progressRoot.render(
         <StrictMode>
           <NewEvent
+          messages={messages}
           userInfo={userInfo}
           />
         </StrictMode>
       );
       break;
-    case "/events":
-    case "/events/":
-      const eventsNode = document.getElementById('myEvents');
-      const eventsRoot = createRoot(eventsNode);
-      const usersData = JSON.parse(eventsNode.getAttribute('data-user'));
-      const usercity = JSON.parse(eventsNode.getAttribute("user-city"))
-      const interestsearch = JSON.parse(eventsNode.getAttribute('interest-search'));
-      const generalSearchResults = JSON.parse(eventsNode.getAttribute("general-search"));
-      const searchresults = JSON.parse(eventsNode.getAttribute('search-results'));
-      const categoryData = JSON.parse(eventsNode.getAttribute("category-data"));
-      const createdEventMessage = JSON.parse(eventsNode.getAttribute("created-event-message"))
-      const trendingEvents = JSON.parse(eventsNode.getAttribute("trending-events"))
-      const popularCategories = JSON.parse(eventsNode.getAttribute("trending-categories"))
-      const userEvents = JSON.parse(eventsNode.getAttribute("user-events"))
-      eventsRoot.render(
-   
-          <Events 
-          usercity={usercity}
-          userEvents={userEvents}
-          createdEventMessage={createdEventMessage}
-          generalSearchResults={generalSearchResults}
-          interestsearch={interestsearch}
-          searchresults={searchresults} 
-          categoryData={categoryData}
-          trendingEvents={trendingEvents}
-          popularCategories={popularCategories}
-          userData={usersData} />
-   
-      );
+    case pathname === "/events":
+    case pathname === "/events/":
+        const eventsNode = document.getElementById('myEvents');
+        const eventsRoot = createRoot(eventsNode);
+        const usersData = JSON.parse(eventsNode.getAttribute('data-user'));
+        const usercity = JSON.parse(eventsNode.getAttribute("user-city"))
+        const interestsearch = JSON.parse(eventsNode.getAttribute('interest-search'));
+        const generalSearchResults = JSON.parse(eventsNode.getAttribute("general-search"));
+        const searchresults = JSON.parse(eventsNode.getAttribute('search-results'));
+        const categoryData = JSON.parse(eventsNode.getAttribute("category-data"));
+        const createdEventMessage = JSON.parse(eventsNode.getAttribute("created-event-message"))
+        const trendingEvents = JSON.parse(eventsNode.getAttribute("trending-events"))
+        const popularCategories = JSON.parse(eventsNode.getAttribute("trending-categories"))
+        const userEvents = JSON.parse(eventsNode.getAttribute("user-events"))
+        eventsRoot.render(
+     
+            <Events 
+            usercity={usercity}
+            userEvents={userEvents}
+            createdEventMessage={createdEventMessage}
+            generalSearchResults={generalSearchResults}
+            interestsearch={interestsearch}
+            searchresults={searchresults} 
+            categoryData={categoryData}
+            trendingEvents={trendingEvents}
+            popularCategories={popularCategories}
+            userData={usersData} />
+     
+        );
       break;
-    case "/login":
-    case "/login/":
+    case pathname === "/login":
+    case pathname === "/login/":
       const loginNode = document.getElementById('login');
       const loginRoot = createRoot(loginNode);
       const errorMessage = JSON.parse(loginNode.getAttribute("error-message"));
@@ -69,33 +85,33 @@ function checkValue (val) {
         </StrictMode>
       );
       break;
-      case "/user/registrationverify":
-      case "/user/registrationverify/":
-      case "/user/registrationinterests":
-      case "/user/registrationinterests/":
+      case pathname === "/user/registrationverify":
+      case pathname === "/user/registrationverify/":
+      case pathname === "/user/registrationinterests":
+      case pathname === "/user/registrationinterests/":
         const registrationverifyNode = document.getElementById('afterRegistration');
         const registrationverifyRoot = createRoot(registrationverifyNode);
-        const userToken = JSON.parse(registrationverifyNode.getAttribute('user-token'));
+        const isVerified = JSON.parse(registrationverifyNode.getAttribute('isVerified'));
         registrationverifyRoot.render(
             <StrictMode>
               <App 
-              userToken={userToken}
+              isVerified={isVerified}
               />
             </StrictMode>
           );
           break;
-    case "/user/profile":
-    case "/user/profile/":
-    case "/user/information":
-    case "/user/information/":
-    case "/user/privacy":
-    case "/user/privacy/":
-    case "/user/interest":
-    case "/user/interest/":
-    case "/user/subscription":
-    case "/user/subscription/":
-    case "/user/paymentmethod":
-    case "/user/paymentmethod/":
+    case pathname === "/user/profile":
+    case pathname === "/user/profile/":
+    case pathname === "/user/information":
+    case pathname === "/user/information/":
+    case pathname === "/user/privacy":
+    case pathname === "/user/privacy/":
+    case pathname === "/user/interest":
+    case pathname === "/user/interest/":
+    case pathname === "/user/subscription":
+    case pathname === "/user/subscription/":
+    case pathname === "/user/paymentmethod":
+    case pathname === "/user/paymentmethod/":
       const userNode = document.getElementById('userProfile');
       const userRoot = createRoot(userNode);
       const userData = JSON.parse(userNode.getAttribute("user-data"));
@@ -111,7 +127,7 @@ function checkValue (val) {
         </StrictMode>
       );
       break;
-      case "/":
+      case pathname === "/":
         const searchNode = document.getElementById('searchBoxLocation');
       const searchRoot = createRoot(searchNode);
       searchRoot.render(

@@ -24,6 +24,10 @@ const verifyCallback = async (email, password, done) => {
       await connectToDb();
       const user = await User.findOne({ email: email });
 
+      if(!email || !password) {
+        return done(null, false, {message: "Lütfen gerekli alanları doldurunuz"})
+      }
+
         if(user == null) {
             return done(null, false, {message: "Girilen kullanıcıya ait bilgi bulunamadı"})
         }
@@ -59,12 +63,18 @@ module.exports.register_post= async (req,res, next) => {
         await connectToDb()
         const findUser = await User.findOne({email: req.body.signupemail})
         const isUserNameTaken = await User.findOne({username: req.body.signupusername})
+      
         if(!req.body.signupemail) {
           req.flash("error", "Lütfen gerekli alanları doldurunuz");
           return res.redirect("/login");
+        } else if (!req.body.ageVerification) {
+            req.flash("error", "Kayıt olabilmek için 18 yaşından büyük olmanız gerekmektedir")
         } else if (isUserNameTaken) {
           req.flash("error", "Bu kullanıcı adı alınmış.");
           // Kayıt sayfasına yönlendirme yapın
+          return res.redirect("/login");
+        } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/.test(req.body.signuppassword)) {
+          req.flash("error", "Şifre en az bir harf ve bir rakam içermeli, ve en az 6 karakter uzunluğunda olmalı");
           return res.redirect("/login");
         } else if (!findUser) {
           const hashedPass = await bcrypt.hash(req.body.signuppassword, 10)
@@ -158,13 +168,13 @@ module.exports.register_post= async (req,res, next) => {
              port: 465,
              secure: true,
              auth: {
-               user: "kadirramazan344@gmail.com",
+               user: "etkinlikdolu@gmail.com",
                pass: "zcum cjum mzbn rgzv"
              }
             });
           
             const info = await transporter.sendMail({
-             from: "kadirramazan344@gmail.com",
+             from: "etkinlikdolu@gmail.com",
              to: "kadirramazan344@gmail.com",
              subject: "Doğrulama Kodu, etkinlikdolu.com",
              html: html
@@ -210,12 +220,19 @@ module.exports.login_post = async (req, res, next) => {
   if(recaptchaResponse.data.success) {
     passport.authenticate('local', (err, user, info) => {
       if (err || !user) {
+        let errorMessages;
+        if (info && info.message && info.message.includes("Missing credentials")) {
+          errorMessages = "Lütfen e-posta ve şifrenizi giriniz";
+        } else {
+          errorMessages = info ? info.message : "Bir hata oluştu";
+        }
+        req.flash("error", errorMessages)
         return res.redirect('/login');
       }
       req.logIn(user, (err) => {
         if (err) {
           return next(err);
-        }
+        }  
         return res.redirect(backUrl)
       });
 
@@ -227,7 +244,6 @@ module.exports.login_post = async (req, res, next) => {
     }
     throw new Error("reCAPTCHA doğrulaması başarısız!");
   }
-
 } 
 
   

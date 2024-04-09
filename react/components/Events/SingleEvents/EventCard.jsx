@@ -64,21 +64,23 @@ const EventCard = memo(
         <div ref={ref} className="card my-4 rounded-0 border-0" style={{ maxWidth: '640px' }}>
           <a className="link-opacity-100-hover" href={`/events/${filteredSingleEvent._id}`}>
             <div className="row g-0">
-              <div className="col-md-4">
-              <MemoizedLazyLoadImage
+              <div className="col-md-4"  style={{ height: '100%' }}>
+           
+                <MemoizedLazyLoadImage
                 effect="blur"
-                width={innerWidth >= 768 ? '100%' : null}
-                height="155px"
-                src={`../${innerWidth >= 768 ? smallImagePath : imagePath}`}
-                className="img-fluid rounded-start"
+                src={`../${imagePath}`}
+                className={`img-fluid rounded-start ${innerWidth > 768 ? styles.cardImgTop : ""}`}
                 alt="eventImage"
               />
+
+         
+       
               </div>
               <div className="col-md-8">
                 <div
                   className="card-body p-0 ps-3 py-1 d-flex flex-column"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))',
+                    background: 'linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))'
                   }}
                 >
                   <small className="fw-bolder py-1 mt-1 text-secondary">{displayDate}</small>

@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import InterestsVerify from './InterestsVerify';
 
-const App = ({ userToken }) => {
-
+const App = ({ isVerified }) => {
   
   return (
     <Router>
       <Routes>
       <Route path="/user/registrationverify"
-       element={userToken.emailToken ? <VerifyRegistration userToken={userToken} /> : <InterestsVerify userToken={userToken} />}
+       element={!isVerified.isVerified ? <VerifyRegistration isVerified={isVerified} /> : <InterestsVerify isVerified={isVerified} />}
         />
-        <Route path="/user/registrationinterests" element={<InterestsVerify userToken={userToken} />} />
+        <Route path="/user/registrationinterests" element={<InterestsVerify isVerified={isVerified} />} />
       </Routes>
     </Router>
   );
 };
 
 
-const VerifyRegistration = ({ userToken }) => {
+const VerifyRegistration = ({ isVerified }) => {
   const navigate = useNavigate();
   const [inputCode, setInputCode] = useState('');
   const [isLoading, setIsLoading] = useState(false)
+  const [hasSent, setHasSent] = useState(false)
   const [error, setError] = useState("")
 
   const handleSubmit = async (event) => {
@@ -41,8 +41,8 @@ const VerifyRegistration = ({ userToken }) => {
       setIsLoading(false); 
       // CHECK IF REQUEST OK
       if (response.ok) {
-          
-        console.log(result)
+        setHasSent(true)
+       
         if(!result.error) {
           setTimeout(() => {
             navigate('/user/registrationinterests');
@@ -50,6 +50,7 @@ const VerifyRegistration = ({ userToken }) => {
         } 
         if (result.error) {
           setError(result.error)
+          setHasSent(false)
         } else {
           setError(result.message)
         }
@@ -73,7 +74,8 @@ const VerifyRegistration = ({ userToken }) => {
             <h1 className="card-title text-center fs-2">Hesabınızı Doğrulayın</h1>
             <div className="card-body p-5">
               <hr />
-              <h1 className="card-text text-primary-emphasis mb-4">
+              <h1 className="card-text mb-4">
+                <span className='fs-4'>Aramıza Hoşgeldin {isVerified.username}</span> <br/>
                 <span className="fs-5">E-Mail'ine gönderdiğimiz postadaki onaylama kodunu aşağıya girdiğinde tamamiyle hazır olacaksın.</span> <br /> <br />
                 <span className="fw-light fs-5" style={{ color: "#FD3412" }}>Keyifli etkinlikler! </span>
               </h1>
@@ -86,7 +88,7 @@ const VerifyRegistration = ({ userToken }) => {
                   <input type="text" value={inputCode} onChange={(e) => setInputCode(e.target.value)} className="form-control border border-2 border-secondary-subtle focus-ring focus-ring-secondary" id="emailToken" name="emailToken" placeholder="ornek@ornek.com" required autoComplete='off' />
                   <label htmlFor="emailToken" className="text-secondary">Örnek: 4360F6</label>
                 </div>
-                <button type="submit" className="btn btn-dark d-flex align-items-center justify-content-center" disabled={isLoading ? true : false}>
+                <button type="submit" className="btn btn-dark d-flex align-items-center justify-content-center" disabled={isLoading || hasSent ? true : false}>
                   
                   {isLoading ? (
                     <div className="spinner-border" role="status">

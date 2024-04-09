@@ -12,7 +12,7 @@ const Login = ({errorMessage}) => {
     const submitBtnRef = useRef(null);
     const popoverContainerRef = useRef(null);
 
-
+  console.log(errorMessage)
   const handleToken = (token) => {
     setToken(token)
 }
@@ -192,13 +192,13 @@ const RegisterForm = ({handleReverseLinkClick, errorState}) => {
 
   
     // Password alanı için minimum 6 karakter kontrolü:
-    const isPasswordValid = password.length >= 6;
-
   
-    if (!isPasswordValid) {
+    
+  
+    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/.test(password)) {
       setErrorMessages((prevErrors) => ({
         ...prevErrors,
-        passwordError: "Şifreniz 6 karakter veya daha uzun olmalıdır",
+        passwordError: "Şifre en az bir harf ve bir rakam içermeli, ve en az 6 karakter uzunluğunda olmalı",
       }));
     } else {
       setErrorMessages((prevErrors) => ({
@@ -220,7 +220,7 @@ const RegisterForm = ({handleReverseLinkClick, errorState}) => {
     }
   
     // Formun geçerli olup olmadığını kontrol edin
-    const isFormValid = isUsernameValid && isEmailValid && isPasswordValid;
+    const isFormValid = isUsernameValid && isEmailValid && /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/.test(password);
   
     // isFormValid state'ini güncelleyin
     setFormValid(isFormValid);
@@ -233,6 +233,7 @@ const RegisterForm = ({handleReverseLinkClick, errorState}) => {
 
   const handleSubmit = (event) => {
     if (!isFormValid || !isAgeVerified) {
+      console.log("dur bakalım", !isAgeVerified, !isFormValid)
         event.preventDefault();
         handleInputChange()
     } 

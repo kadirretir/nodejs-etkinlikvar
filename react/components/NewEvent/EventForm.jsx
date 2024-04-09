@@ -150,56 +150,101 @@ const EventForm = ({
         setImageInput(event.target.value)
       };
 
-      const handleChange = () => {
-        setIsSubscribed(current => !current);
-      };
 
   return (
     <form
+    className={`${styles.newEventForm}`}
     onSubmit={formHandlerOnSubmit}
       action="/events/newevent"
       method="post"
       encType="multipart/form-data">
-      <div className="my-3">
+      <div className='my-3'>
+
         <label htmlFor="exampleInputEmail1" className="form-label fs-5">
           Başlık<i className="fs-6 text-secondary">(Gerekli)</i>
         </label>
-        <input
-        onChange={handleInputChange}
-        value={titleInput}
-          type="text"
-          name="eventPostTitle"
-          className="form-control my-2"
-          placeholder="Başlık girin..."
-          id="exampleInputEmail1"
-          aria-describedby="emailHelp"
-          autoComplete='off'
-        />
+        <div className={`${styles.wrapperTitle}`}>
+            <input
+            onChange={handleInputChange}
+            value={titleInput}
+              type="text"
+              name="eventPostTitle"
+              className="my-2"
+              placeholder="Başlık girin..."
+              id="exampleInputEmail1"
+              aria-describedby="emailHelp"
+              autoComplete='off'
+            />
+              <span className={`${styles.titleLength}`}>{titleInput.length === 0 ? (100) : Math.max(100 - titleInput.length, 0)}</span>
+        </div>
+ 
             <h1 className='text-danger'>{inputErrors.titleError.length > 0 && inputErrors.titleError}</h1>
+
       </div>
-      <div className="my-3">
-        <label htmlFor="startDate" className="form-label fs-5">
-          Etkinliğin Tarihi
-          <i className="fs-6 text-secondary">(Gerekli)</i>
-        </label>
-        <input
-        id="startDate"
-        name="eventPostDate"
-        className="form-control my-2"
-        type="datetime-local"
-        value={currentDate}
-        onChange={handleDateChange}
-      />
+
+      <div className="my-3 d-flex gap-2">
+        <div className='w-50'>
+            <label htmlFor="startDate" className="form-label fs-5">
+              Etkinliğin Tarihi
+              <i className="fs-6 text-secondary">(Gerekli)</i>
+            </label>
+            <input
+            id="startDate"
+            name="eventPostDate"
+            className="my-2"
+            type="datetime-local"
+            value={currentDate}
+            onChange={handleDateChange}
+          />
+        </div>
+
+
+        <div className="w-50">
+             <label htmlFor="getEventPartLimit" className="form-label fs-5">
+              Katılımcı Sınırı
+              <i className="fs-6 text-secondary">(Opsiyonel)</i>
+            </label>
+
+            <select name='getEventPartLimit' id="getEventPartLimit" className='w-100'>
+              <option value="">Sınır Yok</option>
+              <option value="5">5 Kişi</option>
+              <option value="10">10 Kişi</option>
+              <option value="15">15 Kişi</option>
+              <option value="20">20 Kişi</option>
+            </select>
+        </div>
+   
       </div>
       <div className="my-3 d-flex gap-2">
+
       <div className={`w-50 ${styles.searchContainer}`}>
         <p className="form-label fs-5">
         <label htmlFor="cityname">
           İl</label><i className="fs-6 text-secondary">(Gerekli)</i>
         </p>
-        <input className='form-control'autoComplete='off' value={cityInput} onChange={handleCityChange} id='cityname' name='cityname' type="text" placeholder='İl' />
+
+        <div className={`position-relative`}>
+          <input 
+          autoComplete='off' 
+          className={cityResults && cityResults.length > 0 ? styles.isTyping : null} 
+          value={cityInput}
+            onChange={handleCityChange} 
+            style={{paddingLeft: "2rem"}}
+            id='cityname' 
+            name='cityname' 
+            type="text" 
+            placeholder='İl' />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16"
+                 className={`bi bi-geo-alt-fill position-absolute ${styles.cityInputIcon}`}
+                 style={{top: "1rem", left: "0.5rem", color: "#c3c3c3"}}
+               viewBox="0 0 16 16">
+              <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+            </svg>
+  
+        </div>
+    
         {cityResults && isTypingCity && (
-            <div className={styles.searchResults}> 
+            <div className={`${styles.searchResults} ${cityResults && cityResults.length > 0 ? styles.isTypingResults : null}`} > 
               {cityResults.map((cityname, index) => {
                 return (
                   <div onClick={handleGetCity} className={styles.searchResultsItems} key={index}>
@@ -223,9 +268,9 @@ const EventForm = ({
         <label htmlFor="getDistrictName">
           İlçe</label><i className="fs-6 text-secondary">(Gerekli)</i>
         </p>
-        <input className="form-control" autoComplete='off'  disabled={citySubmitted || districtsSearch ? false : true} value={districtInput} onChange={handleDistrictChange} name="getDistrictName" id='getDistrictName' type="text" placeholder="İlçe" /> 
+        <input autoComplete='off' className={districtsResults.length > 0 ? styles.isTyping : null}    disabled={citySubmitted || districtsSearch ? false : true} value={districtInput} onChange={handleDistrictChange} name="getDistrictName" id='getDistrictName' type="text" placeholder="İlçe" /> 
           {districtsResults && (
-            <div className={styles.searchResults}> 
+            <div className={`${styles.searchResults} ${districtsResults.length > 0 ? styles.isTypingResults : null}`} > 
               {districtsResults.map((district, index) => {
                 return (
                   <div onClick={handleGetDistrict} className={styles.searchResultsItems} key={index}>
@@ -249,17 +294,17 @@ const EventForm = ({
           <label htmlFor="fulladress">
           Tam Adres</label><i className="fs-6 text-secondary">(Gerekli)</i>
         </p>
-       <input className="form-control" id="fulladress" name="fulladress" value={fullAddressInput} onChange={handleInputChange} placeholder="Mahalle, Cadde, Sokak, Mevki, Apartman Numarası / Daire numarası " type="text" />
+       <input id="fulladress" autoComplete='off' name="fulladress" value={fullAddressInput} onChange={handleInputChange} placeholder="Mahalle, Cadde, Sokak, Mevki, Apartman Numarası / Daire numarası " type="text" />
        <h1 className='text-danger my-2'>{inputErrors.fullAdressError.length > 0 && inputErrors.fullAdressError}</h1>
       </div>
       <div className="d-flex my-3">
 
-        <div style={{width: "50%"}}>
+        <div className='w-50'>
             <p className="form-label fs-5">
               Kategori<i className="fs-6 text-secondary">(Gerekli)</i>
             </p>
-            <label htmlFor="eventCategory">Kategori:</label>
       <select
+      className='w-100'
         id="eventCategory"
         value={category}
         name='eventCategory'
@@ -271,9 +316,13 @@ const EventForm = ({
           <option key={key} value={key}>{key}</option>
         ))}
       </select>
-
-      <label htmlFor="eventSubCategory">Alt Kategori:</label>
-      <select
+      </div>
+              <div className='w-50'>
+                <p className="form-label fs-5">
+                İlgili Alan<i className="fs-6 text-secondary">(Gerekli)</i>
+              </p>
+            <select
+               className='w-100'
         id="eventSubCategory"
         name='eventSubCategory'
         value={subCategory}
@@ -285,9 +334,10 @@ const EventForm = ({
           <option key={option} value={option}>{option}</option>
         ))}
       </select>
-        </div>
-
-        <div style={{width: "50%"}}>
+              </div>
+   
+       
+        {/* <div style={{width: "50%"}}>
         {userInfo !== "free" ? (
           <>
                    <div className="form-check form-switch form-check">
@@ -324,7 +374,7 @@ const EventForm = ({
                 </>
     
            )}
-        </div>
+        </div> */}
 
     
   
@@ -336,7 +386,7 @@ const EventForm = ({
          <textarea
          value={descriptionInput}
          onChange={handleInputChange}
-          className="form-control my-2"
+          className=" my-2"
           name="eventPostDescription"
           placeholder="Sabah yürüyüşünden sonra doğa gezisine gideceğiz..."
           id="floatingTextarea2"

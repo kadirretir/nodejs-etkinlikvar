@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, memo, lazy } from "react";
 import styles from './events.module.css'
 import useStickyOnTop from "./FiltersIntersection";
+import debounce from 'lodash.debounce';
 const SingleEvents = lazy(() => import("./SingleEvents/SingleEvents"));
 const TrendingEvents = lazy(() => import("./TrendingEvents"));
 const TrendingCategories = lazy(() => import("./TrendingCategories"));
@@ -16,7 +17,6 @@ const Events = memo(({ userEvents,
       trendingEvents, 
       popularCategories }) => {
   const [filteredEvents, setFilteredEvents] = useState([])
-  const [loading, setLoading] = useState(false);
   const [loadingFilter, setLoadingFilter] = useState(false)
   const [selectedDate, setSelectedDate] = useState("Bugün")
   // GET SEARCHED STRING FROM URL
@@ -28,7 +28,7 @@ const Events = memo(({ userEvents,
 
 
   const [selectedProvince, setSelectedProvince] = useState(selectProvinceIf)
-  const [searchAPI, setSearchAPI] = useState([])
+
 
   const [search, setSearch] = useState("")
   const [searchResults, setSearchResults] = useState([])
@@ -37,7 +37,8 @@ const Events = memo(({ userEvents,
  
   const [page, setPage] = useState(1);
   const [hasMorePage, setHasMorePage] = useState(true);
- 
+ const [loadingPage, setLoadingPage] = useState(false)
+
 
   // Search REFS
   const searchRef = useRef()
@@ -59,11 +60,8 @@ const Events = memo(({ userEvents,
 
 
   // INTERSECTION API FOR FILTERS STICKY
-
-  const { elementRef, isSticky } = useStickyOnTop();
+  const { elementRef, isSticky, calculateTopSpace } = useStickyOnTop();
  
-// get dates
-// const {getDate, getTomorrowDate, getWeekRange, getWeekendRange, getNextWeekRange} = getDates
 
   const handleClickDate = (e) => {
     setSelectedDate(e.target.innerHTML)
@@ -72,11 +70,9 @@ const Events = memo(({ userEvents,
   const handleClickCategory = (e) => {
     setSelectedCategory(e.target.innerHTML)
   }
-  const isTyping = search.replace(/\s+/, '').length > 0;
 
   useEffect(() => {
     const getProvinces = async () => {
-      setLoading(true);
       try {
         const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,districts");
         const data = await response.json();
@@ -91,36 +87,30 @@ const Events = memo(({ userEvents,
         const districtsArray = districts.flat();
         getProvincesToArray.push(districtsArray);
        
-        const flattenedProvincesDistricts = [...getProvincesToArray.flat()];
            
-       setSearchAPI(flattenedProvincesDistricts);
+       const districtsWithCity = districtsArray.slice(81, 1053).map((district) => `${district.name}, ${district.city}`);
+       const provinceNames = getProvincesToArray.filter((names) => {return names}).slice(0,81)
+ 
+       const combinedArray = provinceNames.concat(districtsWithCity);
+       const filterResults = combinedArray.filter((names) => names.toLocaleUpperCase('TR').includes(search.toLocaleUpperCase('TR')));
+       setSearchResults(filterResults);
       } catch (error) {
         throw new Error(error);
       }
-      setLoading(false);
     }
   
-    if(isTyping) {
-        getProvinces();
-    } 
+    const debouncedGetProvinces = debounce(getProvinces, 500); // 500 milisaniyelik gecikme
+    if (search.trim().length > 0) {
+        debouncedGetProvinces();
+    }
+
+    return () => {
+        debouncedGetProvinces.cancel(); // Temizleme işlevi bileşen yeniden yüklenirken çalışır.
+    }
 
   }, [search]);
   
-  useEffect(() => {
-    if (isTyping) {
-      const districtsWithCity = searchAPI.slice(81, 1053).map((district) => `${district.name}, ${district.city}`);
-
-      const provinceNames = searchAPI.filter((names) => {return names}).slice(0,81)
-
-      const combinedArray = provinceNames.concat(districtsWithCity);
-
-      const filterResults = combinedArray.filter((names) => names.toLocaleUpperCase('TR').includes(search.toLocaleUpperCase('TR')));
   
-      setSearchResults(filterResults);
-    } else {
-      setSearchResults([])
-    }
-  }, [search, searchAPI]);
   const handleCategoryLeft = (event) => {
     setSelectedCategory(event)
     // window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -162,48 +152,58 @@ const fetchCallBack = async (page, category, province) => {
 
     switch (selectedDate) {
       case "Bugün":
-         filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Bugün", category, province)
-         break;
       case "Yarın":
-        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Yarın", category, province);
-        break;
       case "Bu Hafta":
-        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Bu Hafta", category, province);
-        break;
       case "Bu Haftasonu":
-        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Bu Haftasonu", category, province);
-        break;
       case "Önümüzdeki Hafta":
-        filteredData = await fetchDataByFilterGeneral(page, resultsIds, "Önümüzdeki Hafta", category, province);
+        filteredData = await fetchDataByFilterGeneral(page, resultsIds, selectedDate, category, province);
         break;
       default:
-        return []; // Varsayılan olarak boş bir dizi döndür
+        filteredData = await fetchDataByFilterGeneral(page, resultsIds, selectedDate, category, province);
+        break;
     }
     return filteredData;
   } catch (error) {
     throw new Error(error)
   }
 }
-const fetchDataFromMain = async () => {
+
+const fetchNewPage = async () => {
+  try {
+    let newPage = [];
+      if(selectedCategory !== "Kategori" && selectedProvince !== "") {
+      newPage = await fetchCallBack(page, selectedCategory, selectedProvince)
+      } else if (selectedProvince !== "") {
+        newPage = await fetchCallBack(page, undefined, selectedProvince)
+      } else if (selectedCategory !== "Kategori") {
+        newPage = await fetchCallBack(page, selectedCategory, undefined)
+      } else {
+        newPage = await fetchCallBack(page)
+      }
+   setFilteredEvents(newPage)
+  
+   } catch (error) {
+    throw new Error(error)
+   } finally {
+    setLoadingPage(false)
+   }
+}
+
+
+const fetchFilters = async () => {
   setLoadingFilter(true)
   try {
     let filteredData = [];
       if(selectedCategory !== "Kategori" && selectedProvince !== "") {
-        filteredData = await fetchCallBack(page, selectedCategory, selectedProvince);
+        filteredData = await fetchCallBack(1, selectedCategory, selectedProvince);
       } else if (selectedCategory !== "Kategori") {
-        filteredData = await fetchCallBack(page, selectedCategory, undefined);
+        filteredData = await fetchCallBack(1, selectedCategory, undefined);
       } else if(selectedProvince !== "") {
-        filteredData = await fetchCallBack(page, undefined, selectedProvince)
+        filteredData = await fetchCallBack(1, undefined, selectedProvince)
       } else {
-        filteredData = await fetchCallBack(page)
+        filteredData = await fetchCallBack(1)
       }
-      
-      console.log(filteredData)
-   
-        
       setFilteredEvents(filteredData);
-
-
  
   } catch (error) {
     throw new Error(error)
@@ -214,10 +214,13 @@ const fetchDataFromMain = async () => {
 
 
 useEffect(() => {
-  // selectedDate, selectedCategory veya selectedProvince değiştiğinde page'i 1'e ayarla
   setHasMorePage(true);
   setPage(1);
   setFilteredEvents([]); // Etkinlikleri temizle
+  fetchFilters();
+  if (isSticky) {
+    scrollToTop();
+}
 }, [selectedDate, selectedCategory, selectedProvince]);
 
 
@@ -227,98 +230,25 @@ useEffect(() => {
   } else {
     setHasMorePage(true)
   }
+
+  if(page > 1 && page <= 4) {
+    setLoadingPage(true)
+    fetchNewPage()
+  } 
 }, [page])
 
-useEffect(() => {
-  if ((page <= 4 && hasMorePage)) {
-    console.log("useeffect worked", page)
-    fetchDataFromMain();
-  } 
-}, [page, selectedCategory, selectedDate, selectedProvince])
 
 
 
-// useEffect(() => {
-//   // Page değiştiğinde sadece fetchDataFromMain'i çağır
-//   if (didMountRef.current) {
-//     fetchDataFromMain();
-//   } else {
-//     didMountRef.current = true;
-//   }
-// }, [page]);
-
-
-
-
-
-
-
-
-
-
-
-//   const filterData = (fetchedData) => {
-//       // if (selectedCategory !== "Kategori" && selectedProvince !== "") {
-//       //   // Hem kategoriye hem de province'e göre filtreleme yapılacak
-//       //   const getNewFilteredArray = fetchedData.filter((event) => {
-//       //     // Kategoriye göre filtreleme
-//       //     const categoryMatches = event.eventCategory === selectedCategory;
-//       //     // Province'e göre filtreleme
-//       //     const selectedParts = selectedProvince.split(",").map(s => s.trim());
-//       //     const selectedCity = selectedParts.length === 2 ? selectedParts[1].toLocaleUpperCase('TR') : selectedParts[0].toLocaleUpperCase('TR');
-//       //     const selectedDistrict = selectedParts.length === 2 ? selectedParts[0].toLocaleUpperCase('TR') : "";
-      
-//       //     const provinceMatches = event.cityName && event.cityName.toLocaleUpperCase('TR') === selectedCity;
-//       //     const districtMatches = event.districtName && event.districtName.toLocaleUpperCase('TR').includes(selectedDistrict);
-      
-//       //     return categoryMatches && provinceMatches && (selectedDistrict ? districtMatches : true);
-//       //   });
-//       //   setFilteredEvents(getNewFilteredArray);
-//       // } 
-//       // else if (selectedCategory !== "Kategori") {
-//       //   const filterByCategory = fetchedData.filter((event) => event.eventCategory === selectedCategory);
-//       //   setFilteredEvents(filterByCategory);
-//       // }
-     
-// }
-
-// useEffect(() => {
-//   if(selectedDate !== "Bugün" || selectedCategory !== "Kategori" || selectedProvince !== "") {
-//     setIsFiltersChanged(true)
-//   }
-// }, [selectedDate, selectedCategory, selectedProvince])
-
-
-
-// useEffect(() => { 
-//   // if(isFiltersChanded && page > 1) {
-//   //   setPage(1)
-//   //   setHasMorePage(true)
-//   //   console.log("PAGE 1'DEN BÜYÜK VE SELECTEDDATE BUGÜN DEĞİL")
-//   // }
-//   console.log("ortadaki main useEffecti. Page ve sethasmore ayarlanıyor")
-// }, [selectedDate, selectedProvince, selectedCategory, isFiltersChanded]);
-
-
-
-// FILTERING CATEGORY 
-// const fetchDataByOnlyCategory = async (category, data) => {
-//   try {
-
-//     const filterByCategory = data.filter((event) => event.eventCategory === selectedCategory);
-
-//         const newMatchingEvents = filterByCategory.filter(newEvent => 
-//           !category.some(filteredEvent => filteredEvent._id === newEvent._id)
-//         );
-
-//         return newMatchingEvents;
-     
-//   } catch (error) {
-//     // Hata durumunda gerekli işlemleri yapabilirsiniz
-//     console.error(error);
-//   } 
-// };
-
+const scrollToTop = () => {
+  // ElementRef'i kullanarak ilgili elementi bul
+  const element = elementRef.current;
+  // Eğer element varsa, sayfanın en üstüne getir
+  if (element) {
+    const topSpaceElementRef = calculateTopSpace(elementRef);
+    window.scrollTo({ top: topSpaceElementRef, behavior: 'smooth' });
+  }
+};
 
   useEffect(() => {
 // SET SEARCH INPUT IF USER SEARCHED FROM MAIN PAGE 
@@ -419,7 +349,7 @@ const searchQuery = urlParams.get('searchquery');
                                 <div className={styles.yourEventsBackground}>
                                 <h1 className="fs-5 text-center py-3">Yaklaşan Etkinlikleriniz</h1>
                                 <p className="mx-auto text-center ">
-                                  <a className="fs-6 link-dark link-offset-2 link-underline-opacity-75 link-underline-opacity-100-hover" href="/user/profile?etkinliklerim">Hepsini Gör</a>
+                                  <a className="fs-6 link-dark link-offset-2 link-underline-opacity-75 link-underline-opacity-100-hover" href={`/members/${userData._id}`}>Hepsini Gör</a>
                                 </p>
                                 <div className={styles.yourEventsInside}>
                                   
@@ -461,7 +391,7 @@ const searchQuery = urlParams.get('searchquery');
                                           <div className="col-md-8">
                                             <div className="card-body">
                                             <p className="card-text"><small className="text-secondary" style={{fontSize: "1rem"}}>{displayDate}</small></p>
-                                              <h5 className="card-title mt-2 text-secondary-emphasis">Akşam sabah kahvaltısı yapacağız</h5>
+                                              <h5 className="card-title mt-2 text-secondary-emphasis">{singular.title}</h5>
                                               <p className="card-text"><small className="text-body-secondary">
                                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"  fill="currentColor" style={{color: "var(--first-color)"}} className="bi bi-geo-alt-fill me-1" viewBox="0 0 16 16">
                                                 <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
@@ -502,7 +432,7 @@ const searchQuery = urlParams.get('searchquery');
                         </div>
                       </div>
                       {userData.membershipLevel === "free" && (
-                            <div className="row">
+                            <div className="row my-5">
                             <div className="col-12">
                             <div className={styles.marketingBackground}>
                                 <p className={`text-start p-3 text-light ${styles.directPremium}`}><span className={styles.badge}>etkinlikdolu+</span> Üyesi ol,<br/> İlgini Paylaştığın İnsanlarla Buluş!</p>
@@ -531,48 +461,33 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
               <div ref={elementRef} 
               className={`d-flex flex-column flex-md-row justify-content-start gap-2 mb-5 ${styles.stickyFilters} ${isSticky ? styles.sticky : ""}`}>
                 <div className={styles.searchContainer}>
-                  <input type="search" className={` ${styles.searchInput}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." autoComplete="off" />
+                  <input type="search" className={`${styles.searchInput} ${search.trim().length > 0 ? styles.typing : null}`} ref={searchRef}  onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, İlçe..." autoComplete="off" />
                     <span className={styles.searchIcon}><i className="fas fa-search"></i></span>
-                  {isTyping && typeof searchResults !== "string" && (
+      
                       <div className={styles.searchResults} ref={searchResultsRef}> 
                     
-                    <div className="fs-5 text-center py-3">
-                        {searchResults.length > 0 && isTyping && loading === false ? (
-                          <>
-                            <div>Lütfen Seçiniz...</div>
-                            <hr />
-                     
-                            {searchResults.slice(0,10).map((provinces, index) => (
-                                    <div className={`d-flex flex-row align-items-center ${styles.searchResultsItems}`} onClick={handleProvinceClick} key={index} style={{paddingTop: "1.1rem", paddingBottom:"1.1rem"}}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--first-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
-                                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                                  </svg>
-                              <div id='areaName'>
-                               {provinces}
-                              </div>
-                              </div>  
-                            
-                            ))}
+                              {search.trim().length > 0 && searchResults.length > 0 ? (
+                                   <div className="fs-5 text-center py-3">
+                                  <div>Lütfen Seçiniz...</div>
+                                  <hr />
                           
-                          </>
-                        ) : null}
-                     </div>
-                     
-                        {searchResults && loading && (
-                          <div className={styles.resultNotFound}>
-                            <div className="spinner-border" role="status">
-                            <span className="visually-hidden">Yükleniyor...</span>
-                        </div>
-                        </div>
+                                  {searchResults.slice(0,10).map((provinces, index) => (
+                                          <div className={`d-flex flex-row align-items-center ${styles.searchResultsItems}`} onClick={handleProvinceClick} key={index} style={{paddingTop: "1.1rem", paddingBottom:"1.1rem"}}>
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--first-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                        </svg>
+                                    <div id='areaName'>
+                                    {provinces}
+                                    </div>
+                                    </div>  
+                                  
+                                  ))}
+                                
+                                </div>
+                              ) : null}
                          
-                        )}
-                        {searchResults.length === 0 && typeof searchResults !== "string" && loading === false && (
-                          <div className={styles.resultNotFound}>
-                            "{search}" ile bağlantılı bir bölge bulamadık
-                          </div>
-                        )}
                       </div>
-                    )}
+                
                   </div>
                 <div className={`dropdown-center ${styles.searchElements}`}>
                     <button className={`btn px-5 w-100 dropdown-toggle ${isSticky ? "btn-light" : "btn-outline-secondary"}`} style={{padding: "0.6rem 0"}} type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -594,7 +509,7 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
                     <ul className={`dropdown-menu ${styles.scrollableMenu}`}>
                       {categoryData.map((category, index) => {
                         return (
-                          <li key={index} onClick={handleClickCategory}><a className="dropdown-item" href="#">{category}</a></li>
+                          <li key={index} onClick={handleClickCategory}><a className="dropdown-item" style={{cursor: "pointer"}}>{category}</a></li>
                         )
                       })}
                     </ul>
@@ -621,14 +536,20 @@ className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
              </div>
          
                  <SingleEvents
+                 loadingPage={loadingPage}
                  lastEventElementRef={lastEventElementRef}
                  selectedDate={selectedDate}
                  loadingFilter={loadingFilter}
                filteredEvents={filteredEvents} />
-         
+
+                {loadingPage && <div className="d-flex justify-content-center me-5">
+                <div className="spinner-border" role="status">
+                  <span className="visually-hidden">Yükleniyor...</span>
+                </div>
+              </div>}
+              
             </div>
 
-          
                 {/* KULLANICI GİRİŞİ YAPILMADI ISE TREND OLAN EVENTLERI VE KATEGORİLERİ SAYFANIN SAĞINDA GOSTER */}
             {!isUserRegistered && (
                   <div className="col-lg-4">

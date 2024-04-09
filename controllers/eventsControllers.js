@@ -3,20 +3,23 @@ const Event = require("../models/eventSchema")
 const User = require("../models/userSchema")
 const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
-const fs = require("fs")
+const fs = require("fs");
+const Messages = require("../models/messagesSchema");
 const {getTodaysEvents,
    getTomorrowsEvents, 
    getThisWeeksEvents, 
    getThisWeekendEvents,
     getNextWeekEvents} = require("./eventsDateFuncs")
     const WebSocket = require('ws');
+
     const wss = new WebSocket.Server({ port: 8080 });
 
     const authorizedUsers = [];
-
-    function createChatRoom(attendees) {
+    let singleEventId;
+    function createChatRoom(attendees, eventId) {
       // Her katılımcı için WebSocket bağlantısını işleyin
       authorizedUsers.push(...attendees);
+      singleEventId = eventId;
     }
 
     wss.on('connection', (ws, req) => {
@@ -31,12 +34,42 @@ const {getTodaysEvents,
       // Bağlantı olaylarını işleyin
 
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         const message = event.data;
-        console.log('Mesaj alındı:', message, 'Kullanıcı:', ws.userId);
+        console.log('Mesaj alındı:', JSON.parse(message), 'Kullanıcı:', ws.userId);
+
+
+        const parsedMessages = JSON.parse(message);
+
+
+        const existingMessages = await Messages.findOne({ event: singleEventId });
+
+        if (existingMessages) {
+          try {
+            existingMessages.messages.push({
+              user: ws.userId,
+              content: parsedMessages.message
+            });
+      
+             await existingMessages.save();
+          } catch (error) {
+            console.log(error)
+          }
     
+        } else {
+          try {
+            await Messages.create({
+              event: singleEventId,
+              messages: [{
+                user: ws.userId,
+                content: parsedMessages.message
+              }]
+            })
+          } catch (error) {
+            console.log(error)
+          }
+        }
     
-   
         // Mesajı sohbet odasındaki diğer kullanıcılara yayınlayın
         wss.clients.forEach(client => {
       
@@ -214,29 +247,45 @@ module.exports.singular_event_get = async (req,res) => {
     const authorizedUsers = findAttendeeUsers.map(user => user.id.toString());
 
   // Sohbet odası oluşturun (authorizedUsers dizisini kullanarak)
-  createChatRoom(authorizedUsers);
+  createChatRoom(authorizedUsers, req.params.id);
+
+  // If any chat avaible, pull from database 
+  const checkIfMessages = await Messages.findOne({event: req.params.id});
+
+  let messages = []
+  if(checkIfMessages) {
+    const getMessages = await Messages.findOne({event: req.params.id }).populate('messages.user', 'username membershipLevel profileImage');
+       messages = getMessages.messages.map(message => ({
+      user: message.user.username, // Kullanıcının kullanıcı adını alıyoruz
+      content: message.content,
+      membershipLevel: message.user.membershipLevel,
+      profileImage: message.user.profileImage,
+      date: message.timestamp
+  }));
+  }
 
     
     const eventCategory = findEvent.eventCategory;
     const eventCity = findEvent.cityName;
 
-  
   // findEvent.attendees içerisindeki kullanıcı kimliklerini bir dizi olarak alın
   const attendeeIds = findEvent.attendees;
   // findAttendeeUsers dizisini, findEvent.attendees içerisindeki sıralamaya göre yeniden düzenleyin
   const reorderedAttendeeUsers = attendeeIds.map(id => findAttendeeUsers.find(user => user.id.toString() === id.toString()));
   
-
+    
     const findSimilarEvents = await Event.find({
       eventCategory: eventCategory, // Aynı kategoriye sahip
       cityName: eventCity, // Aynı şehire sahip
       _id: { $ne: req.params.id }, // Şu anki etkinliği dışarıda bırak
-  }).limit(4); // En fazla 5 etkinliği al
+  }).limit(12); 
+
     res.render('event.ejs', {
       findEvent: findEvent,
        findOrganizer: findOrganizer,
        findAttendeeUsers: reorderedAttendeeUsers,
-       findSimilarEvents: findSimilarEvents
+       findSimilarEvents: findSimilarEvents,
+       messages: messages
       })
     } catch (error) {
         res.status(404).render("404.ejs")
@@ -361,94 +410,6 @@ module.exports.cancel_event_post = async (req,res) => {
 }
 
 
-// module.exports.getEventsByDate = async (req, res) => {
-//   try {
-//     const { eventsIds, date, page } = req.body; // Front-end'den gelen veriler
-//       let filteredEvents = [];
-//         // Front-end'den gelen verileri kullanarak filtreleme yap
-//         if(date === "Bugün") {
-//           filteredEvents = await getTodaysEvents(page, eventsIds)
-//           res.json(filteredEvents);
-//         } else if (date === "Yarın") {
-//           filteredEvents = await getTomorrowsEvents(page, eventsIds)
-//           res.json(filteredEvents);
-//         } else if (date === "Bu Hafta") {
-//           filteredEvents = await getThisWeeksEvents(page, eventsIds)
-//           res.json(filteredEvents);
-//         } else if (date === "Bu Haftasonu") {
-//           filteredEvents = await getThisWeekendEvents(page, eventsIds)
-//           res.json(filteredEvents);
-//         } else if (date === "Önümüzdeki Hafta") {
-//          filteredEvents = await getNextWeekEvents(page, eventsIds)  
-//          res.json(filteredEvents);
-//         }
-
-//   } catch (error) {
-//     console.log(error)
-//   }
-// };
-
-// Belirli bir kategoriye göre etkinlikleri filtreleyen kontrolcü
-// module.exports.getEventsByCategory = async (req, res) => {
-//   try {
-//     const { page, category, selectedDate} = req.body;
-//     let filteredEvents = [];
-
-//         // Front-end'den gelen verileri kullanarak filtreleme yap
-//         if(selectedDate === "Bugün") {
-//           // 2. argüman, fetchbydate endpoint'inde kullanılan ve burada ihtiyacımız olmayan bir parametre olduğu için object girdik
-//           filteredEvents = await getTodaysEvents(page, {}, category)
-//           res.json(filteredEvents)
-//         } else if (selectedDate === "Yarın") {
-//           filteredEvents = await getTomorrowsEvents(page, {}, category)
-//           res.json(filteredEvents);
-//         } else if (selectedDate === "Bu Hafta") {
-//           filteredEvents = await getThisWeeksEvents(page, {}, category)
-//           res.json(filteredEvents);
-//         } else if (selectedDate === "Bu Haftasonu") {
-//           filteredEvents = await getThisWeekendEvents(page, {}, category)
-//           res.json(filteredEvents);
-//         } else if (selectedDate === "Önümüzdeki Hafta") {
-//          filteredEvents = await getNextWeekEvents(page, {}, category)
-//          res.json(filteredEvents);
-//         }
-  
-//     // res.status(200).json("events");
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// module.exports.getEventsByProvince = async (req, res) => {
-//   try {
-//     const { page, province, selectedDate} = req.body;
-//     let filteredEvents = [];
-
-//         // Front-end'den gelen verileri kullanarak filtreleme yap
-//         if(selectedDate === "Bugün") {
-//           // 2. argüman, fetchbydate endpoint'inde kullanılan ve burada ihtiyacımız olmayan bir parametre olduğu için object girdik
-//           filteredEvents = await getTodaysEvents(page, {}, undefined, province)
-//           res.json(filteredEvents)
-//         } else if (selectedDate === "Yarın") {
-//           filteredEvents = await getTomorrowsEvents(page, {}, undefined, province)
-//           res.json(filteredEvents);
-//         } else if (selectedDate === "Bu Hafta") {
-//           filteredEvents = await getThisWeeksEvents(page, {}, undefined, province)
-//           res.json(filteredEvents);
-//         } else if (selectedDate === "Bu Haftasonu") {
-//           filteredEvents = await getThisWeekendEvents(page, {}, undefined, province)
-//           res.json(filteredEvents);
-//         } else if (selectedDate === "Önümüzdeki Hafta") {
-//          filteredEvents = await getNextWeekEvents(page, {}, undefined, province)
-//          res.json(filteredEvents);
-//         }
-  
-//     // res.status(200).json("events");
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
 module.exports.getFilteredEvents = async (req, res) => { 
 try {
   const { page, province, category, eventsIds, specificDate} = req.body;
@@ -460,6 +421,7 @@ try {
     "Bu Haftasonu": getThisWeekendEvents,
     "Önümüzdeki Hafta": getNextWeekEvents,
   };
+
 
   if(dateOptions[specificDate]) {
     let filteredEvents = [];
@@ -517,22 +479,23 @@ module.exports.getNotificationById = async (req,res) => {
 module.exports.newevent_post = async (req,res, err) => {
     try {
         await connectToDb()
-         
-        const resizedImageBuffer = await sharp(req.file.path)
-            .resize(213, 142, {fit: "cover", background: { r: 255, b: 255, g: 255 } })
-            .toBuffer();
 
-        // Yeni boyutlandırılmış görüntüyü dosyaya yaz
-        fs.writeFile('./uploads_little/' + req.file.filename, resizedImageBuffer, (err) => {
-            if (err) {
-              console.log("cs " + err);
-              return
-            }
-        });
+        const littleTargetWidth = 220; // Hedef genişlik (little)
+       const littleTargetAspectRatio = 232 / 155; // Hedef en-boy oranı (little)
+
+        const normalTargetWidth = 848; // Hedef genişlik (normal)
+        const normalTargetAspectRatio = 848 / 476; // Hedef en-boy oranı (normal)
 
 
+  // Little boyutlandırma
+const littleTargetHeight = Math.floor(littleTargetWidth / littleTargetAspectRatio);
+
+// Normal boyutlandırma
+const normalTargetHeight = Math.floor(normalTargetWidth / normalTargetAspectRatio);
+
+  
             const largeImage = await sharp(req.file.path)
-            .resize(661, 372, {fit: "cover", background: { r: 255, b: 255, g: 255 } })
+            .resize(normalTargetWidth, normalTargetHeight, {fit: "cover", background: { r: 255, b: 255, g: 255 } })
             .toBuffer();
 
           // Yeni boyutlandırılmış görüntüyü dosyaya yaz
@@ -541,8 +504,19 @@ module.exports.newevent_post = async (req,res, err) => {
                 console.log("cs " + err);
                 return
               }
-
           });
+
+          const findUser = await Event.find({
+            organizer: req.user.id,
+            date: { $gte: new Date() }, // Geçmiş tarihli etkinlikleri filtrele
+            status: { $ne: "cancalled" } // İptal edilmiş etkinlikleri filtrele
+        });
+          if(findUser.length >= 10) {
+            req.flash("error", "Değerli üyemiz, bazı güvenlik sebeplerinden dolayı kullanıcılarımızın 10'dan fazla etkinlik kurmasına izin veremiyoruz. Anlayışınız için teşekkür ederiz.")
+            return res.redirect("/events/newevent")
+          }
+
+        
           const newEvent = await Event.create({
             title: req.body.eventPostTitle,
             description: req.body.eventPostDescription,
