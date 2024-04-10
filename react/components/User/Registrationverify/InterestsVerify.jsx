@@ -1,6 +1,6 @@
-import React, {useState, useEffect,} from 'react'
+import React, {useState} from 'react'
 import eventSubCategories from '../../NewEvent/eventSubCategories';
-
+const baseURL = process.env.REACT_APP_API_URL;
 
 const Interests = ({isVerified}) => {
     const [activeCategory, setActiveCategory] = useState(Object.keys(eventSubCategories)[0]);
@@ -39,7 +39,7 @@ const Interests = ({isVerified}) => {
       const handleForm = () => {
         const dynamicUserId = isVerified._id;
         setIsLoading(true)
-        fetch("/user/interests", {
+        fetch(baseURL + "/user/interests", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

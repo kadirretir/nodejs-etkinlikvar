@@ -12,7 +12,6 @@ const Login = ({errorMessage}) => {
     const submitBtnRef = useRef(null);
     const popoverContainerRef = useRef(null);
 
-  console.log(errorMessage)
   const handleToken = (token) => {
     setToken(token)
 }
@@ -233,7 +232,6 @@ const RegisterForm = ({handleReverseLinkClick, errorState}) => {
 
   const handleSubmit = (event) => {
     if (!isFormValid || !isAgeVerified) {
-      console.log("dur bakalım", !isAgeVerified, !isFormValid)
         event.preventDefault();
         handleInputChange()
     } 

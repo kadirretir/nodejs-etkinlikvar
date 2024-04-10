@@ -1,4 +1,5 @@
-import React, {useState, useEffect, useRef, useMemo} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
+const baseURL = process.env.REACT_APP_API_URL
 
 const Notification = ({notificationData}) => {
     const [unSeenNotifications, setUnSeenNotifications] = useState()
@@ -38,7 +39,7 @@ const Notification = ({notificationData}) => {
        
         if(unSeenLength > 0) {
             for (let i = 0; i < getNotifId.length; i++) {
-                await fetch(`/events/notifications/${getNotifId[i]}`, {
+                await fetch(baseURL + `/events/notifications/${getNotifId[i]}`, {
                  method: 'GET',
                  headers: {
                    'Content-Type': 'application/json'
@@ -62,7 +63,7 @@ const Notification = ({notificationData}) => {
 
 
      async function getFreshNotifications () {
-       const response = await fetch(`/events/notifications/`, {
+       const response = await fetch(baseURL + `/events/notifications/`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -132,7 +133,7 @@ const Notification = ({notificationData}) => {
             {typeof unSeenNotifications !== 'undefined' && unSeenNotifications.length > 0 ? (
                 <>
                     {unSeenNotifications.slice(0, 4).map((notif, index) => (
-                    <a key={index} className="list-group-item list-group-item-action p-3" href="#">
+                    <a key={index} className="list-group-item list-group-item-action p-3" href="/events/">
                          {notif[0]}
                     </a>
                     ))}

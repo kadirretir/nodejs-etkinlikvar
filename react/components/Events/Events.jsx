@@ -5,7 +5,7 @@ import debounce from 'lodash.debounce';
 const SingleEvents = lazy(() => import("./SingleEvents/SingleEvents"));
 const TrendingEvents = lazy(() => import("./TrendingEvents"));
 const TrendingCategories = lazy(() => import("./TrendingCategories"));
-
+const baseURL = process.env.REACT_APP_API_URL
 const Events = memo(({ userEvents,
    userData,
     generalSearchResults, 
@@ -99,7 +99,7 @@ const Events = memo(({ userEvents,
       }
     }
   
-    const debouncedGetProvinces = debounce(getProvinces, 500); // 500 milisaniyelik gecikme
+    const debouncedGetProvinces = debounce(getProvinces, 300); // 300 milisaniyelik gecikme
     if (search.trim().length > 0) {
         debouncedGetProvinces();
     }
@@ -116,10 +116,9 @@ const Events = memo(({ userEvents,
     // window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
- 
 const fetchDataByFilterGeneral = async (page, eventsIds, specificDate, category, province) => {
   try {
-      const response = await fetch('/events/requestedevents', {
+      const response = await fetch(baseURL + '/events/requestedevents', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -222,7 +221,6 @@ useEffect(() => {
     scrollToTop();
 }
 }, [selectedDate, selectedCategory, selectedProvince]);
-
 
 useEffect(() => {
   if (page === 4) {
@@ -331,11 +329,6 @@ const searchQuery = urlParams.get('searchquery');
               </svg></h1>
               )}
 
-              {searchQuery && (
-                  <div className="d-flex justify-content-center">
-                    <h1 className="fs-4 align-self-center mb-2 text-secondary"><span className="text-dark">{searchQuery}</span> ile Alakalı Sonuçlar Görüntüleniyor</h1>
-                  </div>
-                )}
               </div>
           <div className="row rounded-right-top rounded-right-bottom">
              {/* Kullanıcı girişi yaptıysa */}
@@ -431,7 +424,7 @@ const searchQuery = urlParams.get('searchquery');
                                />
                         </div>
                       </div>
-                      {userData.membershipLevel === "free" && (
+                      {/* {userData.membershipLevel === "free" && (
                             <div className="row my-5">
                             <div className="col-12">
                             <div className={styles.marketingBackground}>
@@ -440,17 +433,21 @@ const searchQuery = urlParams.get('searchquery');
                             </div>
                             </div>
                       </div>
-                      )}    
+                      )}     */}
                 </div>
               </div>
 
              
               </>
             )}
-{/* 
-className={`${isUserRegistered ? 'col-lg-8' : 'col-lg-9'} pb-5`}            */}
+
             
             <div className="pb-5 col-lg-8" >
+            {searchQuery && (
+                  <div className="d-flex justify-content-center justify-content-lg-start mb-3 text-center">
+                    <h1 className="fs-4 align-self-center mb-2 text-secondary"><span className="text-dark">{searchQuery}</span> ile Alakalı Sonuçlar Görüntüleniyor</h1>
+                  </div>
+                )}
             {Object.keys(createdEventMessage).length !== 0 ? (
             <h1 
             onAnimationEnd={handleAnimationEnd} 

@@ -39,9 +39,7 @@ const EventCard = memo(
     const currentDay = currentDate.getDate();
 
     const imagePath = useMemo(() => filteredSingleEvent.eventImage, [filteredSingleEvent.eventImage]);
-    const smallImagePath = useMemo(() => {
-      return imagePath.includes('uploads') ? imagePath.replace('uploads', 'uploads_little') : imagePath;
-    }, [imagePath]);
+
 
 
     const eventDate = new Date(filteredSingleEvent.date);
@@ -85,7 +83,7 @@ const EventCard = memo(
                 >
                   <small className="fw-bolder py-1 mt-1 text-secondary">{displayDate}</small>
                   <h5 className="card-title mb-3 mt-2 text-dark" style={{ fontSize: '1.5rem' }}>
-                    Kış akşamlarında sıcak çikolata eşliğinde kitap okumak, huzur verici bir etkinliktir
+                    {filteredSingleEvent.title}
                   </h5>
                   <small className="text-secondary">
                     <i className="fa-solid fa-table me-1" style={{ color: 'var(--first-color)' }}></i>

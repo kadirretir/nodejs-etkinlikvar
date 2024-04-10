@@ -38,7 +38,7 @@ const IndexFilter = () => {
 
         }
 
-        const debouncedGetProvinces = debounce(getProvinces, 500); // 500 milisaniyelik gecikme
+        const debouncedGetProvinces = debounce(getProvinces, 300); // 300 milisaniyelik gecikme
         if (search.trim().length > 0) {
             debouncedGetProvinces();
         }

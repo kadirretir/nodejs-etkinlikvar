@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import InterestsVerify from './InterestsVerify';
+const baseURL = process.env.REACT_APP_API_URL;
 
 const App = ({ isVerified }) => {
   
@@ -29,7 +30,7 @@ const VerifyRegistration = ({ isVerified }) => {
 
     try {
       setIsLoading(true)
-      const response = await fetch('/user/verify', {
+      const response = await fetch(baseURL + '/user/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

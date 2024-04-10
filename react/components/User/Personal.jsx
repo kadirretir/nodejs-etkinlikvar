@@ -80,9 +80,9 @@ const year = getYearFromDate(userData.birthDate);
 
       useEffect(() => {
         // Yalnızca url boş değilse ve http/https ile başlamıyorsa https:// ekleyin
-        if (twitter && !twitter.match(/^(http|https):\/\//)) {
+        if (twitter && !twitter.match(/^(http|https):\/\//) && !twitter.includes('x') && !twitter.includes('twitter')) {
           setTwitter('https://' + twitter);
-        }
+      }
       }, []); // useEffect'i yalnızca ilk render'da çalıştırın
 
 
@@ -99,6 +99,7 @@ const year = getYearFromDate(userData.birthDate);
   <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
 </svg>
                                 Bu bilgileri size en uygun etkinlikleri göstermek için kullanacağız.</h5>
+
                         <h1 className='fs-5 mb-2'>Doğum Tarihiniz</h1>
                             <div className='row g-1'>
 
@@ -113,6 +114,7 @@ const year = getYearFromDate(userData.birthDate);
                                      className='form-control border border-1 focus-ring focus-ring-secondary me-2'
                                       id="month"
                                        name="month">
+                                        <option value="">Seçiniz</option>
                                         <option value="01">Ocak</option>
                                         <option value="02">Şubat</option>
                                         <option value="03">Mart</option>
@@ -135,7 +137,7 @@ const year = getYearFromDate(userData.birthDate);
 
                             <div className="row">
                                 <h1 className='fs-5 mt-4 mb-2'>Cinsiyet</h1>
-                                <div className="col-lg-3 col-5">
+                                <div className="col-lg-3 col-md-6 col-12 mb-4">
                                     <select
                                     onChange={handleChange}
                                     className='form-control border border-1 focus-ring focus-ring-secondary me-2'
@@ -153,8 +155,8 @@ const year = getYearFromDate(userData.birthDate);
                                 </div>
                             </div>
                             <div className="row mt-4">
-                              <div className="col-lg-4 col-6">
-                               <label className='fs-5 my-2' htmlFor="facebook">
+                              <div className="col-lg-4 col-md-6 col-12 mb-4">
+                               <label className='fs-5 my-2' htmlFor="twitter">
                                 X (İsteğe Bağlı):
                                 </label>
                                 <input type="url" value={twitter} id="twitter" onChange={(e) => setTwitter(e.target.value)} name='twitter' placeholder='https://www.twitter.com/profil-url-adresiniz/' className='form-control border border-1 border-secondary-subtle focus-ring focus-ring-dark' />

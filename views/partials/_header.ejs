@@ -32,50 +32,23 @@
                 <a href="/">etkinlikdolu</a>
             </div>
 
-            <div id="searchRoot" class="" search-value="<%=(typeof searchvalue !== 'undefined') ? JSON.stringify(searchvalue) : '{}' %>"></div>
+            <div id="searchRoot" search-value="<%=(typeof searchvalue !== 'undefined') ? JSON.stringify(searchvalue) : '{}' %>"></div>
 
             <% if(typeof user !== 'undefined') { %>
-                <div class="push justify-content-end d-flex align-items-center">
-                    <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
-    
+                <div class="justify-content-end align-items-center d-flex">
+
+                    <!-- FULL SCREEN ELEMENT 1  -->
                         <div class="mini-logo mx-3 premiumLink">
                             <a href="/events/newevent" class="d-flex flex-column justify-content-center align-items-center">
                                 <p>e+</p>
                                 <p>Etkinlik Oluştur</p>
                             </a>
-                          
                         </div>
 
+                     <!-- FULL SCREEN ELEMENT AND SMALL SCREN  2  -->
                             <div id="notificationNode"
                             notification-data="<%=(typeof notifications !== 'undefined') ? JSON.stringify(notifications) : '{}'%>"
                             ></div>
-                       
-                     
-                        <% } else { %>
-                         
-                            <div class="mini-logo mx-3 premiumLink">
-                                <a href="/events/newevent" class="d-flex flex-column justify-content-center align-items-center">
-                                    <p>e+</p>
-                                    <p>Ücretsiz Dene</p>
-                                </a>
-                              
-                            </div>
-                      
-                            <a href="/events/newevent">
-                                <div class="createEvent mx-3 d-flex flex-column justify-content-center align-items-center premiumLink">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="black" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                                      </svg>
-                                    <p>Etkinlik Oluştur</p>
-                                </div></i>
-                            </a>
-
-                            <div id="notificationNode"
-                            notification-data="<%=(typeof notifications !== 'undefined') ? JSON.stringify(notifications) : '{}'%>"
-                            ></div>
-                            <% } %>
-                
                             
                     <div id="navDropdown" class="dropdown d-flex justify-content-end">
                         <!-- BUTTON FOR LARGER THAN 1200PX -->
@@ -86,7 +59,7 @@
 
                             <!-- BUTTON FOR LOWER THAN 1200PX -->
                                 <button class="dropdown-toggle userButtonDesktop" type="button" data-bs-toggle="dropdown">
-                                    <img class="rounded-circle userImage img-fluid" src="../<%=user.profileImage%>" width="100%" alt="user image">
+                                    <img class="rounded-circle" src="../<%=user.profileImage%>" style="width: 40px; height: 40px;" alt="user image">
                                 </button>
                                  
                           
@@ -94,7 +67,9 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <img class="rounded-circle d-block mx-auto" src="../<%=user.profileImage%>" width="25%" alt="user image">
                             <h5 class="text-center fs-6 my-4"><a href="#">Hoşgeldiniz <%= user.email %></a></h5>
-                            <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
+
+                            
+                            <!-- <% if(user.membershipLevel === 'premium' || user.membership === 'premium') { %>
                                 <div class="d-flex justify-content-center align-items-center">
                                     <span class="badge">e+ (Premium Üyelik)</span>
                                 </div>
@@ -103,10 +78,12 @@
                                     <i class="fa-solid fa-crown"></i>
                                  </a></li>
                                 <% } else { %>
+                                 
+                                    <% } %> -->
+
                                     <li class="smallerCreateEventLink"><a class="dropdown-item" href="/pricing">
                                         Etkinlik Oluştur
                                      </a></li>
-                                    <% } %>
                             <li><a class="dropdown-item" href="/members/<%=user.id%>">Profili Gör</a></li>
                             <li><a class="dropdown-item" href="/user/profile">Ayarlar</a></li>
                             <li><a class="dropdown-item" href="/help">Yardım</a></li>
@@ -158,21 +135,6 @@
                           </button>
                     </nav>
 
-                    <!-- <script>
-                        let innerWidthValue;
-                        const getInnerWidth = () => {
-                        innerWidthValue = window.innerWidth;
-                        if (innerWidthValue >= 1200) {
-                            document.querySelector("nav").style.display = "block";
-                            document.getElementById("hamburgerBtn").style.display = "none";
-                        } else {
-                            document.querySelector("nav").style.display = "none";
-                            document.getElementById("hamburgerBtn").style.display = "block";
-                        }
-                        }
-                        window.addEventListener("resize", getInnerWidth);
-                        window.addEventListener("load", getInnerWidth)
-                    </script> -->
                 <% } %>
 
             <!-- LOGIN MODAL -->
@@ -264,8 +226,7 @@
                                 18 Yaşından Büyüğüm
                             </label><br />
                             <button type="submit" class="loginButton">Kaydol</button>
-                            <p class="p-3 fs-6">Kaydolarak <a href="#">Hizmet Şartları</a>, <a href="#">Çerez
-                                    Politikası</a> ve <a href="#">Gizlilik Politikası</a> şartlarını kabul etmiş
+                            <p class="p-3 fs-6">Kaydolarak <a href="/termsofservice">Hizmet Şartları</a>, <a href="/userpolicy">Kullanıcı Sözleşmesi</a> ve <a href="/privacypolicy">Gizlilik Politikası</a> şartlarını kabul etmiş
                                 olursunuz.</p>
                         </form>
                     </div>

@@ -106,7 +106,7 @@
             </div>
          
             <div class="col-lg-8">
-                <% if(user.membershipLevel !== 'premium') { %>
+                <!-- <% if(user.membershipLevel !== 'premium') { %>
                     <div class="marketingBackground mb-5">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -119,10 +119,10 @@
                                     </div>
                                 </div>
                     </div>
-              <%  } %>
+              <%  } %> -->
 
               <% if(findUser.interests.length > 0) { %>      
-                <div class="bg-white ps-2 rounded-3">
+                <div class="bg-white ps-2 py-2 rounded-3">
                     <h1 class="fs-4 mb-4">İlgi Alanları(<%=findUser.interests.length%>)</h1>
                     <form action="/events/" method="get">
                         <% findUser.interests.map((interest) => { %>
@@ -159,7 +159,7 @@
                                   >
                                     <small class="fw-bolder py-1 mt-1 text-secondary"><%= formatDate(event.date) %></small>
                                     <h5 class="card-title mb-3 mt-2 text-dark" style="font-size: 1.5rem;">
-                                      Kış akşamlarında sıcak çikolata eşliğinde kitap okumak, huzur verici bir etkinliktir
+                                     <%=event.title%>
                                     </h5>
                                     <small class="text-secondary">
                                       <i class="fa-solid fa-table me-1" style="color: var(--first-color)"></i>

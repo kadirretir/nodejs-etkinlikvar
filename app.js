@@ -13,12 +13,23 @@ const methodOverride = require('method-override')
 const path = require('path');
 const connectToDb = require("./models/db")
 const Event = require("./models/eventSchema")
-const User = require("./models/userSchema")
 const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
-
-
+const cors = require("cors")
 require('dotenv').config();
+
+app.use(cors())
+
+// app.use(cors({ 
+//   origin: [
+//    'http://77.37.121.199',
+//    'http://etkinlikdolu.com', 
+//    'https://geolocation-db.com',
+//    'http://localhost:3000',
+//    'https://turkiyeapi.cyclic.app'
+//   ] 
+// }));
+
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
@@ -39,6 +50,7 @@ app.use('/members', express.static('dist'))
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // // app.use('/uploads_little', express.static(path.join(__dirname, 'uploads_little')));
+
 
 app.use(session({
     secret: "secret key",
@@ -89,7 +101,7 @@ async function findCity (pathname) {
     const cityName = await Event.findById({_id: kisim}).select("cityName districtName title")
     return cityName
   } catch (error) {
-   console.log(error)
+    res.status(404)
   }
 }
 
@@ -262,6 +274,20 @@ app.post("/complaint", async (req,res) => {
 app.get("/help", (req,res) => {
   res.render("help.ejs")
 })
+
+app.get("/privacypolicy", (req,res) => {
+  res.render("privacypolicy.ejs")
+})
+
+app.get("/termsofservice", (req,res) => {
+  res.render("termsofservice.ejs")
+})
+
+app.get("/userpolicy", (req,res) => {
+  res.render("userpolicy.ejs")
+})
+
+
 
 
 app.use(function (req,res,next) {

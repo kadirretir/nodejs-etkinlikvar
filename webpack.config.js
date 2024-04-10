@@ -1,7 +1,9 @@
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: './react/index.jsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -28,8 +30,19 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      
     ],
   },
+  plugins: [
+    new Dotenv()
+  ],
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin(),
+    ],
+  },
+
   resolve: {
     extensions: ['.js', '.jsx'],
   },

@@ -9,37 +9,36 @@
              
                <div class="d-flex align-items-center justify-content-between">
                   <h1 class="fs-1"><%=findEvent.title%></h1> <br/>
-                  <h1 class="fs-4 text-secondary text-capitalize"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="currentColor" class="bi bi-geo-fill" viewBox="0 0 16 16">
+                  <h1 class="fs-4 text-secondary text-capitalize text-end"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="currentColor" class="bi bi-geo-fill" viewBox="0 0 16 16">
                      <path fill-rule="evenodd" d="M4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.3 1.3 0 0 0-.37.265.3.3 0 0 0-.057.09V14l.002.008.016.033a.6.6 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.6.6 0 0 0 .146-.15l.015-.033L12 14v-.004a.3.3 0 0 0-.057-.09 1.3 1.3 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465s-2.462-.172-3.34-.465c-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411"/>
                    </svg> <%=findEvent.cityName%>, <%=findEvent.districtName%></h1>
                </div>
             
                <hr />
                <div class="row align-items-center">
-                  <div class="col-lg-1">
-                     <p class="fs-5 flex-grow-1">Etkinlik Kurucusu: </p> 
+                <div class="col-lg-1"> <!-- Responsive sınıflar eklendi -->
+                  <div class="d-flex flex-column align-items-center align-lg-items-start"> <!-- flex-column ve flex-start sınıfları eklendi -->
+                    <p class="fs-5 mb-3">Etkinlik Kurucusu: </p> 
                   </div>
-                  <div class="col-lg-1">
-                     <div class="d-flex flex-column align-items-center">
-                        <a class="text-center text-dark" href="../members/<%=findOrganizer.id%>">
-                          <% if (user.membershipLevel === "premium") { %>
-                            <div class="image-container w-100">
-                              <div class="overlay" style="right: 0; bottom: 0;" id="chat-premium-member">e+</div>
-                              <img src="../<%=findOrganizer.profileImage%>" class="img-fluid rounded-circle" style="width: 50px; height: 50px;" alt="profileimage" />
-                           
-                            </div>
-                       <% } else { %>
+                </div>
+                <div class="col-lg-1"> <!-- Responsive sınıflar eklendi -->
+                  <div class="d-flex flex-column align-items-center align-lg-items-start"> <!-- flex-column ve flex-start sınıfları eklendi -->
+                    <a class="text-center text-dark" href="../members/<%=findOrganizer.id%>">
+                      <% if (findOrganizer.membershipLevel === "premium") { %>
+                        <div class="image-container w-100">
+                          <div class="overlay" style="right: 0.5rem; bottom: 0;" id="chat-premium-member">e+</div>
+                          <img src="../<%=findOrganizer.profileImage%>" class="img-fluid rounded-circle" style="width: 50px; height: 50px;" alt="profileimage" />
+                        </div>
+                      <% } else { %>
                         <img src="../<%=findOrganizer.profileImage%>" class="img-fluid rounded-circle" style="width: 50px; height: 50px;"  alt="profileimage" />
-                    <%   } %>
-                        
-                        <h1 class="fs-5"><%= (user && user.username === findOrganizer.username) ? 'Siz' : findOrganizer.username.toUpperCase() %>
-                        </h1>
-                     </a>
-                       </div>
+                      <% } %>
+                      <h1 class="fs-5 mb-0"><%= (user && user.username === findOrganizer.username) ? 'Siz' : findOrganizer.username %></h1>
+                    </a>
                   </div>
-      
-               
+                </div>
               </div>
+              
+              
               
               </div>
             </div>
@@ -98,7 +97,7 @@
                            <a class="text-center text-dark" href="../members/<%=attendee.id%>">
                             <% if(attendee.membershipLevel === "premium") { %>
                               <div class="image-container w-100">
-                                <div class="overlay" style="right: 0; bottom: 0;" id="chat-premium-member">e+</div>
+                                <div class="overlay" style="right: 0.5rem; bottom: 0;" id="chat-premium-member">e+</div>
                                  <img src="<%=attendee.profileImage%>" class="rounded-circle img-fluid" style="width: 50px; height:50px;"  alt="attendee image">
                               </div>
                            <% } else { %>
@@ -273,8 +272,8 @@ function handleMessage(messageData) {
   const currentTime = Date.now();
 
   // Eğer 1 saniyeden az ise mesajı gönderme
-  if (currentTime - lastMessageTime < 2000) {
-    console.log('Çok hızlı mesaj gönderiyorsunuz.');
+  if (currentTime - lastMessageTime < 1700) {
+      // mesaj 1700 saniye içinde tekrar gönderiliyorsa gönderme
     return false;
   }
 const message = messageData.message || messageData
@@ -282,7 +281,6 @@ const message = messageData.message || messageData
   const isBlocked = blockedWords.some(blockedWord => message.includes(blockedWord));
   
   if (isBlocked) {
-    console.log('Engellenmiş bir kelime içeriyor: ', messageData.message || messageData);
     return false; // Eğer mesaj engellenmiş kelimeleri içeriyorsa gönderme
   }
 
@@ -337,9 +335,7 @@ countChange({ target: { value: messageInput.value } });
          if(message && message.length <= 142) {
             sendMessage(message); // Mesajı gönderin
              addMessage(message, userProfileImage, username, membershipLevel, currentDate)
-         } else {
-            console.log("180'DEN BÜYÜK")
-         }
+         } 
  
       }
 
@@ -353,28 +349,23 @@ countChange({ target: { value: messageInput.value } });
     if(parsedMessages && parsedMessages.length > 0) {
         parsedMessages.map((message) => {
   const profileImageModified =  message.profileImage.replace(/(?<=uploads)(?!\/)|(?<!\/)(?=profile)/g, "/");
-          addMessage(message.content, profileImageModified, message.user, message.membershipLevel, message.date)
+          addMessage(message.content, profileImageModified, message.user, message.membershipLevel, message.date, isComingFromDB = true)
         })
     }
 
    
-    function addMessage(message, profileImage, username, membershipLevel, date) {
+    function addMessage(message, profileImage, username, membershipLevel, date, isComingFromDB) {
+      // yeni date objesi yarat
       const now = new Date();
-  let timeString = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+let timeString = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
-    // Tarih karşılaştırması için gerekli olan dün ve yarının tarihlerini al
-    const today = now.toDateString();
-  const yesterday = new Date(now.setDate(now.getDate() - 1)).toDateString();
-  const tomorrow = new Date(now.setDate(now.getDate() + 2)).toDateString();
-
-    // Tarih karşılaştırmasını yap ve zaman stringini ayarla
-    if (today === date) {
-    timeString += ' Bugün';
-  } else if (yesterday === date) {
-    timeString += ' Dün';
-  } else if (tomorrow === date) {
-    timeString += ' Yarın';
-  }
+// DATE objesi geliyorsa kullan
+if (date && isComingFromDB) {
+    let dateObject = new Date(date);
+    if (!isNaN(dateObject.getTime())) {
+        timeString = dateObject.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    }
+}
 
      const chatMessages = document.getElementById('chat-messages');
      const newMessage = document.createElement('ul');

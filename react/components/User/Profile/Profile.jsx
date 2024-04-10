@@ -50,7 +50,7 @@ const Profile = ({userData}) => {
 
     }
 
-    const debouncedGetProvinces = debounce(getProvinces, 500); // 500 milisaniyelik gecikme
+    const debouncedGetProvinces = debounce(getProvinces, 300); // 500 milisaniyelik gecikme
     if (search.trim().length > 0) {
         debouncedGetProvinces();
     }
@@ -165,19 +165,22 @@ const handleProvinceClick = (e) => {
         return (
             <>
             <div className="container">
+
               <div className="row py-2">
+
                 <div className="col-12 col-lg-6 text-center">
                   <h1 className='fs-3 text-dark mb-4 text-start'>Profilim</h1>
+
                   <form onSubmit={handleForm} action='/user/editprofile' method="post" encType="multipart/form-data">
                   <h3 className='text-start fs-5'>Profil Resmini Değiştir</h3>
 
                   <div className='row py-2 my-4'>
-                    <div className="col-lg-6 align-items-center justify-content-center d-flex">
-                    <img src={`./${userData.profileImage}`}  className="rounded-circle me-5 ms-1" width={100} alt="" />
+                    <div className="col-lg-6 text-center align-items-center justify-content-center d-flex">
+                    <img src={`./${userData.profileImage}`}  className="rounded-circle" width={100} alt="" />
                     </div>
 
-                    <div className="col-lg-6 align-items-center justify-content-start d-flex">
-                      <button type='button' className='btn btn-warning align-self-center'>
+                    <div className="col-lg-6 align-items-center justify-content-center d-flex ">
+                      <button type='button' className='btn btn-warning align-self-center mt-3'>
                         <label htmlFor="profilePictureInput" style={{cursor: "pointer"}}>
                         Masaüstünden Yükle
                           </label>
@@ -283,7 +286,7 @@ const handleProvinceClick = (e) => {
                         value={inputAreas.biografy}
                         name='biografy'
                         id="biografy"
-                          placeholder="Kendiniz hakkında paylaşmak istedikleriniz" style={{height: "100px"}}></textarea>
+                       style={{minHeight: "100px", width: "100%"}}></textarea>
                         <label className='text-secondary' htmlFor="biografy">Kendiniz hakkında paylaşmak istedikleriniz</label>
                     </div>
 

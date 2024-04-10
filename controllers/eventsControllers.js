@@ -314,14 +314,7 @@ module.exports.add_attendees_post = async (req, res) => {
     //   // Etkinliği bulun
    const event = await Event.findById(eventId);
   
-    //   // Kullanıcının "free" üyelik düzeyine sahip olup olmadığını kontrol edin
-    //   const user = await User.findById(userId);
       if(user !== null) {
-        if (user.membershipLevel === 'free' && event.attendees.length >= 10) {
-          // "free" üyelik düzeyine sahip kullanıcı için katılımcı sınırlaması kontrolü
-          req.flash('error', 'Katılımcı sınırına ulaşıldı.');
-          return res.redirect(`/events/${eventId}`);
-        }
           // EĞER USER NULL DEĞİLSE || YANİ VARSA BİLDİRİM OLUŞTUR
         try {
           // Etkinlik sahibine bildirim oluştur
@@ -455,7 +448,6 @@ module.exports.notifications_get = async (req,res) => {
   } catch (error) {
     throw new Error(error)
   }
-
 }
 
 module.exports.getNotificationById = async (req,res) => {
