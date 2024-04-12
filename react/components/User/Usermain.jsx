@@ -54,7 +54,7 @@ const Usermain = ({userData, eventsData, cancelledMessage}) => {
         {/* PROFILE BANNER */}
         <div className="row flex-nowrap ">
           <div className={`col-1 col-lg-2 w-auto ${styles.colWidth}`}>
-              <aside className={styles.asideMenu}>
+                <aside className={styles.asideMenu}>
                 <h1 className='fs-4 mb-2 ms-4'>Ayarlar</h1>
                   <ul className={styles.ulMenu} ref={ulList}>
                     <li>
@@ -127,6 +127,7 @@ const Usermain = ({userData, eventsData, cancelledMessage}) => {
 
                   </ul>
               </aside>
+             
           </div>
 
           <div className="col-10 bg-light rounded-3">

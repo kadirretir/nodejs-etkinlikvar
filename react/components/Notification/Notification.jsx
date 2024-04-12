@@ -130,15 +130,17 @@ const Notification = ({notificationData}) => {
           </button>
           <div className="dropdown-menu p-0" ref={dropdownMenu} style={{ width: '300px' }}>
             <div className="list-group border-0">
+              {/* {console.log(unSeenNotifications)} */}
             {typeof unSeenNotifications !== 'undefined' && unSeenNotifications.length > 0 ? (
                 <>
                     {unSeenNotifications.slice(0, 4).map((notif, index) => (
-                    <a key={index} className="list-group-item list-group-item-action p-3" href="/events/">
+                   
+                    <a key={index} className="list-group-item list-group-item-action p-3" href="/events">
                          {notif[0]}
                     </a>
                     ))}
                     {unSeenNotifications.length > 4 && (
-                    <a href="#" className='text-center py-2'>Tümünü Gör</a>
+                    <a href="/events" className='text-center py-2'>Tümünü Gör</a>
                     )}
                 </>
                 ) : <h2 className='text-center py-3'>Henüz bildiriminiz yok</h2>

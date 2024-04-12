@@ -37,6 +37,14 @@
     transform: translateY(0);
 }
 
+.registerForm {
+    width: 75%;
+}
+
+.formLogin {
+    width: 75%;
+}
+
 
 /* LARGER THAN 1200PX */
 @media screen and (min-width: 1200px) {
@@ -47,6 +55,7 @@
     .loginBackground {
         width: 75%;
     } 
+
 }
 
 /* SMALLER THAN 1200PX */
@@ -55,6 +64,14 @@
     width: 65%;
     background: white !important;
 } 
+
+.registerForm {
+    width: 95%;
+}
+
+.formLogin {
+    width: 95%;
+}
 }
 /* SMALLER THAN 768PX */
 @media screen and (max-width: 768px) {

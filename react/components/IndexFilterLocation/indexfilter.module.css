@@ -59,21 +59,35 @@
   padding-left: 1rem !important; 
 }
 
+/* Giriş kutusu odaklandığında */
+.InputContainer input:focus {
+  border-color: #FD3412; /* Kenarlık rengini değiştir */
+  box-shadow: 0 0 10px rgba(255, 99, 71, 0.8); /* Hafif bir gölge efekti */
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Yumuşak geçiş efekti */
+  outline: none; /* Varsayılan odak kenarlığını kaldır */
+}
 
+
+/* Giriş kutusu odaklandığında */
+/* Giriş kutusu odaklandığında */
 .InputContainer input:focus + .iconContainer .iconDefault {
-  font-size: 1rem;
-  transition: all 0.2s ease-in;
+  transform: scale(0.6); /* Simge boyutunu küçült */
+  opacity: 0.7; /* Simgeyi biraz opakla */
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Yumuşak geçiş efekti */
 }
 
+/* Giriş kutusu odaklanmadığında */
 .InputContainer input:not(:focus) + .iconContainer .iconDefault {
-  font-size: 2rem;
-  transition: all 0.2s ease-in;
+  transform: scale(0.8); /* Simgeyi normal boyuta geri getir */
+  opacity: 1; /* Simgeyi tamamen opak hale getir */
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Yumuşak geçiş efekti */
 }
+
 
 
 .iconDefault {
   font-size: 2rem;
-  color: var(--second-color);
+  color: #666; /* İkon rengini belirle */
 }
 
    

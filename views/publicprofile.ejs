@@ -77,9 +77,11 @@
                                 %>
                                 <div class="rounded-3 p-3 my-3" style="background-color: #d9d9d9;">
                                     <p class="fs-5 py-2">Ortak ilgileriniz var!</p><br/>
+                                    <form action="/events/" method="get">
                                      <% commonInterests.forEach((single) => { %>
-                                        <button type="button" class="btn btn-info my-1"><%=single%></button>
+                                        <button type="submit" name="searchquery" value="<%=single%>" class="btn btn-info my-1"><%=single%></button>
                                    <%  })%>
+                                   </form>
                                 </div>
                                 <% } %>
                             <% } %>

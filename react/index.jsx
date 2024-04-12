@@ -1,9 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-
 import Notification from './components/Notification/Notification.jsx';
-import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
 import Events from './components/Events/Events.jsx';
+import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
 
 const NewEvent = React.lazy(() => import('./components/NewEvent/NewEvent.jsx'));
 const Login = React.lazy(() => import('./components/Login/Login.jsx'));
@@ -24,6 +23,7 @@ function checkValue (val) {
     const similarEventsNode = document.getElementById('similarEventsRoot');
     const similarEventsRoot = createRoot(similarEventsNode);
     const similarEventsInfo = JSON.parse(similarEventsNode.getAttribute("similar-events"))
+
     similarEventsRoot.render(
         <SimilarEvents
         similarEventsInfo={similarEventsInfo}
@@ -34,8 +34,11 @@ function checkValue (val) {
     case pathname === "/events/newevent/":
       const progressNode = document.getElementById('progress-root');
       const progressRoot = createRoot(progressNode);
+      // const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
+      // const messages = JSON.parse(progressNode.getAttribute("messages"))
       const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
       const messages = JSON.parse(progressNode.getAttribute("messages"))
+
       progressRoot.render(
           <NewEvent
           messages={messages}
@@ -124,8 +127,7 @@ function checkValue (val) {
         const searchNode = document.getElementById('searchBoxLocation');
       const searchRoot = createRoot(searchNode);
       searchRoot.render(
-          <IndexFilter 
-          />
+          <IndexFilter />
       );
     default:
       
@@ -143,9 +145,12 @@ if (checkValue(pathname)) {
               if(notificationNode !== null) {
                 const notificationRoot = createRoot(notificationNode);
                 const notificationData = JSON.parse(notificationNode.getAttribute("notification-data"));
-        
+                const addedAttendeeEventId = JSON.parse(notificationNode.getAttribute("addedAttendeeEventId"));
+
+
                   notificationRoot.render(
                       <Notification
+                      addedAttendeeEventId={addedAttendeeEventId}
                         notificationData={notificationData}
                       />
                   );
@@ -167,3 +172,4 @@ if (checkValue(pathname)) {
 
 
 }
+

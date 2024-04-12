@@ -287,7 +287,7 @@ const handleProvinceClick = (e) => {
                         name='biografy'
                         id="biografy"
                        style={{minHeight: "100px", width: "100%"}}></textarea>
-                        <label className='text-secondary' htmlFor="biografy">Kendiniz hakkında paylaşmak istedikleriniz</label>
+                        <label className='text-secondary'  style={{minHeight: "100px", width: "100%"}} htmlFor="biografy">Kendiniz hakkında paylaşmak istedikleriniz</label>
                     </div>
 
                     </div>

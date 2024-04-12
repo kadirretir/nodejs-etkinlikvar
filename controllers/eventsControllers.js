@@ -12,7 +12,7 @@ const {getTodaysEvents,
     getNextWeekEvents} = require("./eventsDateFuncs")
     const WebSocket = require('ws');
 
-    const wss = new WebSocket.Server({ port: 8080 });
+    const wss = new WebSocket.Server({ port: 8000 });
 
     const authorizedUsers = [];
     let singleEventId;
@@ -36,7 +36,7 @@ const {getTodaysEvents,
 
       ws.onmessage = async (event) => {
         const message = event.data;
-        console.log('Mesaj alındı:', JSON.parse(message), 'Kullanıcı:', ws.userId);
+        // console.log('Mesaj alındı:', JSON.parse(message), 'Kullanıcı:', ws.userId);
 
 
         const parsedMessages = JSON.parse(message);
@@ -119,7 +119,7 @@ module.exports.home_get = async (req,res) => {
           // Katılımcı sayısını hesaplayın
           { $project: { attendeesCount: { $size: "$attendees" }, doc: "$$ROOT" } },
           // En az 10 katılımcıya sahip olanları filtreleyin
-          { $match: { attendeesCount: { $gte: 2 } } },
+          { $match: { attendeesCount: { $gte: 10 } } },
           // Sonuçları katılımcı sayısına göre sıralayın
           { $sort: { attendeesCount: -1 } },
           // İlk 5 sonucu alın
@@ -471,16 +471,9 @@ module.exports.getNotificationById = async (req,res) => {
 module.exports.newevent_post = async (req,res, err) => {
     try {
         await connectToDb()
-
-        const littleTargetWidth = 220; // Hedef genişlik (little)
-       const littleTargetAspectRatio = 232 / 155; // Hedef en-boy oranı (little)
-
         const normalTargetWidth = 848; // Hedef genişlik (normal)
         const normalTargetAspectRatio = 848 / 476; // Hedef en-boy oranı (normal)
 
-
-  // Little boyutlandırma
-const littleTargetHeight = Math.floor(littleTargetWidth / littleTargetAspectRatio);
 
 // Normal boyutlandırma
 const normalTargetHeight = Math.floor(normalTargetWidth / normalTargetAspectRatio);

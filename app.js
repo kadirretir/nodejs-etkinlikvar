@@ -13,10 +13,11 @@ const methodOverride = require('method-override')
 const path = require('path');
 const connectToDb = require("./models/db")
 const Event = require("./models/eventSchema")
-const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
 const cors = require("cors")
 require('dotenv').config();
+const nodemailer = require('nodemailer');
+
 
 app.use(cors())
 
@@ -247,27 +248,67 @@ app.get("/login", authMiddleware.checkIfNotAuthed, (req,res) => {
 app.get("/complaints", (req,res) => {
   res.render("complaints.ejs", { flash: req.flash() })
 })
-app.post("/complaint", async (req,res) => {
+
+
+app.post("/complaint", (req,res) => {
   try {
-    const { complainterName, complaintDescription, complaintCategory } = req.body;
+    const { complainterName, complaintDescription, complaintCategory, complaintSubject } = req.body;
     
     if (!complainterName || !complaintDescription || !complaintCategory) {
        req.flash('error', 'Lütfen gerekli alanları doldurunuz...');
        return res.redirect("/complaints")
     }
 
-    await connectToDb()
-    await Complaint.create({
-      name: complainterName,
-      description: complaintDescription,
-      type: complaintCategory
-    })
+    async function main() {
+      const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Email</title>
+          <!-- Bootstrap CSS -->
+          <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+      
+      </head>
+      <body>
+          <div class="container">
+              <h1 class="mb-3">${complaintCategory}</h1>
+              <p class="my-2">${complainterName}</p>
+              <p class="my-2">${complaintDescription}</p>
+          </div>
+      </body>
+      </html>
+      `;
+     
+      const transporter = nodemailer.createTransport({
+       host: "smtp.gmail.com",
+       port: 465,
+       secure: true,
+       auth: {
+         user: "etkinlikdolu@gmail.com",
+         pass: "esah rzzf rkep wabi"
+       }
+      });
+    
+      const info = await transporter.sendMail({
+       from: "etkinlikdolu@gmail.com",
+       to: "etkinlikdolu@gmail.com",
+       subject: complaintSubject,
+       html: html
+      })
+    }
+    
+     main();
+
+
+
 
     req.flash('success', 'Geri bildiriminizi başarıyla aldık. Özenle inceleyeceğiz.');
     return res.redirect("/complaints")
   } catch (error) {
     req.flash('error', 'Bir hata oluştu.');
-    throw new Error(error)
+    res.status(500).send("Mesaj gönderilirken bir hata oluştu.");
   }
 })
 

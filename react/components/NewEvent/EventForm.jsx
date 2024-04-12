@@ -182,8 +182,8 @@ const EventForm = ({
 
       </div>
 
-      <div className="my-3 d-flex gap-2">
-        <div className='w-50'>
+      <div className="row my-3 d-flex">
+        <div className='col-lg-6'>
             <label htmlFor="startDate" className="form-label fs-5">
               Etkinliğin Tarihi
               <i className="fs-6 text-secondary">(Gerekli)</i>
@@ -199,7 +199,7 @@ const EventForm = ({
         </div>
 
 
-        <div className="w-50">
+        <div className="col-lg-6">
              <label htmlFor="getEventPartLimit" className="form-label fs-5">
               Katılımcı Sınırı
               <i className="fs-6 text-secondary">(Opsiyonel)</i>

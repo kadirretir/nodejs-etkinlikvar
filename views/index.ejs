@@ -1,37 +1,35 @@
 <%- include('./partials/_header.ejs') -%>
 
 <section class="banner-header">
-  <div class="row gx-0">
-    <div class="imageHalf col-xl-6">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="middle d-flex align-items-start flex-column justify-content-start">  
-              <h1><span>Yeni</span> İnsanlarla Tanış</h1>
-              <h3 class="lh-sm fs-5">İlgilerinizi insanlarla buluşturan platform.</h>
-            </div>
-            
-          </div>
-        </div>
-      </div>
+  <div class="container-fluid">
+    <div class="row gx-0">
+      <div class="col-xl-6 d-flex align-items-center flex-column justify-content-center">
+      
+        <img class="img-fluid" width="496" height="496" src="./bannerphoto.jpg" alt="freepik banner photo" />
+     
     </div>
-    <div class="otherHalf col-xl-6">
-      <form id="searchForm" action="/events" method="post" autocomplete="off">
-        <div class="formLabelContainer">
-          <label for="searchforeventlocation" class="formChilds">Sen de Etkinliğini Bul</label>
-        </div>
-        <div class="searchBoxContainer d-flex flex-column flex-xxl-row">
-          <div id="searchBoxLocation">
+    
+    <div class="otherHalf d-flex flex-column align-items-start justify-content-center col-xl-6 custom-card">
+      <h1 class="fs-4 fw-bold my-2">İlgilerinizi insanlarla buluşturan platform.</h1>
+      <p class="fs-5 text-start">Etkinlikdolu, ilgi alanlarınızı bir araya getiren bir platformdur. Doğa yürüyüşlerinden kitap kulüplerine, çevre aktivitelerinden beceri paylaşımlarına kadar her alandan binlerce kişi burada buluşuyor.
+  
+          Her gün düzenlenen etkinlikler arasından seçim yapın ve yeni maceralara katılın. Etkinlikdolu ile tanışın, yeni arkadaşlar edinin ve unutulmaz anılar biriktirin!</p>
+  
+      <form id="searchForm" class="my-5"  action="/events" method="post" autocomplete="off">
+          <label for="searchforeventlocation" class="text-primary-emphasis fs-4 my-2">Sen de Etkinliğini Bul</label>
+      
+          <div class="searchBoxContainer d-flex flex-column flex-xxl-row">
+              <div id="searchBoxLocation">
+              </div>
           </div>
-        </div>
-        <div>
-          <button type="submit">Ara</button>
           
-        </div>
-        <span class="latestInfo">*Türkiye içerisindeki 81 il ve ilçede arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
+          <button type="submit">Ara</button>
       </form>
-    </div>
-    </div>
+      <span class="latestInfo">*Türkiye içerisindeki 81 il ve ilçede arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
+  </div>
+  
+      </div>
+  </div>
     </section>
 
     <section id="etkinlikOffers">
@@ -41,20 +39,20 @@
           <div class="row mt-5 g-2 justify-content-center">
             <div class="col-lg-4">
               <div class="imageContainer">
-                <img class="img-fluid" src="./meet-new-people.jpg" width="100%" alt="photo-nature" />
+                <img class="img-fluid"  width="426" height="284"  src="./meet-new-people.jpg"  alt="photo-nature" />
                 <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="/events">Yeni İnsanlarla Tanış</a>
               </div>
             </div>
 
             <div class="col-lg-4">
               <div class="imageContainer">
-                <img class="img-fluid" src="./photo-nature.jpg" width="100%" alt="photo-nature" />
+                <img class="img-fluid"  width="426" height="284"  src="./photo-nature.jpg" alt="photo-nature" />
                 <a class="text-underline-hover fs-4 text-center imageText fw-bold"  href="/events/?searchquery=Doğa Yürüyüşleri">Doğa Yürüyüşüne Katıl</a>
               </div>
             </div>
             <div class="col-lg-4">
               <div class="imageContainer">
-                <img src="./yeni-deneyimler.jpg" width="104%" alt="photo-nature" />
+                <img class="img-fluid" style="min-height: 284px;" width="426" height="284" src="./yeni-deneyimler.jpg"  alt="photo-nature" />
                 <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="/events">Grupça Hobini Paylaş</a>
               </div>
             </div>
@@ -68,9 +66,9 @@
         <h1 class="display-6 text-center mb-5">Hangi etkinlikler var?</h1>
         <hr />
         <div class="row">
-          <div class="d-flex align-items-center justify-content-between mb-3 mt-5">
-            <h1 class="fs-2 text-center fw-bold">Yakın Gelecekteki Etkinlikler</h1>
-            <a href="/events" class="fs-5">Etkinlikleri Görün</a>
+          <div class="futuringEventsHeader d-flex align-items-center justify-content-between mb-3 mt-5">
+            <h1 class="text-start fw-bold">Yakın Gelecekteki Etkinlikler</h1>
+            <a href="/events" class="text-end">Etkinlikleri Görün</a>
           </div>
           <% events.forEach((event) => { %>
             <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 my-2">
