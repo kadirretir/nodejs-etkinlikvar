@@ -209,7 +209,8 @@
    <% if(user && checkUserAttend) { %>
       <script>
          if(typeof isCurrentInAttendee !== "undefined" && isCurrentInAttendee) {
-            const baseURL = "<% process.env.REACT_APP_API_URL %>"
+            const baseURL = "<%= baseURL %>"
+
           // establish websocket connection
             const ws = new WebSocket(`ws://${baseURL}:8000/?userId=<%= user && user._id %>`);
 

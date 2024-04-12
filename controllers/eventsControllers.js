@@ -5,6 +5,7 @@ const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
 const fs = require("fs");
 const Messages = require("../models/messagesSchema");
+
 const {getTodaysEvents,
    getTomorrowsEvents, 
    getThisWeeksEvents, 
@@ -74,7 +75,6 @@ const {getTodaysEvents,
         wss.clients.forEach(client => {
       
           if (client.readyState === WebSocket.OPEN && client.userId !== ws.userId) {
-        
             client.send(message);
           }
         });
@@ -280,12 +280,14 @@ module.exports.singular_event_get = async (req,res) => {
       _id: { $ne: req.params.id }, // Şu anki etkinliği dışarıda bırak
   }).limit(12); 
 
+  const baseURL = process.env.WEBSOCKET_URL;
     res.render('event.ejs', {
       findEvent: findEvent,
        findOrganizer: findOrganizer,
        findAttendeeUsers: reorderedAttendeeUsers,
        findSimilarEvents: findSimilarEvents,
-       messages: messages
+       messages: messages,
+       baseURL:baseURL
       })
     } catch (error) {
         res.status(404).render("404.ejs")

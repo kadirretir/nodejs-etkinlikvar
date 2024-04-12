@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const uri = process.env.MONGODB_URI;
 const options = {
-  dbName: "etkinlikvar"
+  dbName: "etkinlikdolu"
 };
 
 let connection; // Bağlantıyı saklamak için bir değişken oluşturun
