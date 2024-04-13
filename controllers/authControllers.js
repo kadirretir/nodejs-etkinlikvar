@@ -241,7 +241,7 @@ module.exports.login_post = async (req, res, next) => {
     if (recaptchaResponse.data['error-codes']) {
       console.error('reCAPTCHA error:', recaptchaResponse.data['error-codes']);
     }
-    throw new Error("reCAPTCHA doğrulaması başarısız!");
+    throw new Error("Bir hata oluştu. ReCAPTCHA Doğrulamanızı onaylamayı başaramadık. Lütfen Tekrar Deneyin");
   }
 } 
 

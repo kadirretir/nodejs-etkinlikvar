@@ -82,11 +82,11 @@ const handleClickOutside = (e) => {
     const handleProvinceClick = (e) => {
       e.preventDefault(); // Formun otomatik olarak gönderilmesini engelle
 
-      const areaName = e.currentTarget.querySelector("#areaName").textContent;
+      const areaName = e.target.textContent;
       setSearchResults("");
 
 
-  
+
       const form = searchRef.current.closest('form');
       if (form) {
         const input = form.querySelector('[name="searchforeventlocation"]');

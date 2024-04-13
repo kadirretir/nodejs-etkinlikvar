@@ -502,7 +502,6 @@ const normalTargetHeight = Math.floor(normalTargetWidth / normalTargetAspectRati
             req.flash("error", "Değerli üyemiz, bazı güvenlik sebeplerinden dolayı kullanıcılarımızın 10'dan fazla etkinlik kurmasına izin veremiyoruz. Anlayışınız için teşekkür ederiz.")
             return res.redirect("/events/newevent")
           }
-
         
           const newEvent = await Event.create({
             title: req.body.eventPostTitle,

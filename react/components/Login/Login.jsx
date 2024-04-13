@@ -99,7 +99,7 @@ const handleSubmit = (event) => {
                     <button type="submit" ref={submitBtnRef} className="loginButton">Giriş Yap</button>
                     <p className='fs-4 text-center mt-3'>Hesabın yok mu? <a href="/" onClick={handleRegisterLinkClick}>Kayıt Ol</a></p>
               
-                    <div ref={popoverContainerRef} className="d-flex justify-content-center mt-3"> 
+                    <div ref={popoverContainerRef} className="d-flex position-relative justify-content-center mt-3"> 
                         
                         <ReCaptcha id="popoverContainer" siteKey={process.env.RECAPTCHA_SITEKEY}
                             callback={handleToken} />

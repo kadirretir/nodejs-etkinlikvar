@@ -40,8 +40,7 @@ const EventCard = memo(
 
     const imagePath = useMemo(() => filteredSingleEvent.eventImage, [filteredSingleEvent.eventImage]);
 
-
-
+  
     const eventDate = new Date(filteredSingleEvent.date);
     const formattedDate = useMemo(() => {
       return eventDate.toLocaleDateString('tr-TR', {
@@ -63,50 +62,48 @@ const EventCard = memo(
           <a className="link-opacity-100-hover" href={`/events/${filteredSingleEvent._id}`}>
             <div className="row g-0">
               <div className="col-md-4"  style={{ height: '100%' }}>
-           
                 <MemoizedLazyLoadImage
                 effect="blur"
                 src={`../${imagePath}`}
                 className={`img-fluid rounded-start ${innerWidth > 768 ? styles.cardImgTop : ""}`}
                 alt="eventImage"
               />
-
-         
-       
               </div>
+
               <div className="col-md-8">
                 <div
-                  className="card-body p-0 ps-3 py-1 d-flex flex-column"
-                  style={{
-                    background: 'linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))'
-                  }}
+                style={{background: 'linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))', height: "145px"}} 
+                className="card-body p-0 ps-3 py-1 d-flex flex-column"
                 >
-                  <small className="fw-bolder py-1 mt-1 text-secondary">{displayDate}</small>
-                  <h5 className="card-title mb-3 mt-2 text-dark" style={{ fontSize: '1.5rem' }}>
+                  <small className="fw-bolder py-1 text-secondary">{displayDate}</small>
+                  <h5 className="card-title text-dark" style={{ fontSize: '1.4rem'}}>
                     {filteredSingleEvent.title}
+
                   </h5>
-                  <small className="text-secondary">
-                    <i className="fa-solid fa-table me-1" style={{ color: 'var(--first-color)' }}></i>
-                    {filteredSingleEvent.eventCategory}
-                  </small>
 
                   <div className="mt-auto text-end d-flex justify-content-between align-items-center">
-                    <p className="text-capitalize text-start fw-bold card-text fs-5 text-body-secondary">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        style={{ color: 'var(--first-color)' }}
-                        className="bi bi-geo-alt-fill me-1"
-                        viewBox="0 0 16 16"
-                      >
-                        <path
-                          d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
-                        />
-                      </svg>
-                      {filteredSingleEvent.cityName + ', ' + filteredSingleEvent.districtName}
-                    </p>
+                        <div className='d-flex flex-column align-items-start justify-content-start'>
+                            <small className="text-secondary mt-auto">
+                          <i className="fa-solid fa-table me-1" style={{ color: 'var(--first-color)' }}></i>
+                          {filteredSingleEvent.eventCategory}
+                          </small>
+                        <p className="text-capitalize text-start fw-bold card-text fs-5 text-body-secondary">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="currentColor"
+                              style={{ color: 'var(--first-color)' }}
+                              className="bi bi-geo-alt-fill me-1"
+                              viewBox="0 0 16 16"
+                            >
+                              <path
+                                d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
+                              />
+                            </svg>
+                            {filteredSingleEvent.cityName + ', ' + filteredSingleEvent.districtName}
+                        </p>
+                        </div>
                     <div className={`${styles.attendeesContainer} d-flex flex-row align-items-center justify-content-end`}>
                       <h5 className="text-secondary me-2">
                         {filteredSingleEvent.attendees.length <= 1

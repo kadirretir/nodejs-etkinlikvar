@@ -26,7 +26,7 @@
 .custom-card p {
   color: #6c757d; /* Paragraf rengi */
   font-size: 1.2rem; /* Paragraf boyutu */
-  text-align: justify; /* Paragraf hizalama */
+  text-align: left;
   line-height: 1.09; /* Satır yüksekliği */
 }
 
@@ -239,6 +239,12 @@ margin-left: -25px;
 .futuringEventsHeader a {
   font-size: 0.9rem; 
  }
+
+ 
+.custom-card p {
+  text-align: center;
+  
+}
 }
 
 @media screen and (max-width: 992px) {
