@@ -273,12 +273,14 @@ module.exports.singular_event_get = async (req,res) => {
   // findAttendeeUsers dizisini, findEvent.attendees içerisindeki sıralamaya göre yeniden düzenleyin
   const reorderedAttendeeUsers = attendeeIds.map(id => findAttendeeUsers.find(user => user.id.toString() === id.toString()));
   
-    
+  const currentDate = new Date(); // Şu anki tarih ve saat
     const findSimilarEvents = await Event.find({
       eventCategory: eventCategory, // Aynı kategoriye sahip
       cityName: eventCity, // Aynı şehire sahip
       _id: { $ne: req.params.id }, // Şu anki etkinliği dışarıda bırak
-  }).limit(12); 
+      status: { $ne: "cancelled" }, // Statusu "cancelled" olan etkinlikleri almayacağız
+      date: { $gte: currentDate }
+  }).limit(8); 
 
   const baseURL = process.env.WEBSOCKET_URL;
     res.render('event.ejs', {

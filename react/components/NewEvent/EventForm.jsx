@@ -234,7 +234,7 @@ const EventForm = ({
             name='cityname' 
             type="text" 
             placeholder='İl' />
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16"
+            <svg xmlns="https://www.w3.org/2000/svg" fill="currentColor" width="16" height="16"
                  className={`bi bi-geo-alt-fill position-absolute ${styles.cityInputIcon}`}
                  style={{top: "1rem", left: "0.5rem", color: "#c3c3c3"}}
                viewBox="0 0 16 16">

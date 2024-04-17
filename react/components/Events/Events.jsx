@@ -317,13 +317,13 @@ const searchQuery = urlParams.get('searchquery');
               
               {Object.keys(userData).length !== 0 ? (
                     <h1 className={`fs-2 text-primary-emphasis text-capitalize ${styles.eventsTitle}`}>Hoş Geldin {userData.username} &nbsp;
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
+                    <svg xmlns="https://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                     <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
                   </svg></h1>
               ) : (
                 <h1 className={`fs-2 text-primary-emphasis text-end text-capitalize ${styles.eventsTitle}`}>Hoş Geldin Misafir &nbsp;
-                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
+                <svg xmlns="https://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" className="bi bi-emoji-smile" viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                 <path d="M4.285 9.567a.5.5 0 0 1 .683.183A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.5 4.5 0 0 1 8 12.5a4.5 4.5 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/>
               </svg></h1>
@@ -386,7 +386,7 @@ const searchQuery = urlParams.get('searchquery');
                                             <p className="card-text"><small className="text-secondary" style={{fontSize: "1rem"}}>{displayDate}</small></p>
                                               <h5 className="card-title mt-2 text-secondary-emphasis">{singular.title}</h5>
                                               <p className="card-text"><small className="text-body-secondary">
-                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"  fill="currentColor" style={{color: "var(--first-color)"}} className="bi bi-geo-alt-fill me-1" viewBox="0 0 16 16">
+                                              <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16"  fill="currentColor" style={{color: "var(--first-color)"}} className="bi bi-geo-alt-fill me-1" viewBox="0 0 16 16">
                                                 <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                                               </svg>
                                                 {singular.cityName + ',' + ' ' + singular.districtName}
@@ -403,7 +403,7 @@ const searchQuery = urlParams.get('searchquery');
                                     <>
                                          <p className="text-secondary text-center py-1">Henüz bir etkinliğe katılmadınız.</p>
                                       <p className="text-center py-1">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-view-stacked" viewBox="0 0 16 16">
+                                      <svg xmlns="https://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-view-stacked" viewBox="0 0 16 16">
                                         <path d="M3 0h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm0 8h10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
                                       </svg>
                                       </p>
@@ -470,7 +470,7 @@ const searchQuery = urlParams.get('searchquery');
                           
                                   {searchResults.slice(0,10).map((provinces, index) => (
                                           <div className={`d-flex flex-row align-items-center ${styles.searchResultsItems}`} onClick={handleProvinceClick} key={index} style={{paddingTop: "1.1rem", paddingBottom:"1.1rem"}}>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--first-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                                          <svg xmlns="https://www.w3.org/2000/svg" width="20" height="20" fill="var(--first-color)" style={{marginRight: "0.3rem"}} className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
                                           <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                                         </svg>
                                     <div id='areaName'>

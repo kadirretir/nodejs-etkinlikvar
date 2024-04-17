@@ -3,11 +3,11 @@ import { createRoot } from 'react-dom/client';
 import Notification from './components/Notification/Notification.jsx';
 import Events from './components/Events/Events.jsx';
 import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
+import GeneralSearch from './components/GeneralSearch/GeneralSearch.jsx';
 
 const NewEvent = React.lazy(() => import('./components/NewEvent/NewEvent.jsx'));
 const Login = React.lazy(() => import('./components/Login/Login.jsx'));
 const Usermain = React.lazy(() => import('./components/User/Usermain.jsx'));
-const GeneralSearch = React.lazy(() => import('./components/GeneralSearch/GeneralSearch.jsx'));
 const App = React.lazy(() => import('./components/User/Registrationverify/App.jsx'));
 const SimilarEvents = React.lazy(() => import('./components/SimilarEvents/SimilarEvents.jsx'));
 
@@ -61,17 +61,17 @@ function checkValue (val) {
         const popularCategories = JSON.parse(eventsNode.getAttribute("trending-categories"))
         const userEvents = JSON.parse(eventsNode.getAttribute("user-events"))
         eventsRoot.render(
-            <Events 
-            usercity={usercity}
-            userEvents={userEvents}
-            createdEventMessage={createdEventMessage}
-            generalSearchResults={generalSearchResults}
-            interestsearch={interestsearch}
-            searchresults={searchresults} 
-            categoryData={categoryData}
-            trendingEvents={trendingEvents}
-            popularCategories={popularCategories}
-            userData={usersData} />
+              <Events 
+              usercity={usercity}
+              userEvents={userEvents}
+              createdEventMessage={createdEventMessage}
+              generalSearchResults={generalSearchResults}
+              interestsearch={interestsearch}
+              searchresults={searchresults} 
+              categoryData={categoryData}
+              trendingEvents={trendingEvents}
+              popularCategories={popularCategories}
+              userData={usersData} />
         );
       break;
     case pathname === "/login":

@@ -89,7 +89,7 @@ const EventCard = memo(
                           </small>
                         <p className="text-capitalize text-start fw-bold card-text fs-5 text-body-secondary">
                             <svg
-                              xmlns="http://www.w3.org/2000/svg"
+                              xmlns="https://www.w3.org/2000/svg"
                               width="16"
                               height="16"
                               fill="currentColor"
