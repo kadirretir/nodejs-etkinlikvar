@@ -13,12 +13,17 @@ const methodOverride = require('method-override')
 const path = require('path');
 const connectToDb = require("./models/db")
 const Event = require("./models/eventSchema")
-const User = require("./models/userSchema")
-const Complaint = require("./models/complaintsSchema")
 const cloneDocument = require("./models/cloneDocuments")
-
-
+const cors = require("cors")
 require('dotenv').config();
+const nodemailer = require('nodemailer');
+
+
+
+
+app.use(cors())
+
+
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded({extended: true}))
@@ -38,10 +43,11 @@ app.use('/members', express.static('public'))
 app.use('/members', express.static('dist'))
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// // app.use('/uploads_little', express.static(path.join(__dirname, 'uploads_little')));
+
+
 
 app.use(session({
-    secret: "secret key",
+    secret: process.env.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -50,12 +56,15 @@ app.use(session({
         ttl: 10000
     })
 }));
+
+
 app.use(passport.authenticate('session'));
 app.use(methodOverride('_method'))
 app.use(authMiddleware.getUserInfo)
 app.use(authMiddleware.getUserNotification)
 app.use(flash());
 //  cloneDocument(8);
+
 
 const {checkIfAuthed} = authMiddleware;
 
@@ -89,7 +98,7 @@ async function findCity (pathname) {
     const cityName = await Event.findById({_id: kisim}).select("cityName districtName title")
     return cityName
   } catch (error) {
-   console.log(error)
+    res.status(404)
   }
 }
 
@@ -135,33 +144,6 @@ app.use("/auth", authRoutes)
 app.use("/events", eventRoutes)
 app.use("/user", checkIfAuthed, userRoutes)
 app.use("/members", memberRoutes)
-
-// FIND IP ADDRESS
-app.use(async (req, res, next) => {
-  const ip = 
-    req.headers['cf-connecting-ip'] ||
-    req.headers['x-real-ip'] || 
-    req.headers['x-forwarded-for'] ||
-    req.socket.remoteAddress || '';
-
-  if(!req.app.locals.usercity) {
-    const findLocation = await fetch(`https://geolocation-db.com/json/${process.env.LOCATION_KEY}${ip ? '/' + ip : ''}`);
-    if(!findLocation.ok) {
-      console.error("HATA: FINDLOCATION HAS PROBLEMS: ", findLocation.status)
-      next();   
-    } else {
-      const response = await findLocation.json();
-      req.app.locals.usercity = response.city
-      next();   
-    }
-  
-  } else {
-    next();
-  }
-
-});
-
-
 
 
 
@@ -235,27 +217,67 @@ app.get("/login", authMiddleware.checkIfNotAuthed, (req,res) => {
 app.get("/complaints", (req,res) => {
   res.render("complaints.ejs", { flash: req.flash() })
 })
-app.post("/complaint", async (req,res) => {
+
+
+app.post("/complaint", (req,res) => {
   try {
-    const { complainterName, complaintDescription, complaintCategory } = req.body;
+    const { complainterName, complaintDescription, complaintCategory, complaintSubject } = req.body;
     
     if (!complainterName || !complaintDescription || !complaintCategory) {
        req.flash('error', 'Lütfen gerekli alanları doldurunuz...');
        return res.redirect("/complaints")
     }
 
-    await connectToDb()
-    await Complaint.create({
-      name: complainterName,
-      description: complaintDescription,
-      type: complaintCategory
-    })
+    async function main() {
+      const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Email</title>
+          <!-- Bootstrap CSS -->
+          <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+      
+      </head>
+      <body>
+          <div class="container">
+              <h1 class="mb-3">${complaintCategory}</h1>
+              <p class="my-2">${complainterName}</p>
+              <p class="my-2">${complaintDescription}</p>
+          </div>
+      </body>
+      </html>
+      `;
+     
+      const transporter = nodemailer.createTransport({
+       host: "smtp.gmail.com",
+       port: 465,
+       secure: true,
+       auth: {
+         user: "etkinlikdolu@gmail.com",
+         pass: "esah rzzf rkep wabi"
+       }
+      });
+    
+      const info = await transporter.sendMail({
+       from: "etkinlikdolu@gmail.com",
+       to: "etkinlikdolu@gmail.com",
+       subject: complaintSubject,
+       html: html
+      })
+    }
+    
+     main();
+
+
+
 
     req.flash('success', 'Geri bildiriminizi başarıyla aldık. Özenle inceleyeceğiz.');
     return res.redirect("/complaints")
   } catch (error) {
     req.flash('error', 'Bir hata oluştu.');
-    throw new Error(error)
+    res.status(500).send("Mesaj gönderilirken bir hata oluştu.");
   }
 })
 
@@ -263,10 +285,26 @@ app.get("/help", (req,res) => {
   res.render("help.ejs")
 })
 
+app.get("/privacypolicy", (req,res) => {
+  res.render("privacypolicy.ejs")
+})
+
+app.get("/termsofservice", (req,res) => {
+  res.render("termsofservice.ejs")
+})
+
+app.get("/userpolicy", (req,res) => {
+  res.render("userpolicy.ejs")
+})
+
+
+
 
 app.use(function (req,res,next) {
   res.status(404).render('404.ejs')
   })
+
+
   
 
 app.listen(3000)

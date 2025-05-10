@@ -23,11 +23,16 @@
                         <form class="mx-auto p-3 rounded-2" action="/complaint" method="post">
                             <div class="mb-3">
                                 <label for="complainterName" class="form-label fs-5">E-Mailiniz</label>
-                                <input type="email" class="form-control" name="complainterName" id="complainterName" placeholder="E-Mail'inizi giriniz...">
+                                <input required type="email" class="form-control" name="complainterName" id="complainterName" placeholder="E-Mail'inizi giriniz...">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="complaintSubject" class="form-label fs-5">Konu</label>
+                                <input required type="text" class="form-control" name="complaintSubject" id="complaintSubject" placeholder="Şikayet veya öneri konusunu yazınız...">
                             </div>
                             <div class="mb-3">
                                 <label for="complaintDescription" class="form-label fs-5">Öneri veya Şikayetiniz</label>
-                                <textarea class="form-control" name="complaintDescription" id="complaintDescription" rows="3" placeholder="Şikayet veya önerinizi yazın..."></textarea>
+                                <textarea required class="form-control" name="complaintDescription" id="complaintDescription" rows="3" placeholder="Şikayet veya önerinizi yazın..."></textarea>
                             </div>
 
                             <div class="mb-3">

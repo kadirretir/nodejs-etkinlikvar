@@ -12,7 +12,6 @@ const Login = ({errorMessage}) => {
     const submitBtnRef = useRef(null);
     const popoverContainerRef = useRef(null);
 
-  console.log(errorMessage)
   const handleToken = (token) => {
     setToken(token)
 }
@@ -86,7 +85,7 @@ const handleSubmit = (event) => {
                   <h1 className="modal-title fs-1  text-center mt-3 fw-bold">
                     Giriş Yap
                   </h1>
-                  <form onSubmit={handleSubmit}  ref={formRef} action='/auth/login' method='post' className="w-75 mx-auto my-0 mt-5 rounded-3 py-5">
+                  <form onSubmit={handleSubmit}  ref={formRef} action='/auth/login' method='post' className={`mx-auto my-0 mt-5 rounded-3 py-5 ${styles.formLogin}`}>
                   {errorState !== null && errorState.length > 0 && (
                   <h1 className={`alert ${errorState[0] === "Başarıyla kayıt olundu. Giriş yapabilirsiniz." ? "alert-success" : "alert-danger"}`}>{errorState && errorState[0]}</h1>
                   )}
@@ -100,9 +99,9 @@ const handleSubmit = (event) => {
                     <button type="submit" ref={submitBtnRef} className="loginButton">Giriş Yap</button>
                     <p className='fs-4 text-center mt-3'>Hesabın yok mu? <a href="/" onClick={handleRegisterLinkClick}>Kayıt Ol</a></p>
               
-                    <div ref={popoverContainerRef} className="d-flex justify-content-center mt-3"> 
+                    <div ref={popoverContainerRef} className="d-flex position-relative justify-content-center mt-3"> 
                         
-                        <ReCaptcha id="popoverContainer" siteKey="6LfSOIMpAAAAALflHA0EvX3T5cVo-8uK9df3Tcu6"
+                        <ReCaptcha id="popoverContainer" siteKey={process.env.RECAPTCHA_SITEKEY}
                             callback={handleToken} />
                                {showPopover && <PopoverContent content={popoverContent} />}
                       </div>
@@ -233,7 +232,6 @@ const RegisterForm = ({handleReverseLinkClick, errorState}) => {
 
   const handleSubmit = (event) => {
     if (!isFormValid || !isAgeVerified) {
-      console.log("dur bakalım", !isAgeVerified, !isFormValid)
         event.preventDefault();
         handleInputChange()
     } 
@@ -244,7 +242,7 @@ return (
         <h1 className="modal-title fs-3 text-center mt-1 fw-bold">
                             Üye Ol
                         </h1>
-                        <form onSubmit={handleSubmit} method="POST" action="/auth/register" className="w-75 mx-auto my-0 mt-4">
+                        <form onSubmit={handleSubmit} method="POST" action="/auth/register" className={`mx-auto my-0 mt-4 ${styles.registerForm}`}>
                         {errorState !== null && errorState.length > 0 && (
                         <h1 className="alert alert-danger">{errorState && errorState[0]}</h1>
                         )}
@@ -282,8 +280,8 @@ return (
                             {errorMessages.ageError !== "" ? <b className='text-danger'>{errorMessages.ageError}</b> : null}
                             <button type="submit" className="loginButton">Kaydol</button>
                             <p className='fs-4 text-center mt-3'>Zaten Üye misin? <a href="/" onClick={handleReverseLinkClick}>Giriş Yap</a></p>
-                            <p className="p-3 fs-6">Kaydolarak <a href="#">Hizmet Şartları</a>, <a href="#">Çerez
-                                    Politikası</a> ve <a href="#">Gizlilik Politikası</a> şartlarını kabul etmiş
+                            <p className="p-3 fs-6">Kaydolarak <a href="/termsofservice">Hizmet Şartları</a>, <a href="/userpolicy">Kullanıcı
+                                    Sözleşmesi</a> ve <a href="/privacypolicy">Gizlilik Politikası</a> şartlarını kabul etmiş
                                 olursunuz.</p>
                         </form>
     </div>

@@ -1,4 +1,5 @@
-import React, {useState, useEffect, useRef, useMemo} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
+const baseURL = process.env.REACT_APP_API_URL
 
 const Notification = ({notificationData}) => {
     const [unSeenNotifications, setUnSeenNotifications] = useState()
@@ -38,7 +39,7 @@ const Notification = ({notificationData}) => {
        
         if(unSeenLength > 0) {
             for (let i = 0; i < getNotifId.length; i++) {
-                await fetch(`/events/notifications/${getNotifId[i]}`, {
+                await fetch(baseURL + `/events/notifications/${getNotifId[i]}`, {
                  method: 'GET',
                  headers: {
                    'Content-Type': 'application/json'
@@ -62,7 +63,7 @@ const Notification = ({notificationData}) => {
 
 
      async function getFreshNotifications () {
-       const response = await fetch(`/events/notifications/`, {
+       const response = await fetch(baseURL + `/events/notifications/`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -109,11 +110,11 @@ const Notification = ({notificationData}) => {
 
           {notifButton ? (
           // Dropdown açıkken doldurulmuş zil ikonu
-          <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" className="bi bi-bell-fill" viewBox="0 0 16 16">
+          <svg xmlns="https://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" className="bi bi-bell-fill" viewBox="0 0 16 16">
           <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>
         </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" className="bi bi-bell" viewBox="0 0 16 16">
+          <svg xmlns="https://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" className="bi bi-bell" viewBox="0 0 16 16">
           <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
         </svg>
         )}
@@ -129,15 +130,17 @@ const Notification = ({notificationData}) => {
           </button>
           <div className="dropdown-menu p-0" ref={dropdownMenu} style={{ width: '300px' }}>
             <div className="list-group border-0">
+              {/* {console.log(unSeenNotifications)} */}
             {typeof unSeenNotifications !== 'undefined' && unSeenNotifications.length > 0 ? (
                 <>
                     {unSeenNotifications.slice(0, 4).map((notif, index) => (
-                    <a key={index} className="list-group-item list-group-item-action p-3" href="#">
+                   
+                    <a key={index} className="list-group-item list-group-item-action p-3" href="/events">
                          {notif[0]}
                     </a>
                     ))}
                     {unSeenNotifications.length > 4 && (
-                    <a href="#" className='text-center py-2'>Tümünü Gör</a>
+                    <a href="/events" className='text-center py-2'>Tümünü Gör</a>
                     )}
                 </>
                 ) : <h2 className='text-center py-3'>Henüz bildiriminiz yok</h2>

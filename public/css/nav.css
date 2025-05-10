@@ -1,26 +1,29 @@
 
 
- .mainHeader {
+.mainHeader {
   position: relative;
-    margin: 0 auto;
-    width: 95%;
-    padding: 0.5rem 0;
-    height: auto;
-    display: grid;
-    grid-template-columns: max-content 25% max-content;
-    align-items: flex-end;
-    grid-gap: 10px; /* Sütunlar arası boşluk */
-    align-items: center;
+  margin: 0 auto;
+  width: 95%;
+  padding: 0.5rem 0;
+  height: auto;
+  display: grid;
+  grid-template-columns: max-content auto auto; /* Sütunlar için oranlar */
+  align-items: center;
 }
 
-.push {
-  position: absolute;
-  right: 0;
-  top: 9%;
+/* İstediğiniz 1. ve 2. sütunları sola hizalama */
+.mainHeader > :nth-child(1),
+.mainHeader > :nth-child(2) {
+  justify-self: start;
+}
+
+/* 3. sütunu sağa dayalı hizalama */
+.mainHeader > :nth-child(3) {
+  justify-self: end;
 }
 
 #navbarUnregistered {
-  top: 16%;
+justify-self: end;
 }
 
 
@@ -381,6 +384,10 @@ nav button:last-child:hover {
     margin: 0.2rem 0;
 }
 
+#notificationNode {
+  justify-content: flex-end;
+}
+
  /* FOR NON REGISTERED USERS */
   #navbarUnregistered {
     display: none;
@@ -422,47 +429,7 @@ nav button:last-child:hover {
     border-radius: 10%;
 }
 
-
-
-  #navDropdown {
-    width: 17% !important;
-  }
-
   .smallerCreateEventLink {
     display: block;
   }
   }
-
-  @media screen and (max-width: 576px) { 
-    #navDropdown {
-      width: 20% !important;
-    }
-
-    .userButtonDesktop {
-      width: 80%;
-    }
-
-    #notificationNode {
-      justify-content: flex-end;
-    }
-  
-  }
-
-  @media screen and (max-width: 450px) { 
-    #navDropdown {
-      width: 25% !important;
-    }
-  }
-
-  @media screen and (max-width: 400px) { 
-    #navDropdown {
-      width: 30% !important;
-    }
-  }
-
-  @media screen and (max-width: 400px) { 
-    #navDropdown {
-      width: 30% !important;
-    }
-  }
-

@@ -1,14 +1,16 @@
-import React, { StrictMode } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
-import NewEvent from './components/NewEvent/NewEvent.jsx';
-import Events from './components/Events/Events.jsx';
-import Login from './components/Login/Login.jsx';
-import Usermain from './components/User/Usermain.jsx';
 import Notification from './components/Notification/Notification.jsx';
+import Events from './components/Events/Events.jsx';
 import IndexFilter from './components/IndexFilterLocation/IndexFilter.jsx';
 import GeneralSearch from './components/GeneralSearch/GeneralSearch.jsx';
-import App from './components/User/Registrationverify/App.jsx';
-import SimilarEvents from './components/SimilarEvents/SimilarEvents.jsx';
+
+const NewEvent = React.lazy(() => import('./components/NewEvent/NewEvent.jsx'));
+const Login = React.lazy(() => import('./components/Login/Login.jsx'));
+const Usermain = React.lazy(() => import('./components/User/Usermain.jsx'));
+const App = React.lazy(() => import('./components/User/Registrationverify/App.jsx'));
+const SimilarEvents = React.lazy(() => import('./components/SimilarEvents/SimilarEvents.jsx'));
+
 
 var pathname = window.location.pathname;
 
@@ -21,6 +23,7 @@ function checkValue (val) {
     const similarEventsNode = document.getElementById('similarEventsRoot');
     const similarEventsRoot = createRoot(similarEventsNode);
     const similarEventsInfo = JSON.parse(similarEventsNode.getAttribute("similar-events"))
+
     similarEventsRoot.render(
         <SimilarEvents
         similarEventsInfo={similarEventsInfo}
@@ -31,15 +34,16 @@ function checkValue (val) {
     case pathname === "/events/newevent/":
       const progressNode = document.getElementById('progress-root');
       const progressRoot = createRoot(progressNode);
+      // const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
+      // const messages = JSON.parse(progressNode.getAttribute("messages"))
       const userInfo = JSON.parse(progressNode.getAttribute("user-info"))
       const messages = JSON.parse(progressNode.getAttribute("messages"))
+
       progressRoot.render(
-        <StrictMode>
           <NewEvent
           messages={messages}
           userInfo={userInfo}
           />
-        </StrictMode>
       );
       break;
     case pathname === "/events":
@@ -57,19 +61,17 @@ function checkValue (val) {
         const popularCategories = JSON.parse(eventsNode.getAttribute("trending-categories"))
         const userEvents = JSON.parse(eventsNode.getAttribute("user-events"))
         eventsRoot.render(
-     
-            <Events 
-            usercity={usercity}
-            userEvents={userEvents}
-            createdEventMessage={createdEventMessage}
-            generalSearchResults={generalSearchResults}
-            interestsearch={interestsearch}
-            searchresults={searchresults} 
-            categoryData={categoryData}
-            trendingEvents={trendingEvents}
-            popularCategories={popularCategories}
-            userData={usersData} />
-     
+              <Events 
+              usercity={usercity}
+              userEvents={userEvents}
+              createdEventMessage={createdEventMessage}
+              generalSearchResults={generalSearchResults}
+              interestsearch={interestsearch}
+              searchresults={searchresults} 
+              categoryData={categoryData}
+              trendingEvents={trendingEvents}
+              popularCategories={popularCategories}
+              userData={usersData} />
         );
       break;
     case pathname === "/login":
@@ -78,11 +80,9 @@ function checkValue (val) {
       const loginRoot = createRoot(loginNode);
       const errorMessage = JSON.parse(loginNode.getAttribute("error-message"));
       loginRoot.render(
-        <StrictMode>
           <Login 
           errorMessage={errorMessage}
           />
-        </StrictMode>
       );
       break;
       case pathname === "/user/registrationverify":
@@ -93,11 +93,9 @@ function checkValue (val) {
         const registrationverifyRoot = createRoot(registrationverifyNode);
         const isVerified = JSON.parse(registrationverifyNode.getAttribute('isVerified'));
         registrationverifyRoot.render(
-            <StrictMode>
               <App 
               isVerified={isVerified}
               />
-            </StrictMode>
           );
           break;
     case pathname === "/user/profile":
@@ -118,23 +116,18 @@ function checkValue (val) {
       const eventsData = JSON.parse(userNode.getAttribute("event-data"));
       const cancelledMessage = JSON.parse(userNode.getAttribute("cancelled-event-message"))
       userRoot.render(
-        <StrictMode>
           <Usermain 
           userData={userData}
           eventsData={eventsData}
           cancelledMessage={cancelledMessage}
           />
-        </StrictMode>
       );
       break;
       case pathname === "/":
         const searchNode = document.getElementById('searchBoxLocation');
       const searchRoot = createRoot(searchNode);
       searchRoot.render(
-        <StrictMode>
-          <IndexFilter 
-          />
-        </StrictMode>
+          <IndexFilter />
       );
     default:
       
@@ -152,13 +145,14 @@ if (checkValue(pathname)) {
               if(notificationNode !== null) {
                 const notificationRoot = createRoot(notificationNode);
                 const notificationData = JSON.parse(notificationNode.getAttribute("notification-data"));
-        
+                const addedAttendeeEventId = JSON.parse(notificationNode.getAttribute("addedAttendeeEventId"));
+
+
                   notificationRoot.render(
-                    <StrictMode>
                       <Notification
+                      addedAttendeeEventId={addedAttendeeEventId}
                         notificationData={notificationData}
                       />
-                    </StrictMode>
                   );
               }
 
@@ -170,13 +164,12 @@ if (checkValue(pathname)) {
             const searchData = JSON.parse(searchNode.getAttribute("search-value"));
 
             searchRoot.render(
-              <StrictMode>
                 <GeneralSearch
                 searchData={searchData}
                 />
-              </StrictMode>
             )
           }
 
 
 }
+

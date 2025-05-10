@@ -3,6 +3,7 @@ import eventSubCategories from '../../../../models/eventSubCategories'
 import styles from './interest.module.css';
 import {useInterestsContext} from '../InterestsProvider'
 import { useLocation } from 'react-router-dom';
+const baseURL = process.env.REACT_APP_API_URL;
 
 const Interests = ({userData}) => {
   const {interests, updateInterests } = useInterestsContext();
@@ -75,7 +76,7 @@ const Interests = ({userData}) => {
     if (interests.isChanged) {
       updateInterests({isLoading: true})
       const selectedContents = interests.buttons;
-      fetch('/user/interests', {
+      fetch(baseURL + '/user/interests', {
         method: "POST",
         headers: {
           'Content-Type': 'application/json'
@@ -98,9 +99,7 @@ const Interests = ({userData}) => {
         handleNotification(error.message)
       })
   
-    } else {
-      console.log("Değişiklik yapılmadı.")
-    }
+    } 
   };
 
   const closeNotification = () => {
@@ -128,7 +127,7 @@ const Interests = ({userData}) => {
     updateInterests({ showNotification: false });
     if(interests.isSubmitted) {
       updateInterests({ isLoading: true })
-      fetch("/user/interests", {
+      fetch(baseURL + "/user/interests", {
         method: "GET",
         headers: {
           'Content-Type': 'application/json'

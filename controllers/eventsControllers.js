@@ -5,6 +5,7 @@ const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
 const fs = require("fs");
 const Messages = require("../models/messagesSchema");
+
 const {getTodaysEvents,
    getTomorrowsEvents, 
    getThisWeeksEvents, 
@@ -12,7 +13,7 @@ const {getTodaysEvents,
     getNextWeekEvents} = require("./eventsDateFuncs")
     const WebSocket = require('ws');
 
-    const wss = new WebSocket.Server({ port: 8080 });
+    const wss = new WebSocket.Server({ port: 8000 });
 
     const authorizedUsers = [];
     let singleEventId;
@@ -36,7 +37,7 @@ const {getTodaysEvents,
 
       ws.onmessage = async (event) => {
         const message = event.data;
-        console.log('Mesaj alındı:', JSON.parse(message), 'Kullanıcı:', ws.userId);
+        // console.log('Mesaj alındı:', JSON.parse(message), 'Kullanıcı:', ws.userId);
 
 
         const parsedMessages = JSON.parse(message);
@@ -74,7 +75,6 @@ const {getTodaysEvents,
         wss.clients.forEach(client => {
       
           if (client.readyState === WebSocket.OPEN && client.userId !== ws.userId) {
-        
             client.send(message);
           }
         });
@@ -119,7 +119,7 @@ module.exports.home_get = async (req,res) => {
           // Katılımcı sayısını hesaplayın
           { $project: { attendeesCount: { $size: "$attendees" }, doc: "$$ROOT" } },
           // En az 10 katılımcıya sahip olanları filtreleyin
-          { $match: { attendeesCount: { $gte: 2 } } },
+          { $match: { attendeesCount: { $gte: 10 } } },
           // Sonuçları katılımcı sayısına göre sıralayın
           { $sort: { attendeesCount: -1 } },
           // İlk 5 sonucu alın
@@ -273,19 +273,23 @@ module.exports.singular_event_get = async (req,res) => {
   // findAttendeeUsers dizisini, findEvent.attendees içerisindeki sıralamaya göre yeniden düzenleyin
   const reorderedAttendeeUsers = attendeeIds.map(id => findAttendeeUsers.find(user => user.id.toString() === id.toString()));
   
-    
+  const currentDate = new Date(); // Şu anki tarih ve saat
     const findSimilarEvents = await Event.find({
       eventCategory: eventCategory, // Aynı kategoriye sahip
       cityName: eventCity, // Aynı şehire sahip
       _id: { $ne: req.params.id }, // Şu anki etkinliği dışarıda bırak
-  }).limit(12); 
+      status: { $ne: "cancelled" }, // Statusu "cancelled" olan etkinlikleri almayacağız
+      date: { $gte: currentDate }
+  }).limit(8); 
 
+  const baseURL = process.env.WEBSOCKET_URL;
     res.render('event.ejs', {
       findEvent: findEvent,
        findOrganizer: findOrganizer,
        findAttendeeUsers: reorderedAttendeeUsers,
        findSimilarEvents: findSimilarEvents,
-       messages: messages
+       messages: messages,
+       baseURL:baseURL
       })
     } catch (error) {
         res.status(404).render("404.ejs")
@@ -314,14 +318,7 @@ module.exports.add_attendees_post = async (req, res) => {
     //   // Etkinliği bulun
    const event = await Event.findById(eventId);
   
-    //   // Kullanıcının "free" üyelik düzeyine sahip olup olmadığını kontrol edin
-    //   const user = await User.findById(userId);
       if(user !== null) {
-        if (user.membershipLevel === 'free' && event.attendees.length >= 10) {
-          // "free" üyelik düzeyine sahip kullanıcı için katılımcı sınırlaması kontrolü
-          req.flash('error', 'Katılımcı sınırına ulaşıldı.');
-          return res.redirect(`/events/${eventId}`);
-        }
           // EĞER USER NULL DEĞİLSE || YANİ VARSA BİLDİRİM OLUŞTUR
         try {
           // Etkinlik sahibine bildirim oluştur
@@ -455,7 +452,6 @@ module.exports.notifications_get = async (req,res) => {
   } catch (error) {
     throw new Error(error)
   }
-
 }
 
 module.exports.getNotificationById = async (req,res) => {
@@ -479,16 +475,9 @@ module.exports.getNotificationById = async (req,res) => {
 module.exports.newevent_post = async (req,res, err) => {
     try {
         await connectToDb()
-
-        const littleTargetWidth = 220; // Hedef genişlik (little)
-       const littleTargetAspectRatio = 232 / 155; // Hedef en-boy oranı (little)
-
         const normalTargetWidth = 848; // Hedef genişlik (normal)
         const normalTargetAspectRatio = 848 / 476; // Hedef en-boy oranı (normal)
 
-
-  // Little boyutlandırma
-const littleTargetHeight = Math.floor(littleTargetWidth / littleTargetAspectRatio);
 
 // Normal boyutlandırma
 const normalTargetHeight = Math.floor(normalTargetWidth / normalTargetAspectRatio);
@@ -515,7 +504,6 @@ const normalTargetHeight = Math.floor(normalTargetWidth / normalTargetAspectRati
             req.flash("error", "Değerli üyemiz, bazı güvenlik sebeplerinden dolayı kullanıcılarımızın 10'dan fazla etkinlik kurmasına izin veremiyoruz. Anlayışınız için teşekkür ederiz.")
             return res.redirect("/events/newevent")
           }
-
         
           const newEvent = await Event.create({
             title: req.body.eventPostTitle,

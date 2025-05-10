@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import InterestsVerify from './InterestsVerify';
+const baseURL = process.env.REACT_APP_API_URL;
 
 const App = ({ isVerified }) => {
   
@@ -29,7 +30,7 @@ const VerifyRegistration = ({ isVerified }) => {
 
     try {
       setIsLoading(true)
-      const response = await fetch('/user/verify', {
+      const response = await fetch(baseURL + '/user/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -68,44 +69,67 @@ const VerifyRegistration = ({ isVerified }) => {
 
   return (
     <div className="container verifyContainer mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-8">
-          <div className="card p-5">
-            <h1 className="card-title text-center fs-2">Hesabınızı Doğrulayın</h1>
-            <div className="card-body p-5">
-              <hr />
-              <h1 className="card-text mb-4">
-                <span className='fs-4'>Aramıza Hoşgeldin {isVerified.username}</span> <br/>
-                <span className="fs-5">E-Mail'ine gönderdiğimiz postadaki onaylama kodunu aşağıya girdiğinde tamamiyle hazır olacaksın.</span> <br /> <br />
-                <span className="fw-light fs-5" style={{ color: "#FD3412" }}>Keyifli etkinlikler! </span>
-              </h1>
-
-              <form onSubmit={handleSubmit} id="verificationForm" className="d-flex flex-column justify-content-center">
-              {error ? (
-                      <h3 className='text-danger fs-5 mb-3'>{error}</h3>
-                    ): ''}
-                <div className="form-floating mb-5">
-                  <input type="text" value={inputCode} onChange={(e) => setInputCode(e.target.value)} className="form-control border border-2 border-secondary-subtle focus-ring focus-ring-secondary" id="emailToken" name="emailToken" placeholder="ornek@ornek.com" required autoComplete='off' />
-                  <label htmlFor="emailToken" className="text-secondary">Örnek: 4360F6</label>
+    <div className="row justify-content-center">
+      <div className="col-md-8">
+        <div className="card p-4 p-md-5">
+          <h1 className="card-title text-center fs-2 mb-4">Hesabınızı Doğrulayın</h1>
+          <div className="card-body">
+            <hr className="my-4" />
+            <h1 className="card-text mb-4 fs-5 text-center">
+              Aramıza Hoşgeldin {isVerified.username} <br />
+              <span className="fs-6">E-Mail'ine gönderdiğimiz postadaki onaylama kodunu aşağıya girdiğinde tamamiyle hazır olacaksın.</span>
+            </h1>
+  
+            <form onSubmit={handleSubmit} id="verificationForm">
+              {error && (
+                <div className="alert alert-danger fs-6 mb-4" role="alert">
+                  {error}
                 </div>
-                <button type="submit" className="btn btn-dark d-flex align-items-center justify-content-center" disabled={isLoading || hasSent ? true : false}>
-                  
-                  {isLoading ? (
-                    <div className="spinner-border" role="status">
+              )}
+              <div className="form-floating mb-4">
+                <input
+                  type="text"
+                  value={inputCode}
+                  onChange={(e) => setInputCode(e.target.value)}
+                  className="form-control"
+                  id="emailToken"
+                  name="emailToken"
+                  placeholder="ornek@ornek.com"
+                  required
+                  autoComplete="off"
+                />
+                <label htmlFor="emailToken" className="text-secondary fs-6">
+                  Örnek: 4360F6
+                </label>
+              </div>
+              <button
+                type="submit"
+                className="btn w-100 btn-dark d-flex align-items-center justify-content-center"
+                disabled={isLoading || hasSent}
+              >
+                {isLoading ? (
+                  <div className="spinner-border me-2" role="status">
                     <span className="visually-hidden">Loading...</span>
                   </div>
-                  ): 'Doğrula'}
-                  </button>
-              </form>
-
-              <p className="mt-3">Eğer doğrulama e-postasını almadıysanız, lütfen spam/junk klasörünü kontrol edin veya <a href="/resend-verification">buradan</a> yeniden gönderin.</p>
-
-              <p>Yardıma ihtiyacınız varsa lütfen <a href="/complaints">bize bildirin</a>.</p>
-            </div>
+                ) : (
+                  'Doğrula'
+                )}
+              </button>
+            </form>
+  
+            <p className="mt-4 text-center">
+              Eğer doğrulama e-postasını almadıysanız, lütfen spam/junk klasörünü kontrol edin
+            </p>
+  
+            <p className="text-center">
+              Yardıma ihtiyacınız varsa lütfen <a href="/complaints">bize bildirin</a>.
+            </p>
           </div>
         </div>
       </div>
     </div>
+  </div>
+  
   );
 };
 

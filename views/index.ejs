@@ -1,37 +1,35 @@
 <%- include('./partials/_header.ejs') -%>
 
 <section class="banner-header">
-  <div class="row gx-0">
-    <div class="imageHalf col-xl-6">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="middle d-flex align-items-start flex-column justify-content-start">  
-              <h1><span>Yeni</span> İnsanlarla Tanış</h1>
-              <h3 class="lh-sm fs-5">İlgilerinizi insanlarla buluşturan platform.</h>
-            </div>
-            
-          </div>
-        </div>
-      </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xl-6 d-flex align-items-center flex-column justify-content-center">
+      
+        <img class="img-fluid" width="496" height="496" src="./bannerphoto.jpg" alt="freepik banner photo" />
+     
     </div>
-    <div class="otherHalf col-xl-6">
-      <form id="searchForm" action="/events" method="post" autocomplete="off">
-        <div class="formLabelContainer">
-          <label for="searchforeventlocation" class="formChilds">Sen de Etkinliğini Bul</label>
-        </div>
-        <div class="searchBoxContainer d-flex flex-column flex-xxl-row">
-          <div id="searchBoxLocation">
+    
+    <div class="otherHalf d-flex flex-column align-items-start justify-content-center col-xl-6 custom-card">
+      <h1 class="fs-4 fw-bold my-2">İlgilerinizi insanlarla buluşturan platform.</h1>
+      <p class="fs-5">Etkinlikdolu, ilgi alanlarınızı bir araya getiren bir platformdur. Doğa yürüyüşlerinden kitap kulüplerine, çevre aktivitelerinden beceri paylaşımlarına kadar her alandan binlerce kişi burada buluşuyor.
+  
+          Her gün düzenlenen etkinlikler arasından seçim yapın ve yeni maceralara katılın. Etkinlikdolu ile tanışın, yeni arkadaşlar edinin ve unutulmaz anılar biriktirin!</p>
+  
+      <form id="searchForm" class="my-5"  action="/events" method="post" autocomplete="off">
+          <label for="searchforeventlocation" class="text-primary-emphasis fs-4 my-2">Sen de Etkinliğini Bul</label>
+      
+          <div class="searchBoxContainer d-flex flex-column flex-xxl-row">
+              <div id="searchBoxLocation">
+              </div>
           </div>
-        </div>
-        <div>
-          <button type="submit">Ara</button>
           
-        </div>
-        <span class="latestInfo">*Türkiye içerisindeki 81 il ve ilçede arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
+          <button type="submit">Ara</button>
       </form>
-    </div>
-    </div>
+      <span class="latestInfo">*Türkiye içerisindeki 81 il ve ilçede arama yapabilir, ilgi alanlarınıza göre toplantılar ve etkinlikleri görebilirsiniz</span>
+  </div>
+  
+      </div>
+  </div>
     </section>
 
     <section id="etkinlikOffers">
@@ -41,20 +39,20 @@
           <div class="row mt-5 g-2 justify-content-center">
             <div class="col-lg-4">
               <div class="imageContainer">
-                <img class="img-fluid" src="./meet-new-people.jpg" width="100%" alt="photo-nature" />
+                <img class="img-fluid"  width="426" height="284"  src="./meet-new-people.jpg"  alt="photo-nature" />
                 <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="/events">Yeni İnsanlarla Tanış</a>
               </div>
             </div>
 
             <div class="col-lg-4">
               <div class="imageContainer">
-                <img class="img-fluid" src="./photo-nature.jpg" width="100%" alt="photo-nature" />
+                <img class="img-fluid"  width="426" height="284"  src="./photo-nature.jpg" alt="photo-nature" />
                 <a class="text-underline-hover fs-4 text-center imageText fw-bold"  href="/events/?searchquery=Doğa Yürüyüşleri">Doğa Yürüyüşüne Katıl</a>
               </div>
             </div>
             <div class="col-lg-4">
               <div class="imageContainer">
-                <img src="./yeni-deneyimler.jpg" width="104%" alt="photo-nature" />
+                <img class="img-fluid" style="min-height: 284px;" width="426" height="284" src="./yeni-deneyimler.jpg"  alt="photo-nature" />
                 <a class="text-underline-hover fs-4 text-center imageText fw-bold" href="/events">Grupça Hobini Paylaş</a>
               </div>
             </div>
@@ -68,9 +66,9 @@
         <h1 class="display-6 text-center mb-5">Hangi etkinlikler var?</h1>
         <hr />
         <div class="row">
-          <div class="d-flex align-items-center justify-content-between mb-3 mt-5">
-            <h1 class="fs-2 text-center fw-bold">Yakın Gelecekteki Etkinlikler</h1>
-            <a href="/events" class="fs-5">Etkinlikleri Görün</a>
+          <div class="futuringEventsHeader d-flex align-items-center justify-content-between mb-3 mt-5">
+            <h1 class="text-start fw-bold">Yakın Gelecekteki Etkinlikler</h1>
+            <a href="/events" class="text-end">Etkinlikleri Görün</a>
           </div>
           <% events.forEach((event) => { %>
             <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 my-2">
@@ -87,7 +85,7 @@
                       <small style="font-family: var(--second-font);" class="fs-5 fw-bold my-2 d-inline-block text-capitalize text-dark"><%= event.title %></small>
 
                       <h4 class="text-body-secondary location-span mt-2 mb-1 text-capitalize">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo" viewBox="0 0 16 16">
+                        <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo" viewBox="0 0 16 16">
                           <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6M4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.3 1.3 0 0 0-.37.265.3.3 0 0 0-.057.09V14l.002.008.016.033a.6.6 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.6.6 0 0 0 .146-.15l.015-.033L12 14v-.004a.3.3 0 0 0-.057-.09 1.3 1.3 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465s-2.462-.172-3.34-.465c-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411"/>
                         </svg>
                         <%=event.cityName%>

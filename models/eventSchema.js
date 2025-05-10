@@ -72,7 +72,7 @@ const eventsSchema  = new Schema({
   
   });
 
-
+  
 
   const Event = mongoose.model("Event", eventsSchema)
 

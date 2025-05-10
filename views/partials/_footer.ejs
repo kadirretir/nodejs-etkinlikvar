@@ -8,7 +8,12 @@
     <div class="row">
       <div class="col-12 mx-auto d-flex flex-column flex-md-row align-items-center justify-content-between">
         <h4 class="text-light fw-semibold fs-3 text-center">Etkinliğini Oluştur, Katılımcıları Çek!</h4>
-        <a href="/events/newevent"><button class="btnStyles" type="button">Etkinlik Oluştur</button></a>
+        <% if (user) { %>
+          <a href="/events/newevent"><button class="btnStyles" type="button">Etkinlik Oluştur</button></a>
+      <% } else { %>
+          <a href="/login"><button class="btnStyles" type="button">Etkinlik Oluştur</button></a>
+      <% } %>
+      
       </div>
       <hr class="border-1 border-primary-subtle mt-3" />
     </div>
@@ -19,14 +24,13 @@
           <% if (!user) { %>
             <li class="mb-1"><a href="/login" class="footerElements">Giriş Yap</a></li>
             <li><a href="/login" class="footerElements">Kayıt Ol</a></li>
-          <% } else if (user.membershipLevel === 'premium' || user.membership === 'premium') { %>
-            <li class="mb-1"><a href="/pricing" class="footerElements">e+ Üyeliği</a></li>
-            <li class="mb-1"><a href="/user/profile" class="footerElements">Ayarlar</a></li>
-            <li><a href="/members/<%=user.id%>"  class="footerElements">Profilim</a></li>
-            <% } else { %>
+              <% } else { %>
               <li class="mb-1"><a href="/user/profile" class="footerElements">Ayarlar</a></li>
               <li><a href="/members/<%=user.id%>" class="footerElements">Profilim</a></li>
-              <%  }%>
+              <% } %>
+
+              
+          
         
         </ul>
       </div>
@@ -36,7 +40,7 @@
         <ul class="d-flex flex-column align-items-center justify-content-center">
           <li class="mainListElements"><a href="/complaints" class="footerElements">Şikayet ve Öneri</a></li>
           <li class="mainListElements"><a href="/events" class="footerElements">Etkinlikler</a></li>
-          <li class="mainListElements"><a href="/contact" class="footerElements">İletişim</a></li>
+          <li class="mainListElements"><a href="/complaints" class="footerElements">İletişim</a></li>
           <li class="mainListElements"><a href="/help" class="footerElements">Yardım</a></li>
         </ul>
       </div>
@@ -56,22 +60,23 @@
       <div class="col-md-5 col-lg-4 mt-3">
         <h5 class="fs-5 text-center mb-3" style="color: var(--light-color)">Bizi Takip Et</h5>
         <ul class="d-flex flex-column align-items-center justify-content-center">
-          <li class="mb-1"><a href="#" class="footerElements"><i class="fa-brands fa-instagram fa-xl"></i></a></li>
+          <li class="mb-1"><a href="https://www.instagram.com/etkinlikdoolu" target="_blank" class="footerElements"><i class="fa-brands fa-instagram fa-xl"></i></a></li>
         </ul>
       </div>
     </div>
     <div class="row mt-3 justify-content-center align-items-end">
       <div class="col-md-5 col-lg-3 text-lg-start text-center">
-        <h1 class="text-light fw-bold">© etkinlikdolu.com 2023</h1>
+        <h5 class="text-light fw-bold">© etkinlikdolu.com 2023</h5>
+        <h5 class="text-light my-1">Image from freepik</h5>
       </div>
       <div class="col-md-5 col-lg-3 text-lg-start text-center">
-        <h1><a href="#" class="footerElements">Gizlilik Politikası</a></h1>
+        <h1><a href="/privacypolicy" class="footerElements">Gizlilik Politikası</a></h1>
       </div>
       <div class="col-md-5 col-lg-3 text-lg-start text-center">
-        <h1><a href="#" class="footerElements">Hizmet Şartları</a></h1>
+        <h1><a href="/termsofservice" class="footerElements">Hizmet Şartları</a></h1>
       </div>
       <div class="col-md-5 col-lg-3 text-lg-start text-center">
-        <h1><a href="#" class="footerElements">Çerez Politikası</a></h1>
+        <h1><a href="/userpolicy" class="footerElements">Kullanıcı Sözleşmesi</a></h1>
       </div>
     </div>
   </div>
@@ -99,8 +104,10 @@ listItems.forEach(item => {
   item.addEventListener('click', function(e) {
     e.preventDefault();
     const searchforeventlocation = this.textContent.split(' ')[0];
+    const baseURL = '<%process.env.REACT_APP_API_URL%>'
 
-    fetch('/events', {
+    console.log(baseURL, "adasdasds")
+    fetch(baseURL + '/events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

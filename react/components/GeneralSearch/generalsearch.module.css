@@ -1,12 +1,11 @@
 .searchInput {
-    padding: 8px 15px;
+    padding: 8px 5px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding-left: 2rem;
     outline: none;
-    width: 250px;
-    margin-right: 0.4%;
+    width: 330px !important;
   }
   
   .searchInput:focus {

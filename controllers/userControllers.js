@@ -4,7 +4,7 @@ const User = require("../models/userSchema")
 const sharp = require('sharp');
 const fs = require("fs")
 const path = require('path');
-const eventSubCategories = require("../models/eventSubCategories")
+
 
 module.exports.profile_get = async (req,res) => {
     try {
@@ -201,8 +201,8 @@ module.exports.personal_info_post = async (req,res) => {
 module.exports.main_get = async (req,res) => {
   try {
     await connectToDb()
-    const userEvents = await Event.find({organizer: req.user.id})
-    const user = await User.findById(req.user.id)
+    const userEvents = await Event.find({organizer: req.user.id}).select("username twitterLink location biografy profileImage birthDate gender interests email")
+    const user = await User.findById(req.user.id).select("username twitterLink location biografy profileImage birthDate gender interests email")
     const successMessages = req.flash('success');
     res.render("user.ejs", {user: user, events: userEvents, successMessages: successMessages});
 } catch (error) {

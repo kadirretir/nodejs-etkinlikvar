@@ -169,18 +169,17 @@ module.exports.register_post= async (req,res, next) => {
              secure: true,
              auth: {
                user: "etkinlikdolu@gmail.com",
-               pass: "zcum cjum mzbn rgzv"
+               pass: "esah rzzf rkep wabi"
              }
             });
           
             const info = await transporter.sendMail({
              from: "etkinlikdolu@gmail.com",
-             to: "kadirramazan344@gmail.com",
+             to: newUser.email,
              subject: "Doğrulama Kodu, etkinlikdolu.com",
              html: html
             })
-          
-            console.log("Mesaj gönderildi: " + info.messageId)
+
           }
           
            main();
@@ -242,7 +241,7 @@ module.exports.login_post = async (req, res, next) => {
     if (recaptchaResponse.data['error-codes']) {
       console.error('reCAPTCHA error:', recaptchaResponse.data['error-codes']);
     }
-    throw new Error("reCAPTCHA doğrulaması başarısız!");
+    throw new Error("Bir hata oluştu. ReCAPTCHA Doğrulamanızı onaylamayı başaramadık. Lütfen Tekrar Deneyin");
   }
 } 
 
