@@ -20,7 +20,7 @@ const nodemailer = require('nodemailer');
 
 
 
-
+const PORT = process.env.PORT || 3000;
 app.use(cors())
 
 
@@ -307,4 +307,4 @@ app.use(function (req,res,next) {
 
   
 
-app.listen(3000)
+app.listen(PORT)
