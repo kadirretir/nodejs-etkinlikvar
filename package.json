@@ -5,9 +5,9 @@
   "main": "index.js",
   "mode": "production",
   "scripts": {
-    "start": "node app.js",
-  "build": "webpack --mode production",
-  "build:watch": "webpack --watch --mode production"
+    "start": "npx concurrently \"npm run build:watch\" \"nodemon app.js\"",
+    "build": "webpack --mode production",
+    "build:watch": "webpack --watch --mode production"
   },
   "keywords": [],
   "author": "",

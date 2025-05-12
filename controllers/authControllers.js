@@ -169,7 +169,7 @@ module.exports.register_post= async (req,res, next) => {
              secure: true,
              auth: {
                user: "etkinlikdolu@gmail.com",
-               pass: "esah rzzf rkep wabi"
+               pass: process.env.SMTP_PASS
              }
             });
           

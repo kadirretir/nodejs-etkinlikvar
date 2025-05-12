@@ -61,23 +61,24 @@ const EventCard = memo(
         <div ref={ref} className="card my-4 rounded-0 border-0" style={{ maxWidth: '640px' }}>
           <a className="link-opacity-100-hover" href={`/events/${filteredSingleEvent._id}`}>
             <div className="row g-0">
-              <div className="col-md-4"  style={{ height: '100%' }}>
+              <div className="col-md-4">
                 <MemoizedLazyLoadImage
                 effect="blur"
                 src={`../${imagePath}`}
-                className={`img-fluid rounded-start ${innerWidth > 768 ? styles.cardImgTop : ""}`}
+                className={`img-fluid w-100 h-auto rounded-start ${innerWidth > 768 ? styles.cardImgTop : ""}`}
                 alt="eventImage"
               />
               </div>
 
               <div className="col-md-8">
                 <div
-                style={{background: 'linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))', height: "145px"}} 
-                className="card-body p-0 ps-3 py-1 d-flex flex-column"
+                style={{background: 'linear-gradient(to bottom, rgba(248, 248, 248, 0.9), rgba(248, 248, 248, 0.7))'}} 
+                className="card-body h-100 p-0 ps-3 d-flex flex-column"
                 >
-                  <small className="fw-bolder py-1 text-secondary">{displayDate}</small>
-                  <h5 className="card-title text-dark" style={{ fontSize: '1.4rem'}}>
+                  <small className="fw-bolder fs-6 text-secondary">{displayDate}</small>
+                  <h5 className="card-title mb-2 mt-2 text-dark" style={{ fontSize: '1.3rem'}}>
                     {filteredSingleEvent.title}
+                  
 
                   </h5>
 
@@ -87,7 +88,7 @@ const EventCard = memo(
                           <i className="fa-solid fa-table me-1" style={{ color: 'var(--first-color)' }}></i>
                           {filteredSingleEvent.eventCategory}
                           </small>
-                        <p className="text-capitalize text-start fw-bold card-text fs-5 text-body-secondary">
+                        <p className="text-capitalize text-start fw-bold card-text fs-6 text-body-secondary">
                             <svg
                               xmlns="https://www.w3.org/2000/svg"
                               width="16"
@@ -105,7 +106,7 @@ const EventCard = memo(
                         </p>
                         </div>
                     <div className={`${styles.attendeesContainer} d-flex flex-row align-items-center justify-content-end`}>
-                      <h5 className="text-secondary me-2">
+                      <h5 className="text-secondary fs-6 me-2">
                         {filteredSingleEvent.attendees.length <= 1
                           ? `${filteredSingleEvent.attendees.length} Katılımcı`
                           : 'Katılımcılar'}
@@ -115,7 +116,7 @@ const EventCard = memo(
                         <img
                           key={index}
                           className="rounded-circle img-fluid"
-                          style={{ width: '35px', height: '35px' }}
+                          style={{ width: '29px', height: '29px' }}
                           src={`../${attendee.profileImage}`}
                           alt={attendee.username}
                         />

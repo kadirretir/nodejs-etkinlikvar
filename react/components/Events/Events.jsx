@@ -71,44 +71,44 @@ const Events = memo(({ userEvents,
     setSelectedCategory(e.target.innerHTML)
   }
 
-  useEffect(() => {
-    const getProvinces = async () => {
-      try {
-        const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,districts");
-        const data = await response.json();
-        const getProvincesToArray = data.data.map((names) => names.name);
-        const districts = data.data.map((data) =>
-              data.districts.map((names) => ({
-                name: names.name,
-                city: data.name
-              }))
-            );
-       
-        const districtsArray = districts.flat();
-        getProvincesToArray.push(districtsArray);
-       
-           
-       const districtsWithCity = districtsArray.slice(81, 1053).map((district) => `${district.name}, ${district.city}`);
-       const provinceNames = getProvincesToArray.filter((names) => {return names}).slice(0,81)
- 
-       const combinedArray = provinceNames.concat(districtsWithCity);
-       const filterResults = combinedArray.filter((names) => names.toLocaleUpperCase('TR').includes(search.toLocaleUpperCase('TR')));
-       setSearchResults(filterResults);
-      } catch (error) {
-        throw new Error(error);
-      }
-    }
+ const fetchData = useCallback(
+      debounce(async (searchTerm) => {
+        try {
+          const [provinceRes, districtRes] = await Promise.all([
+            fetch("https://turkiyeapi.dev/api/v1/provinces?fields=name"),
+            fetch("https://turkiyeapi.dev/api/v1/districts?fields=name,province")
+          ]);
   
-    const debouncedGetProvinces = debounce(getProvinces, 300); // 300 milisaniyelik gecikme
-    if (search.trim().length > 0) {
-        debouncedGetProvinces();
-    }
-
-    return () => {
-        debouncedGetProvinces.cancel(); // Temizleme işlevi bileşen yeniden yüklenirken çalışır.
-    }
-
-  }, [search]);
+          const provincesData = await provinceRes.json();
+          const districtsData = await districtRes.json();
+  
+          const provinceNames = provincesData.data.map(p => p.name);
+          const districtNames = districtsData.data.map(d => `${d.name}, ${d.province}`);
+  
+          const combined = [...provinceNames, ...districtNames];
+  
+          const filtered = combined.filter(name =>
+            name.toLocaleUpperCase('TR').includes(searchTerm.toLocaleUpperCase('TR'))
+          );
+  
+          setSearchResults(filtered);
+        } catch (error) {
+          console.error("Veri alınamadı:", error);
+        }
+      }, 500), [setSearchResults]
+    );
+  
+    useEffect(() => {
+      if (search.trim()) {
+        fetchData(search);
+      } else {
+        setSearchResults([]);
+      }
+  
+      return () => {
+        fetchData.cancel();
+      };
+    }, [search, fetchData]);
   
   
   const handleCategoryLeft = (event) => {
@@ -382,10 +382,10 @@ const searchQuery = urlParams.get('searchquery');
                                             <img src={`../${singular.eventImage}`} className="img-fluid rounded-start" alt="eventImage" />
                                           </div>
                                           <div className="col-md-8">
-                                            <div className="card-body">
-                                            <p className="card-text"><small className="text-secondary" style={{fontSize: "1rem"}}>{displayDate}</small></p>
+                                            <div className="card-body p-0 ps-2">
+                                            <p className="card-text"><small className="text-secondary" style={{fontSize: "0.9rem"}}>{displayDate}</small></p>
                                               <h5 className="card-title mt-2 text-secondary-emphasis">{singular.title}</h5>
-                                              <p className="card-text"><small className="text-body-secondary">
+                                              <p className="card-text fs-6"><small className="text-body-secondary">
                                               <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16"  fill="currentColor" style={{color: "var(--first-color)"}} className="bi bi-geo-alt-fill me-1" viewBox="0 0 16 16">
                                                 <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                                               </svg>

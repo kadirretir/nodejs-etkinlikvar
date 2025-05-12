@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import debounce from 'lodash.debounce';
 import styles from './indexfilter.module.css';
 
@@ -9,49 +9,44 @@ const IndexFilter = () => {
     const searchRef = useRef(); 
     const searchResultsRef = useRef();
 
-    useEffect(() => {
-        const getProvinces = async () => {
-            try {
-                const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,districts");
-                const data = await response.json();
-                const getProvincesToArray = data.data.map((names) => names.name);
-                const districts = data.data.map((data) =>
-                    data.districts.map((names) => ({
-                        name: names.name,
-                        city: data.name
-                    }))
-                );
+    const fetchData = useCallback(
+        debounce(async (searchTerm) => {
+          try {
+            const [provinceRes, districtRes] = await Promise.all([
+              fetch("https://turkiyeapi.dev/api/v1/provinces?fields=name"),
+              fetch("https://turkiyeapi.dev/api/v1/districts?fields=name,province")
+            ]);
+    
+            const provincesData = await provinceRes.json();
+            const districtsData = await districtRes.json();
+    
+            const provinceNames = provincesData.data.map(p => p.name);
+            const districtNames = districtsData.data.map(d => `${d.name}, ${d.province}`);
+    
+            const combined = [...provinceNames, ...districtNames];
+    
+            const filtered = combined.filter(name =>
+              name.toLocaleUpperCase('TR').includes(searchTerm.toLocaleUpperCase('TR'))
+            );
+    
+            setSearchResults(filtered);
+          } catch (error) {
+            console.error("Veri alınamadı:", error);
+          }
+        }, 500), []
+      );
 
-                const districtsArray = districts.flat();
-                getProvincesToArray.push(districtsArray);
-
-
-                const districtsWithCity = districtsArray.map((district) => `${district.name}, ${district.city}`);
-                const provinceNames = getProvincesToArray.slice(0, getProvincesToArray.length - 1);
-
-                const combinedArray = provinceNames.concat(districtsWithCity);
-                const filterResults = combinedArray.filter((names) => names.toLocaleUpperCase('TR').includes(search.toLocaleUpperCase('TR')));
-                setSearchResults(filterResults);
-            } catch (error) {
-                throw new Error(error);
-            } 
-
+      useEffect(() => {
+        if (search.trim()) {
+          fetchData(search);
+        } else {
+          setSearchResults([]);
         }
-
-        const debouncedGetProvinces = debounce(() => {
-            getProvinces();
-        }, 300); // 300 milisaniyelik gecikme
-        
-        if (search.trim().length > 0) {
-            debouncedGetProvinces(); // Debounce işlemini başlat
-        }
-        
+    
         return () => {
-            debouncedGetProvinces.cancel(); // Temizleme işlevi bileşen yeniden yüklenirken çalışır.
-        }
-
-    }, [search]);
-
+          fetchData.cancel();
+        };
+      }, [search]);
 
     // close the search result window
 

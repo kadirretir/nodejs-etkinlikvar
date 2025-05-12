@@ -62,22 +62,38 @@ const EventForm = ({
         }
       };
 
-        // GET FULL TURKEY API DATA FROM TURKEY API
-      useEffect(() => {
-        const getDataFromApi = async () => {
-          const response = await fetch("https://turkiyeapi.cyclic.app/api/v1/provinces?fields=name,id,districts")
-         const provincesData = await response.json()
-         const provincesDataObject = provincesData.data
-       const getProvinceNames = provincesDataObject.map((province) => {
-        return province;
-       })
-       setFullData(getProvinceNames)
-
-       return getProvinceNames;
-        }
-        getDataFromApi()
-       
-      }, [])
+      // GET FULL TURKEY API DATA FROM TURKEY API
+        useEffect(() => {
+          const fetchData = async () => {
+            try {
+              const [provinceRes, districtRes] = await Promise.all([
+                fetch("https://turkiyeapi.dev/api/v1/provinces?fields=name,id"),
+                fetch("https://turkiyeapi.dev/api/v1/districts?fields=name,province")
+              ]);
+        
+              const provincesData = await provinceRes.json();
+              const districtsData = await districtRes.json();
+        
+              // Her province için districts'leri eşleştir
+              const combinedData = provincesData.data.map((province) => {
+                const relatedDistricts = districtsData.data.filter(
+                  (district) => district.province === province.name
+                );
+        
+                return {
+                  ...province,
+                  districts: relatedDistricts
+                };
+              });
+        
+              setFullData(combinedData);
+            } catch (error) {
+              console.error("Veri alınamadı:", error);
+            }
+          };
+        
+          fetchData();
+        }, []);
 
 
 

@@ -212,7 +212,7 @@
             const baseURL = "<%= baseURL %>"
 
           // establish websocket connection
-            const ws = new WebSocket(`wss://${baseURL}:8000/?userId=<%= user && user._id %>`);
+            const ws = new WebSocket(`ws://localhost:8000/?userId=<%= user && user._id %>`);
 
     // GET CHAT FORM
    const chatForm = document.getElementById("chatForm");
