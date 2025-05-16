@@ -212,7 +212,8 @@
             const baseURL = "<%= baseURL %>"
 
           // establish websocket connection
-            const ws = new WebSocket(`ws://nodejs-etkinlikvar.onrender.com/?userId=<%= user && user._id %>`);
+            const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            const ws = new WebSocket(`${protocol}://nodejs-etkinlikvar.onrender.com/?userId=<%= user && user._id %>`);
 
     // GET CHAT FORM
    const chatForm = document.getElementById("chatForm");
