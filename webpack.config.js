@@ -44,6 +44,7 @@ module.exports = {
       'process.env.SMTP_PASS': JSON.stringify(process.env.SMTP_PASS),
       'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL),
       'process.env.WEBSOCKET_URL': JSON.stringify(process.env.WEBSOCKET_URL),
+      'process.env.WEBSOCKET_PORT': JSON.stringify(process.env.WEBSOCKET_PORT),
 
     })
   ],
