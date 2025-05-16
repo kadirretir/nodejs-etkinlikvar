@@ -11,9 +11,12 @@ const {getTodaysEvents,
    getThisWeeksEvents, 
    getThisWeekendEvents,
     getNextWeekEvents} = require("./eventsDateFuncs")
+
+const PORT = process.env.WEBSOCKET_PORT || 8000;
+
     const WebSocket = require('ws');
 
-    const wss = new WebSocket.Server({ port: 8000 });
+    const wss = new WebSocket.Server({ port: PORT });
 
     const authorizedUsers = [];
     let singleEventId;
