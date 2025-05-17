@@ -5,28 +5,21 @@ const Notification = require("../models/notificationSchema")
 const sharp = require('sharp');
 const fs = require("fs");
 const Messages = require("../models/messagesSchema");
-
 const {getTodaysEvents,
    getTomorrowsEvents, 
    getThisWeeksEvents, 
    getThisWeekendEvents,
     getNextWeekEvents} = require("./eventsDateFuncs")
+  const WebSocket = require('ws');
 
-const PORT = process.env.WEBSOCKET_PORT || 8000;
 
-    const WebSocket = require('ws');
 
-    const wss = new WebSocket.Server({ port: PORT });
 
-    const authorizedUsers = [];
-    let singleEventId;
-    function createChatRoom(attendees, eventId) {
-      // Her katılımcı için WebSocket bağlantısını işleyin
-      authorizedUsers.push(...attendees);
-      singleEventId = eventId;
-    }
+ 
+function initWebSocket(server) {
+const wss = new WebSocket.Server({ server });
 
-    wss.on('connection', (ws, req) => {
+ wss.on('connection', (ws, req) => {
       const userId = req.url.split('?userId=')[1];
 
       // Kullanıcı kimliğini doğrulayın ve yetkili olup olmadığını kontrol edin
@@ -45,9 +38,10 @@ const PORT = process.env.WEBSOCKET_PORT || 8000;
 
         const parsedMessages = JSON.parse(message);
 
-
+            // Check for the individual event ID 
         const existingMessages = await Messages.findOne({ event: singleEventId });
 
+        // 
         if (existingMessages) {
           try {
             existingMessages.messages.push({
@@ -86,6 +80,23 @@ const PORT = process.env.WEBSOCKET_PORT || 8000;
         console.log('WebSocket bağlantısı kapatıldı.');
       };
     });
+
+    return wss;
+
+}
+// exports to App.js for getting the same PORT for render.com
+exports.initWebSocket = initWebSocket
+
+
+    const authorizedUsers = [];
+    let singleEventId;
+    function createChatRoom(attendees, eventId) {
+      // Her katılımcı için WebSocket bağlantısını işleyin
+      authorizedUsers.push(...attendees);
+      singleEventId = eventId;
+    }
+
+   
 
 
 function validateSearchTerm(term) {

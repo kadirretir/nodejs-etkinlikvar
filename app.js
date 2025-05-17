@@ -17,10 +17,17 @@ const cloneDocument = require("./models/cloneDocuments")
 const cors = require("cors")
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const http = require("http");
+const { initWebSocket } = require('./controllers/eventsControllers');
+  
 
+const server = http.createServer(app); // 🔑 ortak server
 
 
 const PORT = process.env.PORT || 3000;
+
+initWebSocket(server); // wss created here 
+
 app.use(cors())
 
 
@@ -307,4 +314,6 @@ app.use(function (req,res,next) {
 
   
 
-app.listen(PORT)
+server.listen(PORT, () => {
+  console.log(`server ${PORT} portunda çalışıyor!`)
+})
