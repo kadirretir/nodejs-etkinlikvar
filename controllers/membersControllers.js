@@ -21,7 +21,7 @@ module.exports.individual_member_get = async (req,res) => {
         const totalEventsCount = await Event.countDocuments({ organizer: findUser.id });
 
         // TIKLANILAN KULLANICIYI BACK-URL OLARAK LOGIN-POST'A GÖNDER
-        const backUrl  = `http://localhost:3000/members/${req.params.id}`
+        const backUrl  = `https://nodejs-etkinlikvar.onrender.com/members/${req.params.id}`
         if(req.user) {
             res.render("publicprofile.ejs", {findUser: findUser, events: events, hostedEvents: totalEventsCount})
         } else {
